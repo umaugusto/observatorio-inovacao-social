@@ -112,17 +112,32 @@ class AuthManager {
 
     // Verificar se a sessão ainda é válida
     isSessionValid(user) {
-        if (!user.loginTime) return false;
+        if (!user || !user.loginTime) {
+            console.log('🔍 Session invalid: no user or loginTime');
+            return false;
+        }
         
         const loginTime = new Date(user.loginTime);
         const now = new Date();
         const elapsed = now - loginTime;
         
+        console.log('🔍 Session check:', {
+            user: user.email,
+            remember: user.remember,
+            elapsed: Math.round(elapsed / 1000 / 60) + ' minutes',
+            timeout: Math.round(this.sessionTimeout / 1000 / 60) + ' minutes'
+        });
+        
         // Se "lembrar-me" estiver ativo, sessão não expira
-        if (user.remember) return true;
+        if (user.remember === true) {
+            console.log('✅ Session valid: remember=true');
+            return true;
+        }
         
         // Caso contrário, verificar se passou do timeout
-        return elapsed < this.sessionTimeout;
+        const isValid = elapsed < this.sessionTimeout;
+        console.log(isValid ? '✅ Session valid: within timeout' : '❌ Session expired');
+        return isValid;
     }
 
     // Setup do verificador de sessão
