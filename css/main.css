@@ -160,9 +160,9 @@ body {
     gap: 5px;
 }
 
+/* Remove plus icon prefix from header buttons */
 .btn-header::before {
-    content: '+';
-    font-weight: 700;
+    content: none;
 }
 
 .btn-header:hover {
