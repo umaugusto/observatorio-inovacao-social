@@ -5,11 +5,17 @@ class Auth0Client {
         this.config = {
             domain: 'dev-cvjwhtcjyx8zmows.us.auth0.com',
             clientID: 'pIcBfUTnGTh7Du1trOtnYKJU4pH5zMUW',
-            redirectUri: window.location.origin + '/pages/callback.html',
+            redirectUri: this.getRedirectUri(),
             responseType: 'token id_token',
             scope: 'openid profile email',
             audience: 'https://observatorioisrj.netlify.app/api'
         };
+        
+        console.log('🔧 Auth0Client initialized with config:', {
+            domain: this.config.domain,
+            clientID: this.config.clientID,
+            redirectUri: this.config.redirectUri
+        });
         this.init();
     }
 
@@ -20,12 +26,25 @@ class Auth0Client {
         return Auth0Client.instance;
     }
 
+    // Obter URI de redirect correto baseado no ambiente
+    getRedirectUri() {
+        const origin = window.location.origin;
+        const callbackPath = '/pages/callback.html';
+        const uri = origin + callbackPath;
+        
+        console.log('🔗 Redirect URI calculated:', uri);
+        return uri;
+    }
+
     init() {
+        console.log('🚀 Initializing Auth0Client...');
+        
         // Verificar se Auth0 SDK está disponível
         if (typeof window.auth0 !== 'undefined') {
             this.auth0 = new window.auth0.WebAuth(this.config);
+            console.log('✅ Auth0 SDK loaded from global scope');
         } else {
-            console.warn('Auth0 SDK não carregado. Carregando dinamicamente...');
+            console.warn('⚠️ Auth0 SDK não carregado. Carregando dinamicamente...');
             this.loadAuth0SDK();
         }
     }
@@ -45,14 +64,32 @@ class Auth0Client {
 
     // Login com provedor social
     async loginWithSocial(provider) {
-        if (!this.auth0) await this.loadAuth0SDK();
+        console.log(`🔐 Attempting social login with ${provider}`);
         
-        const connection = this.getConnectionName(provider);
-        
-        this.auth0.authorize({
-            connection: connection,
-            prompt: 'select_account'
-        });
+        try {
+            if (!this.auth0) {
+                console.log('⏳ Auth0 SDK not ready, loading...');
+                await this.loadAuth0SDK();
+            }
+            
+            const connection = this.getConnectionName(provider);
+            console.log(`🔗 Using connection: ${connection}`);
+            
+            const authParams = {
+                connection: connection,
+                prompt: 'select_account'
+            };
+            
+            console.log('📤 Auth0.authorize params:', authParams);
+            
+            this.auth0.authorize(authParams);
+            
+            console.log('✅ Auth0.authorize called successfully');
+            
+        } catch (error) {
+            console.error('❌ Error in loginWithSocial:', error);
+            throw error;
+        }
     }
 
     // Login com email/senha

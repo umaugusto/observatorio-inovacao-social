@@ -133,71 +133,108 @@
             }
 
             async init() {
+                console.log('🔄 Callback page initialized');
+                console.log('📍 Current URL:', window.location.href);
+                console.log('🔗 Hash:', window.location.hash);
+                console.log('🔗 Search:', window.location.search);
+                
                 try {
+                    console.log('⚡ Creating Auth0Client instance...');
                     this.auth0Client = Auth0Client.getInstance();
+                    
+                    console.log('🔍 Processing authentication...');
                     await this.processAuthentication();
                 } catch (error) {
-                    console.error('Callback initialization error:', error);
-                    this.showError('Erro ao inicializar sistema de autenticação');
+                    console.error('❌ Callback initialization error:', error);
+                    this.showError(`Erro ao inicializar sistema de autenticação: ${error.message}`);
                 }
             }
 
             async processAuthentication() {
                 try {
+                    console.log('🔐 Starting authentication process...');
+                    
                     // Processar hash do Auth0
+                    console.log('📥 Handling Auth0 authentication...');
                     const authResult = await this.auth0Client.handleAuthentication();
                     
+                    console.log('✅ Auth0 result received:', {
+                        hasAccessToken: !!authResult?.accessToken,
+                        hasIdToken: !!authResult?.idToken,
+                        hasPayload: !!authResult?.idTokenPayload
+                    });
+                    
                     if (authResult && authResult.idTokenPayload) {
-                        // Sincronizar usuário com Supabase
+                        console.log('👤 User payload:', authResult.idTokenPayload);
+                        
+                        // Sincronizar usuário with Supabase
+                        console.log('🔄 Syncing user with Supabase...');
                         const user = await this.syncUser(authResult.idTokenPayload);
                         
+                        console.log('✅ User synchronized:', user);
+                        
                         // Salvar dados do usuário
-                        localStorage.setItem('current_user', JSON.stringify({
+                        const userData = {
                             ...user,
                             auth0_data: authResult.idTokenPayload,
                             access_token: authResult.accessToken,
                             id_token: authResult.idToken
-                        }));
+                        };
+                        
+                        localStorage.setItem('current_user', JSON.stringify(userData));
+                        console.log('💾 User data saved to localStorage');
 
                         // Feedback visual
                         this.showSuccess();
                         
                         // Redirecionar baseado no papel do usuário
+                        const redirectUrl = user.is_admin ? 'admin.html' : '../index.html';
+                        console.log(`🔀 Redirecting to: ${redirectUrl}`);
+                        
                         setTimeout(() => {
-                            if (user.is_admin) {
-                                window.location.href = 'admin.html';
-                            } else {
-                                window.location.href = '../index.html';
-                            }
+                            window.location.href = redirectUrl;
                         }, 2000);
                     } else {
-                        throw new Error('Dados de autenticação inválidos');
+                        throw new Error('Dados de autenticação inválidos - authResult vazio ou sem payload');
                     }
                 } catch (error) {
-                    console.error('Authentication error:', error);
+                    console.error('❌ Authentication error:', error);
+                    console.error('Stack trace:', error.stack);
                     this.showError(error.message || 'Erro durante autenticação');
                 }
             }
 
             async syncUser(auth0User) {
                 try {
+                    console.log('📡 Syncing user with Supabase:', auth0User);
+                    
+                    const payload = { user: auth0User };
+                    console.log('📤 Request payload:', payload);
+                    
                     const response = await fetch('/.netlify/functions/user-sync', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
                         },
-                        body: JSON.stringify({ user: auth0User })
+                        body: JSON.stringify(payload)
                     });
 
+                    console.log('📨 Response status:', response.status);
+                    console.log('📨 Response ok:', response.ok);
+
                     if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
+                        const errorText = await response.text();
+                        console.error('❌ HTTP error response:', errorText);
+                        throw new Error(`HTTP error! status: ${response.status} - ${errorText}`);
                     }
 
                     const data = await response.json();
+                    console.log('✅ User sync response:', data);
+                    
                     return data.user;
                 } catch (error) {
-                    console.error('User sync error:', error);
-                    throw new Error('Erro ao sincronizar dados do usuário');
+                    console.error('❌ User sync error:', error);
+                    throw new Error(`Erro ao sincronizar dados do usuário: ${error.message}`);
                 }
             }
 
