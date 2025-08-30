@@ -160,7 +160,9 @@
                             ...user,
                             auth0_data: authResult.idTokenPayload,
                             access_token: authResult.accessToken,
-                            id_token: authResult.idToken
+                            id_token: authResult.idToken,
+                            loginTime: new Date().toISOString(),
+                            remember: true
                         };
                         
                         localStorage.setItem('current_user', JSON.stringify(userData));
