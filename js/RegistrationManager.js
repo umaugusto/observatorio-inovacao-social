@@ -392,6 +392,17 @@ class RegistrationManager {
             userData.email_verified = this.registrationData.socialData.email_verified;
         }
 
+        // Se for método email, criar credenciais no Auth0 (DB connection)
+        if (this.registrationData.method === 'email') {
+            try {
+                const metadata = { user_type: this.registrationData.userType };
+                await this.auth0Client.signup(userData.email, userData.password, metadata);
+                // Não temos verificação de email automática aqui; mantém email_verified false
+            } catch (e) {
+                throw new Error(e?.description || e?.message || 'Falha ao criar credenciais no Auth0');
+            }
+        }
+
         // Tentar criar conta via API
         const result = await this.callRegistrationAPI(userData);
         

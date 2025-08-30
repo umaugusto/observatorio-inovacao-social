@@ -153,7 +153,16 @@
                     
                     if (authResult && authResult.idTokenPayload) {
                         // Verificar se é fluxo de registro
-                        const isRegistrationFlow = sessionStorage.getItem('registration_flow') === 'true';
+                        let isRegistrationFlow = false;
+                        try {
+                            const rf = sessionStorage.getItem('registration_flow');
+                            if (rf) {
+                                const parsed = JSON.parse(rf);
+                                isRegistrationFlow = parsed && parsed.flow === 'registration';
+                            }
+                        } catch (_) {
+                            isRegistrationFlow = false;
+                        }
                         
                         if (isRegistrationFlow) {
                             // Salvar dados do Auth0 para o fluxo de registro

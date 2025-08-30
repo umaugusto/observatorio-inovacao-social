@@ -79,12 +79,27 @@ class Auth0Client {
             this.auth0.login({
                 realm: 'Username-Password-Authentication',
                 username: email,
-                password: password
+                password: password,
+                scope: this.config.scope,
+                responseType: this.config.responseType
             }, (err, result) => {
                 if (err) {
-                    reject(err);
-                } else {
+                    return reject(err);
+                }
+                try {
+                    // Quando tokens vierem na resposta, salvar sessão
+                    if (result && (result.idToken || result.id_token) && (result.accessToken || result.access_token)) {
+                        const authResult = {
+                            idToken: result.idToken || result.id_token,
+                            accessToken: result.accessToken || result.access_token,
+                            expiresIn: result.expiresIn || 3600,
+                            idTokenPayload: result.idTokenPayload || undefined
+                        };
+                        this.setSession(authResult);
+                    }
                     resolve(result);
+                } catch (e) {
+                    reject(e);
                 }
             });
         });

@@ -66,8 +66,9 @@ class AuthManager {
                 const isLocal = window.location.hostname === 'localhost' || 
                               window.location.hostname === '127.0.0.1' || 
                               window.location.port === '8080';
+                const forceFunctions = (localStorage.getItem('use_functions') || '').toLowerCase() === 'true';
                 
-                if (isLocal) {
+                if (isLocal && !forceFunctions) {
                     // Em desenvolvimento local, criar usuário mock
                     console.log('🏠 AuthManager: Ambiente local detectado, usando dados mock');
                     this.currentUser = {

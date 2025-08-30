@@ -329,6 +329,7 @@
                 <li><a href="../index.html">Início</a></li>
                 <li><a href="casos.html">Casos</a></li>
                 <li><a href="categorias.html">Categorias</a></li>
+                <li><a href="metodologia.html">Metodologia</a></li>
                 <li><a href="sobre.html">Sobre</a></li>
                 <li><a href="contato.html">Contato</a></li>
             </ul>
@@ -567,8 +568,16 @@
                         throw new Error('Sistema de autenticação não disponível');
                     }
                     
-                    // Use AuthManager for login
-                    const user = await this.authManager.login(email, password, remember);
+                    // Login via Auth0 (email/senha)
+                    if (typeof Auth0Client === 'undefined') {
+                        throw new Error('Auth0Client não disponível');
+                    }
+                    const auth0Client = Auth0Client.getInstance();
+                    await auth0Client.loginWithCredentials(email, password);
+                    if (this.authManager && this.authManager.loadUserFromAuth0) {
+                        await this.authManager.loadUserFromAuth0();
+                    }
+                    const user = this.authManager?.getCurrentUser?.();
                     
                     console.log('✅ Login successful:', user);
 
@@ -582,7 +591,7 @@
                         
                     // Redirect based on admin flag
                     setTimeout(() => {
-                        if (user.isAdmin) {
+                        if (user && (user.is_admin || user.isAdmin)) {
                             window.location.href = 'admin.html';
                         } else {
                             window.location.href = '../index.html';

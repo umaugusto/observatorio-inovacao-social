@@ -4,6 +4,8 @@
   "description": "Observatório de Inovação Social do Rio de Janeiro",
   "scripts": {
     "dev": "npx http-server -p 8080 -o",
+    "serve": "npx http-server -p 9898",
+    "dev:netlify": "npx netlify dev -p 9898",
     "build": "echo 'No build required for static site'",
     "netlify": "netlify dev"
   },

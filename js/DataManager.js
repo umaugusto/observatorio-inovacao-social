@@ -7,6 +7,11 @@ class DataManager {
         this.cacheExpiry = 5 * 60 * 1000; // 5 minutos
         this.lastCacheUpdate = null;
         this.useDatabase = this.isDatabaseAvailable();
+        try {
+            // Permitir forçar uso de Functions em ambiente local (Netlify Dev)
+            const force = (localStorage.getItem('use_functions') || '').toLowerCase() === 'true';
+            if (force) this.useDatabase = true;
+        } catch {}
         this.init();
     }
 

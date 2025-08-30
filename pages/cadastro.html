@@ -617,6 +617,7 @@
                 <li><a href="../index.html">Início</a></li>
                 <li><a href="casos.html">Casos</a></li>
                 <li><a href="categorias.html">Categorias</a></li>
+                <li><a href="metodologia.html">Metodologia</a></li>
                 <li><a href="sobre.html">Sobre</a></li>
                 <li><a href="contato.html">Contato</a></li>
             </ul>
@@ -1267,7 +1268,7 @@
                 return slugs[categoria] || 'social';
             }
 
-            submitForm() {
+            async submitForm() {
                 if (!this.validateStep(this.currentStep)) return;
 
                 const formData = new FormData(document.getElementById('cadastro-form'));
@@ -1297,13 +1298,30 @@
                 };
 
                 try {
-                    // Salvar usando DataManager
                     const user = this.authManager.getCurrentUser();
-                    caso.responsavelCadastro = `${user.name} - ${user.department}`;
-                    
-                    this.dataManager.addCaso(caso);
+                    caso.responsavelCadastro = `${user.name}${user.department ? ' - ' + user.department : ''}`;
 
-                    // Mostrar sucesso
+                    if (this.dataManager && this.dataManager.useDatabase) {
+                        // Produção: criar via Netlify Function (usa service key)
+                        const payload = { ...caso, user_id: user?.id || null };
+                        const res = await fetch('/.netlify/functions/casos-api', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ caso: payload })
+                        });
+                        if (!res.ok) {
+                            const txt = await res.text();
+                            throw new Error(txt || `HTTP ${res.status}`);
+                        }
+                        const data = await res.json();
+                        if (!data.success) {
+                            throw new Error(data.message || 'Falha ao salvar caso');
+                        }
+                    } else {
+                        // Desenvolvimento/local: salvar via DataManager (localStorage)
+                        this.dataManager.addCaso(caso);
+                    }
+
                     this.showSuccess();
                 } catch (error) {
                     console.error('Erro ao salvar caso:', error);
