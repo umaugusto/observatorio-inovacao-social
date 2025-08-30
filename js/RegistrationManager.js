@@ -105,33 +105,54 @@ class RegistrationManager {
 
     async handleGoogleSignup() {
         const btn = document.getElementById('google-signup');
+        if (!btn) {
+            console.error('Google signup button not found');
+            return;
+        }
+        
         const originalHTML = btn.innerHTML;
         
         try {
             btn.disabled = true;
+            btn.style.opacity = '0.7';
             btn.innerHTML = '⏳ Conectando com Google...';
+            
+            console.log('🚀 Iniciando Google signup');
             
             this.registrationData.method = 'google';
             
-            // Salvar estado do registro
+            // Save registration state
             sessionStorage.setItem('registration_flow', JSON.stringify({
                 flow: 'registration',
                 method: 'google'
             }));
             
-            // Iniciar Auth0 login
-            if (this.auth0Client) {
-                await this.auth0Client.login();
-            } else {
+            // Check if Auth0Client is available
+            if (!this.auth0Client) {
                 throw new Error('Auth0 não disponível');
             }
             
+            // Start Auth0 social login with Google
+            await this.auth0Client.loginWithSocial('google');
+            
+            // If we reach here without redirect, something went wrong
+            console.warn('⚠️ Google signup completed but no redirect happened');
+            
         } catch (error) {
-            console.error('Google signup failed:', error);
-            this.showNotification('Erro ao conectar com Google. Tente novamente.', 'error');
+            console.error('❌ Google signup failed:', error);
+            
+            let errorMsg = 'Erro ao conectar com Google.';
+            if (error.message && error.message.includes('Auth0')) {
+                errorMsg += ' Serviço de autenticação não está disponível.';
+            } else {
+                errorMsg += ' Verifique sua conexão e tente novamente.';
+            }
+            
+            this.showNotification(errorMsg, 'error');
             
             // Reset button
             btn.disabled = false;
+            btn.style.opacity = '1';
             btn.innerHTML = originalHTML;
         }
     }

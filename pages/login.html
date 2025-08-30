@@ -445,10 +445,22 @@
                 this.init();
             }
 
-            init() {
-                this.authManager = AuthManager.getInstance();
-                this.setupEventListeners();
-                this.checkExistingSession();
+            async init() {
+                try {
+                    // Wait for AuthManager to be available
+                    if (typeof AuthManager === 'undefined') {
+                        console.error('AuthManager não está disponível');
+                        return;
+                    }
+                    
+                    this.authManager = AuthManager.getInstance();
+                    this.setupEventListeners();
+                    this.checkExistingSession();
+                    
+                    console.log('✅ LoginPage initialized successfully');
+                } catch (error) {
+                    console.error('❌ Error initializing LoginPage:', error);
+                }
             }
 
             setupEventListeners() {
@@ -476,10 +488,11 @@
                     });
                 });
                 
-                // Social login buttons
-                document.getElementById('google-login').addEventListener('click', () => this.handleSocialLogin('google'));
-                document.getElementById('facebook-login').addEventListener('click', () => this.handleSocialLogin('facebook'));
-                document.getElementById('apple-login').addEventListener('click', () => this.handleSocialLogin('apple'));
+                // Social login buttons - only add listeners for existing buttons
+                const googleBtn = document.getElementById('google-login');
+                if (googleBtn) {
+                    googleBtn.addEventListener('click', () => this.handleSocialLogin('google'));
+                }
 
                 // Password toggle
                 document.getElementById('password-toggle-btn').addEventListener('click', () => this.togglePassword());
@@ -534,6 +547,8 @@
                 if (!emailValid || !passwordValid) {
                     if (window.app) {
                         window.app.showNotification('Por favor, corrija os erros no formulário', 'error');
+                    } else {
+                        alert('Por favor, corrija os erros no formulário');
                     }
                     return;
                 }
@@ -545,8 +560,17 @@
                 loginBtn.disabled = true;
 
                 try {
-                    // Usar AuthManager para login
+                    console.log('🔑 Tentando login com email/senha');
+                    
+                    // Check if AuthManager is available
+                    if (!this.authManager) {
+                        throw new Error('Sistema de autenticação não disponível');
+                    }
+                    
+                    // Use AuthManager for login
                     const user = await this.authManager.login(email, password, remember);
+                    
+                    console.log('✅ Login successful:', user);
 
                     // Show success state
                     loginBtn.textContent = '✓ Login realizado!';
@@ -566,16 +590,22 @@
                     }, 1500);
 
                 } catch (error) {
-                    console.error('Login failed:', error);
+                    console.error('❌ Login failed:', error);
                     
                     // Show error state
                     loginBtn.textContent = '✗ Erro no login';
                     loginBtn.style.background = '#e74c3c';
                     
+                    // More specific error messages
+                    let errorMessage = 'E-mail ou senha incorretos';
+                    if (error.message && error.message.includes('Sistema de autenticação')) {
+                        errorMessage = 'Sistema temporariamente indisponível. Tente novamente.';
+                    }
+                    
                     if (window.app) {
-                        window.app.showNotification('E-mail ou senha incorretos', 'error');
+                        window.app.showNotification(errorMessage, 'error');
                     } else {
-                        alert('E-mail ou senha incorretos');
+                        alert(errorMessage);
                     }
                     
                     // Reset button after error
@@ -666,27 +696,46 @@
             
             async handleSocialLogin(provider) {
                 const btn = document.getElementById(`${provider}-login`);
+                if (!btn) {
+                    console.error(`Button ${provider}-login not found`);
+                    return;
+                }
+                
                 const originalContent = btn.innerHTML;
                 
                 // Show loading state
                 btn.disabled = true;
+                btn.style.opacity = '0.7';
                 btn.innerHTML = '<span style="animation: spin 1s linear infinite; display: inline-block;">⏳</span> Conectando...';
                 
                 try {
                     console.log(`🚀 Tentando login social com ${provider}`);
                     
-                    // Tentar Auth0 real primeiro
+                    // Check if Auth0Client is available
+                    if (typeof Auth0Client === 'undefined') {
+                        throw new Error('Auth0Client não está disponível');
+                    }
+                    
+                    // Get Auth0 client instance
                     const auth0Client = Auth0Client.getInstance();
+                    
+                    // Attempt social login
                     await auth0Client.loginWithSocial(provider);
                     
-                    // O Auth0 vai redirecionar automaticamente se funcionar
-                    // Não chegamos aqui normalmente
+                    // If we reach here without redirect, something went wrong
+                    console.warn('⚠️ Social login completed but no redirect happened');
                     
                 } catch (error) {
                     console.error('❌ Social login failed:', error);
                     
-                    // Mostrar erro sem fallback mock
-                    const errorMsg = `Erro ao conectar com ${provider}. Verifique sua conexão e tente novamente.`;
+                    // Show user-friendly error message
+                    let errorMsg = `Erro ao conectar com ${provider.charAt(0).toUpperCase() + provider.slice(1)}.`;
+                    
+                    if (error.message && error.message.includes('Auth0Client')) {
+                        errorMsg += ' Serviço de autenticação não está disponível.';
+                    } else {
+                        errorMsg += ' Verifique sua conexão e tente novamente.';
+                    }
                     
                     if (window.app) {
                         window.app.showNotification(errorMsg, 'error');
@@ -696,6 +745,7 @@
                     
                     // Reset button
                     btn.disabled = false;
+                    btn.style.opacity = '1';
                     btn.innerHTML = originalContent;
                 }
             }
