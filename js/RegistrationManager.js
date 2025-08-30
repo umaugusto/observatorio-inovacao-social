@@ -4,7 +4,7 @@ class RegistrationManager {
         this.currentStep = 1;
         this.totalSteps = 4;
         this.registrationData = {
-            method: null,          // 'social' ou 'email'
+            method: 'email',       // 'social' ou 'email' (padrão: email)
             email: null,
             userType: null,        // 'visitante', 'extensionista', 'pesquisador'
             institutionalEmail: null,
@@ -438,3 +438,4 @@ class RegistrationManager {
 document.addEventListener('DOMContentLoaded', () => {
     window.registrationManager = new RegistrationManager();
 });
+
