@@ -43,3 +43,9 @@
   for = "/data/*"
   [headers.values]
     Cache-Control = "public, max-age=3600"
+
+[[headers]]
+  for = "/images/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000"
+    Content-Type = "image/*"

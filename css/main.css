@@ -235,7 +235,7 @@ body {
 .hero {
     background: 
         linear-gradient(135deg, rgba(45, 122, 95, 0.85) 0%, rgba(30, 86, 66, 0.9) 100%),
-        url('../images/rio-guanabara-hero.jpg') center/cover;
+        url('/images/rio-guanabara-hero.jpg') center/cover;
     padding: 160px 0 100px 0;
     text-align: center;
     color: white;
