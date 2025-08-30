@@ -20,15 +20,31 @@ class RegistrationManager {
     async init() {
         console.log('🔐 New RegistrationManager iniciado');
         
-        // Inicializar Auth0 e AuthManager
-        this.auth0Client = Auth0Client?.getInstance();
+        // Verificar se usuário já está logado
         this.authManager = AuthManager?.getInstance();
+        if (this.authManager && this.authManager.isAuthenticated()) {
+            // Se já está logado, redirecionar para home
+            window.location.href = '../index.html';
+            return;
+        }
+        
+        // Limpar dados de fluxos anteriores
+        this.clearPreviousFlowData();
+        
+        // Inicializar Auth0
+        this.auth0Client = Auth0Client?.getInstance();
         
         // Setup event listeners
         this.setupEventListeners();
         
         // Verificar se veio do Auth0 callback
         this.checkSocialReturn();
+    }
+
+    clearPreviousFlowData() {
+        // Limpar dados de fluxos anteriores para evitar conflitos
+        sessionStorage.removeItem('registration_flow');
+        console.log('🧹 Dados de fluxo anterior limpos');
     }
 
     setupEventListeners() {

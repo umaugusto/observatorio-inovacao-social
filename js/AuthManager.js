@@ -266,6 +266,9 @@ class AuthManager {
         localStorage.removeItem('rememberLogin');
         localStorage.removeItem('socialLogin');
         
+        // Limpar dados de fluxo de registro
+        sessionStorage.removeItem('registration_flow');
+        
         // Se temos Auth0 real, fazer logout lá também
         if (this.auth0Client && this.auth0Client.isAuthenticated && this.auth0Client.isAuthenticated()) {
             this.auth0Client.logout(window.location.origin);
