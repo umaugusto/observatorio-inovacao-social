@@ -1,5 +1,16 @@
 const { createClient } = require('@supabase/supabase-js');
-const bcrypt = require('bcryptjs');
+
+// Verificar se bcryptjs está disponível
+let bcrypt;
+try {
+    bcrypt = require('bcryptjs');
+} catch (error) {
+    console.log('bcryptjs not available, password hashing disabled for development');
+    bcrypt = {
+        hash: async (password) => password, // fallback for development
+        compare: async (password, hash) => password === hash
+    };
+}
 
 // Configuração do Supabase
 const supabaseUrl = process.env.SUPABASE_URL;

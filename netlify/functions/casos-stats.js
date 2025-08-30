@@ -3,7 +3,15 @@ const { createClient } = require('@supabase/supabase-js');
 // Configuração do Supabase
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_SERVICE_KEY;
-const supabase = createClient(supabaseUrl, supabaseKey);
+
+// Verificar se variáveis de ambiente estão configuradas
+if (!supabaseUrl || !supabaseKey) {
+  console.error('Missing Supabase environment variables');
+}
+
+const supabase = supabaseUrl && supabaseKey ? 
+  createClient(supabaseUrl, supabaseKey) : 
+  null;
 
 exports.handler = async (event, context) => {
     const headers = {
