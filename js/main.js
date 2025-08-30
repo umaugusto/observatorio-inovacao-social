@@ -175,7 +175,7 @@ class ObservatorioApp {
                     </div>
                     <p class="case-description">${this.escapeHtml(caso.descricaoResumo)}</p>
                     <div class="case-actions">
-                        <a href="pages/caso.html?id=${caso.id}" class="btn-outline btn-small">Ver Detalhes</a>
+                        <a href="./pages/caso.html?id=${caso.id}" class="btn-outline btn-small">Ver Detalhes</a>
                         <button class="btn-ghost btn-small share-caso-btn" data-caso-id="${caso.id}" aria-label="Compartilhar caso ${this.escapeHtml(caso.titulo)}">↗️ Compartilhar</button>
                     </div>
                 </div>
@@ -777,7 +777,7 @@ class ObservatorioApp {
         console.log('Casos filtrados para destaque:', casos.length);
         
         bentoGrid.innerHTML = casos.map((caso, index) => `
-            <div class="bento-card ${index === 0 ? 'featured' : ''}" onclick="location.href='pages/caso.html?id=${caso.id}'">
+            <div class="bento-card ${index === 0 ? 'featured' : ''}" onclick="location.href='./pages/caso.html?id=${caso.id}'">
                 <div class="bento-category-tag">${caso.categoria}</div>
                 ${this.renderCaseImage(caso)}
                 <div class="bento-card-content">
@@ -1000,7 +1000,7 @@ class ObservatorioApp {
                     </div>
                     <p class="case-description">${this.escapeHtml(caso.descricaoResumo)}</p>
                     <div class="case-actions">
-                        <a href="pages/caso.html?id=${caso.id}" class="btn-outline btn-small">Ver Detalhes</a>
+                        <a href="./pages/caso.html?id=${caso.id}" class="btn-outline btn-small">Ver Detalhes</a>
                         <button class="btn-ghost btn-small" onclick="app.shareCaso(${caso.id})">↗️ Compartilhar</button>
                     </div>
                 </div>

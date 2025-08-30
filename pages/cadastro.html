@@ -357,6 +357,159 @@
             box-shadow: var(--shadow-md);
         }
 
+        /* Image Input Styles */
+        .image-input-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .btn-search-unsplash {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition);
+            align-self: flex-start;
+        }
+
+        .btn-search-unsplash:hover {
+            background: #2563eb;
+            transform: translateY(-1px);
+        }
+
+        .image-preview {
+            display: none;
+            max-width: 300px;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            border: 2px solid var(--border-light);
+            background: var(--background-light);
+        }
+
+        .image-preview img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .image-preview-info {
+            padding: 10px;
+            font-size: 12px;
+            color: var(--text-light);
+            border-top: 1px solid var(--border-light);
+        }
+
+        /* Unsplash Modal Styles */
+        .unsplash-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        .unsplash-modal-content {
+            background: white;
+            margin: 50px auto;
+            padding: 30px;
+            border-radius: var(--border-radius-lg);
+            max-width: 900px;
+            width: 90%;
+            position: relative;
+        }
+
+        .unsplash-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .unsplash-modal-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .unsplash-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--text-light);
+            padding: 5px;
+        }
+
+        .unsplash-search-container {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .unsplash-search-input {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid var(--border-light);
+            border-radius: var(--border-radius);
+            font-size: 16px;
+        }
+
+        .unsplash-search-btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .unsplash-results {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .unsplash-image {
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            cursor: pointer;
+            transition: var(--transition);
+            border: 2px solid transparent;
+        }
+
+        .unsplash-image:hover {
+            transform: scale(1.02);
+            border-color: var(--primary-color);
+        }
+
+        .unsplash-image img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .unsplash-image-info {
+            padding: 10px;
+            background: var(--background-light);
+            font-size: 12px;
+            color: var(--text-light);
+        }
+
         .btn-next:disabled {
             background: var(--border-light);
             color: var(--text-light);
@@ -636,6 +789,19 @@
                                     <input type="url" id="site" name="site" class="form-input" 
                                            placeholder="https://www.projeto.org.br">
                                     <div class="form-help">Link para site oficial ou rede social principal</div>
+                                </div>
+
+                                <div class="form-group form-group-full">
+                                    <label class="form-label" for="imagemUrl">Imagem de Destaque</label>
+                                    <div class="image-input-container">
+                                        <input type="url" id="imagemUrl" name="imagemUrl" class="form-input" 
+                                               placeholder="URL da imagem (https://...)">
+                                        <button type="button" class="btn-search-unsplash" onclick="openUnsplashModal()">
+                                            🔍 Buscar no Unsplash
+                                        </button>
+                                        <div class="image-preview" id="imagePreview"></div>
+                                    </div>
+                                    <div class="form-help">Cole a URL de uma imagem ou busque no Unsplash</div>
                                 </div>
 
                                 <div class="form-group form-group-full">
@@ -1119,6 +1285,7 @@
                     dataInicio: formData.get('dataInicio'),
                     contato: formData.get('contato'),
                     site: formData.get('site'),
+                    imagemUrl: formData.get('imagemUrl') || '',
                     metodologia: formData.get('metodologia'),
                     desafios: formData.get('desafios'),
                     responsavelCadastro: formData.get('responsavelCadastro'),
@@ -1178,6 +1345,124 @@
         document.addEventListener('DOMContentLoaded', () => {
             window.cadastroForm = new CadastroForm();
         });
+
+        // Unsplash Modal Functions
+        function openUnsplashModal() {
+            document.getElementById('unsplashModal').style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeUnsplashModal() {
+            document.getElementById('unsplashModal').style.display = 'none';
+            document.body.style.overflow = 'auto';
+            document.getElementById('unsplashResults').innerHTML = '';
+        }
+
+        function searchUnsplash() {
+            const query = document.getElementById('unsplashSearchInput').value.trim();
+            if (!query) return;
+
+            const resultsContainer = document.getElementById('unsplashResults');
+            resultsContainer.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--text-light);">🔍 Buscando imagens...</div>';
+
+            // Simulação de busca com imagens padrão
+            const mockResults = [
+                {
+                    url: "https://images.pexels.com/photos/1301856/pexels-photo-1301856.jpeg?auto=compress&cs=tinysrgb&w=600&h=400&fit=crop",
+                    thumb: "https://images.pexels.com/photos/1301856/pexels-photo-1301856.jpeg?auto=compress&cs=tinysrgb&w=250&h=180&fit=crop",
+                    description: "Horta urbana comunitária"
+                },
+                {
+                    url: "https://images.pexels.com/photos/256541/pexels-photo-256541.jpeg?auto=compress&cs=tinysrgb&w=600&h=400&fit=crop",
+                    thumb: "https://images.pexels.com/photos/256541/pexels-photo-256541.jpeg?auto=compress&cs=tinysrgb&w=250&h=180&fit=crop",
+                    description: "Biblioteca e educação"
+                },
+                {
+                    url: "https://images.pexels.com/photos/339620/pexels-photo-339620.jpeg?auto=compress&cs=tinysrgb&w=600&h=400&fit=crop",
+                    thumb: "https://images.pexels.com/photos/339620/pexels-photo-339620.jpeg?auto=compress&cs=tinysrgb&w=250&h=180&fit=crop",
+                    description: "Cuidados com idosos"
+                },
+                {
+                    url: "https://images.pexels.com/photos/1111318/pexels-photo-1111318.jpeg?auto=compress&cs=tinysrgb&w=600&h=400&fit=crop",
+                    thumb: "https://images.pexels.com/photos/1111318/pexels-photo-1111318.jpeg?auto=compress&cs=tinysrgb&w=250&h=180&fit=crop",
+                    description: "Arte e criatividade"
+                },
+                {
+                    url: "https://images.pexels.com/photos/574071/pexels-photo-574071.jpeg?auto=compress&cs=tinysrgb&w=600&h=400&fit=crop",
+                    thumb: "https://images.pexels.com/photos/574071/pexels-photo-574071.jpeg?auto=compress&cs=tinysrgb&w=250&h=180&fit=crop",
+                    description: "Tecnologia e computação"
+                },
+                {
+                    url: "https://images.pexels.com/photos/2662116/pexels-photo-2662116.jpeg?auto=compress&cs=tinysrgb&w=600&h=400&fit=crop",
+                    thumb: "https://images.pexels.com/photos/2662116/pexels-photo-2662116.jpeg?auto=compress&cs=tinysrgb&w=250&h=180&fit=crop",
+                    description: "Trabalho em grupo"
+                }
+            ];
+
+            setTimeout(() => {
+                const html = mockResults.map(image => `
+                    <div class="unsplash-image" onclick="selectUnsplashImage('${image.url}', '${image.description}')">
+                        <img src="${image.thumb}" alt="${image.description}" loading="lazy">
+                        <div class="unsplash-image-info">${image.description}</div>
+                    </div>
+                `).join('');
+
+                resultsContainer.innerHTML = html;
+            }, 1000);
+        }
+
+        function selectUnsplashImage(imageUrl, description) {
+            document.getElementById('imagemUrl').value = imageUrl;
+            previewImage(imageUrl);
+            closeUnsplashModal();
+        }
+
+        function previewImage(url) {
+            const preview = document.getElementById('imagePreview');
+            const imageInput = document.getElementById('imagemUrl');
+            
+            if (url || imageInput.value) {
+                const imgUrl = url || imageInput.value;
+                preview.innerHTML = `
+                    <img src="${imgUrl}" alt="Prévia da imagem" onerror="this.parentElement.style.display='none'">
+                    <div class="image-preview-info">Imagem selecionada</div>
+                `;
+                preview.style.display = 'block';
+            } else {
+                preview.style.display = 'none';
+            }
+        }
+
+        // Adicionar event listener para preview automático
+        document.addEventListener('DOMContentLoaded', () => {
+            const imageInput = document.getElementById('imagemUrl');
+            if (imageInput) {
+                imageInput.addEventListener('input', () => previewImage());
+                imageInput.addEventListener('paste', () => setTimeout(() => previewImage(), 100));
+            }
+        });
     </script>
+
+    <!-- Unsplash Modal -->
+    <div id="unsplashModal" class="unsplash-modal">
+        <div class="unsplash-modal-content">
+            <div class="unsplash-modal-header">
+                <h3 class="unsplash-modal-title">Buscar Imagens</h3>
+                <button class="unsplash-close" onclick="closeUnsplashModal()">&times;</button>
+            </div>
+            
+            <div class="unsplash-search-container">
+                <input type="text" id="unsplashSearchInput" class="unsplash-search-input" 
+                       placeholder="Digite palavras-chave (ex: educação, jardim, tecnologia...)">
+                <button class="unsplash-search-btn" onclick="searchUnsplash()">Buscar</button>
+            </div>
+            
+            <div id="unsplashResults" class="unsplash-results">
+                <div style="text-align: center; padding: 40px; color: var(--text-light);">
+                    Digite uma palavra-chave e clique em "Buscar" para encontrar imagens
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

@@ -395,7 +395,7 @@ class RioMap {
                 </div>
                 <p class="popup-description">${this.truncateText(this.escapeHtml(caso.descricaoResumo), 120)}</p>
                 <div class="popup-actions">
-                    <a href="pages/caso.html?id=${caso.id}" class="popup-btn popup-btn-primary">Ver Detalhes</a>
+                    <a href="./pages/caso.html?id=${caso.id}" class="popup-btn popup-btn-primary">Ver Detalhes</a>
                     <button class="popup-btn popup-btn-secondary" data-share-id="${caso.id}">
                         Compartilhar
                     </button>
