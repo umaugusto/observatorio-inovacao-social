@@ -104,6 +104,8 @@ class RegistrationManager {
         }
 
         this.registrationData.email = email;
+        const btn1 = document.getElementById('btn-next-1');
+        if (btn1) btn1.disabled = !this.isValidEmail(email);
     }
 
     selectUserType(type) {
@@ -179,7 +181,9 @@ class RegistrationManager {
                     return;
                 }
                 this.registrationData.email = email;
-            }
+        const btn1 = document.getElementById('btn-next-1');
+        if (btn1) btn1.disabled = !this.isValidEmail(email);
+    }
         }
 
         if (this.currentStep === 3 && !this.registrationData.userType) {
@@ -445,5 +449,6 @@ class RegistrationManager {
 document.addEventListener('DOMContentLoaded', () => {
     window.registrationManager = new RegistrationManager();
 });
+
 
 
