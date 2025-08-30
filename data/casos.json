@@ -25,6 +25,7 @@
     "metodologia": "Agricultura urbana participativa utilizando técnicas de permacultura, compostagem de resíduos orgânicos locais e sistema de captação de água da chuva. O projeto emprega metodologia de educação popular, onde os próprios moradores se tornam multiplicadores do conhecimento adquirido.",
     "desafios": "Acesso limitado à água durante períodos de seca, necessidade constante de formação técnica para novos participantes, dificuldades de comercialização dos produtos e sustentabilidade financeira do projeto a longo prazo.",
     "tags": ["agricultura urbana", "sustentabilidade", "geração de renda", "segurança alimentar", "educação ambiental", "permacultura"],
+    "imagemUrl": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='400' viewBox='0 0 600 400'%3E%3Crect width='600' height='400' fill='%23e5f3f0'/%3E%3Ctext x='300' y='200' text-anchor='middle' fill='%23059669' font-family='Arial' font-size='24'%3EHorta Comunitária%3C/text%3E%3C/svg%3E",
     "fotos": [],
     "aprovado": true
   },
@@ -54,6 +55,7 @@
     "metodologia": "Educação itinerante com foco na democratização do acesso ao conhecimento, utilizando pedagogia freireana e metodologias participativas de animação cultural. O projeto segue um cronograma fixo de visitação, permitindo que as comunidades se organizem para receber as atividades.",
     "desafios": "Manutenção constante do veículo, necessidade de expansão do acervo, formação de novos leitores em comunidades com baixo letramento, sustentabilidade financeira e dependência de combustível.",
     "tags": ["educação", "literatura", "inclusão digital", "democratização cultural", "biblioteca itinerante"],
+    "imagemUrl": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='400' viewBox='0 0 600 400'%3E%3Crect width='600' height='400' fill='%23eff6ff'/%3E%3Ctext x='300' y='200' text-anchor='middle' fill='%231d4ed8' font-family='Arial' font-size='24'%3EBiblioteca Móvel%3C/text%3E%3C/svg%3E",
     "fotos": [],
     "aprovado": true
   },
@@ -83,6 +85,7 @@
     "metodologia": "Plataforma digital integrada com programa de capacitação presencial e acompanhamento psicossocial. Utiliza metodologia de educação continuada em saúde e técnicas de cuidado humanizado.",
     "desafios": "Regulamentação profissional da categoria, expansão para outras regiões, sustentabilidade financeira e necessidade de maior apoio público para políticas de cuidado ao idoso.",
     "tags": ["terceira idade", "cuidados", "tecnologia social", "qualificação profissional", "saúde"],
+    "imagemUrl": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='400' viewBox='0 0 600 400'%3E%3Crect width='600' height='400' fill='%23fef2f2'/%3E%3Ctext x='300' y='200' text-anchor='middle' fill='%23dc2626' font-family='Arial' font-size='20'%3ECuidadores 3ª Idade%3C/text%3E%3C/svg%3E",
     "fotos": [],
     "aprovado": true
   },
@@ -112,6 +115,7 @@
     "metodologia": "Arte-terapia e pedagogia inclusiva, com adaptações metodológicas específicas para cada tipo de deficiência. Trabalho interdisciplinar envolvendo arte-educadores, terapeutas ocupacionais e psicólogos.",
     "desafios": "Falta de recursos para materiais artísticos, necessidade de transporte adaptado para os participantes, formação contínua de instrutores e espaço físico limitado.",
     "tags": ["inclusão social", "arte-terapia", "pessoas com deficiência", "geração de renda", "autonomia"],
+    "imagemUrl": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='400' viewBox='0 0 600 400'%3E%3Crect width='600' height='400' fill='%23f0f9ff'/%3E%3Ctext x='300' y='200' text-anchor='middle' fill='%2306b6d4' font-family='Arial' font-size='22'%3EOficinas de Arte%3C/text%3E%3C/svg%3E",
     "fotos": [],
     "aprovado": true
   },
@@ -141,6 +145,7 @@
     "metodologia": "Metodologia de aprendizagem baseada em projetos, com mentoria de profissionais da área de tecnologia e parcerias com empresas para estágios e contratações.",
     "desafios": "Manutenção de equipamentos, conexão instável de internet, rotatividade de mentores voluntários e necessidade de expandir o espaço físico.",
     "tags": ["tecnologia social", "inclusão digital", "juventude", "programação", "empreendedorismo"],
+    "imagemUrl": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='400' viewBox='0 0 600 400'%3E%3Crect width='600' height='400' fill='%23fefce8'/%3E%3Ctext x='300' y='200' text-anchor='middle' fill='%23a16207' font-family='Arial' font-size='18'%3ELab Tecnologia Comunitária%3C/text%3E%3C/svg%3E",
     "fotos": [],
     "aprovado": true
   },
@@ -170,6 +175,7 @@
     "metodologia": "Economia solidária com gestão democrática e participativa. Utiliza princípios do cooperativismo e técnicas de produção colaborativa com foco na sustentabilidade ambiental.",
     "desafios": "Acesso a crédito para aquisição de equipamentos, competição com produtos industrializados, necessidade de aprimoramento em vendas online e logística de distribuição.",
     "tags": ["economia solidária", "cooperativismo", "geração de renda", "mulheres", "moda sustentável"],
+    "imagemUrl": "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=80",
     "fotos": [],
     "aprovado": true
   },
@@ -198,6 +204,7 @@
     "metodologia": "Aprendizagem maker com foco em projetos práticos e colaborativos.",
     "desafios": "Alto custo de manutenção dos equipamentos, sustentabilidade financeira.",
     "tags": ["fab lab", "tecnologia", "empreendedorismo", "capacitação", "inovação"],
+    "imagemUrl": "https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?w=600&q=80",
     "fotos": [],
     "aprovado": true
   }
