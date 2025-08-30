@@ -246,17 +246,6 @@ body {
     background-position: center;
 }
 
-.hero::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(135deg, rgba(45, 122, 95, 0.85) 0%, rgba(30, 86, 66, 0.9) 100%);
-    pointer-events: none;
-    z-index: 1;
-}
 
 @keyframes float {
     0%, 100% { transform: translateY(0px); }
