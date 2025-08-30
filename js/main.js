@@ -1,6 +1,10 @@
 // Observatório de Inovação Social - JavaScript Principal
 class ObservatorioApp {
     constructor() {
+        if (ObservatorioApp.instance) {
+            return ObservatorioApp.instance;
+        }
+        
         this.dataManager = null;
         this.authManager = null;
         this.observers = new Set();
@@ -8,6 +12,15 @@ class ObservatorioApp {
         this.setupEventListeners();
         this.setupScrollEffects();
         this.setupMobileMenu();
+        
+        ObservatorioApp.instance = this;
+    }
+
+    static getInstance() {
+        if (!ObservatorioApp.instance) {
+            ObservatorioApp.instance = new ObservatorioApp();
+        }
+        return ObservatorioApp.instance;
     }
 
     async init() {
@@ -78,11 +91,13 @@ class ObservatorioApp {
         switch (event) {
             case 'userLoggedIn':
                 console.log('Usuário logado:', data.name);
+                this.updateHeaderForAuth(); // Atualizar header quando usuário faz login
                 break;
             case 'userLoggedOut':
                 if (data.showNotification) {
                     this.showNotification(data.message, 'success');
                 }
+                this.updateHeaderForAuth(); // Atualizar header quando usuário faz logout
                 break;
         }
     }
