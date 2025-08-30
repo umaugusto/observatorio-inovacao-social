@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Designário - Observatório de Inovação Social | Rio de Janeiro</title>
+    <meta name="description" content="Descubra e cadastre iniciativas de inovação social que transformam o Rio de Janeiro. Projeto de extensão da UFRJ.">
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg'>🏙️</svg>">
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+     integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+     crossorigin=""/>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <nav class="nav container">
+            <a href="#" class="logo">
+                <span class="logo-main">Designário</span>
+                <span class="logo-subtitle">OBSERVATÓRIO DE INOVAÇÃO SOCIAL</span>
+            </a>
+            
+            <ul class="nav-links">
+                <li><a href="#" class="active">Início</a></li>
+                <li><a href="pages/casos.html">Casos</a></li>
+                <li><a href="pages/categorias.html">Categorias</a></li>
+                <li><a href="pages/sobre.html">Sobre</a></li>
+                <li><a href="pages/contato.html">Contato</a></li>
+            </ul>
+
+            <div class="nav-actions">
+                <a href="pages/login.html" class="login-required">Entrar</a>
+                <a href="pages/contato.html" class="btn-secondary-header">Solicitar Acesso</a>
+                <a href="pages/cadastro.html" class="btn-header auth-required" style="display: none;">Cadastrar Caso</a>
+            </div>
+
+            <button class="mobile-menu-btn" aria-label="Menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <h1>Inovação que transforma<br>o Rio de Janeiro</h1>
+                <p>Descubra, cadastre e compartilhe iniciativas que estão criando impacto social positivo em todas as regiões da cidade</p>
+                <div class="hero-buttons">
+                    <a href="pages/casos.html" class="btn-primary">Explorar Casos</a>
+                    <a href="pages/cadastro.html" class="btn-secondary auth-required" style="display: none;">Cadastrar Projeto</a>
+                    <a href="pages/login.html" class="btn-secondary login-required">Fazer Login</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Featured Cases Section -->
+    <section class="featured-cases-section">
+        <div class="container">
+            <div class="featured-header">
+                <span class="featured-badge">🚀 Inovação em Destaque</span>
+                <h2 class="section-title">Inovações Sociais que Inspiram</h2>
+                <p class="section-subtitle">Conheça soluções criativas e tecnologias sociais que estão transformando o Rio de Janeiro</p>
+            </div>
+            
+            <div class="featured-cases-bento">
+                <div class="bento-grid" id="featuredCasesBento">
+                    <!-- Os casos em destaque serão carregados dinamicamente no grid bento -->
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Categories Section -->
+    <section class="categories-section" id="categorias">
+        <div class="container">
+            <h2 class="section-title">Áreas de Inovação Social</h2>
+            <div class="categories-grid">
+                <div class="category-card education" data-animate data-category="Educação" style="cursor: pointer; transition: transform 0.3s ease;" title="Clique para ver casos de Educação">
+                    <div class="category-icon">📚</div>
+                    <h3>Educação</h3>
+                    <p>Projetos que democratizam o acesso ao conhecimento e transformam a experiência educacional</p>
+                    <span class="category-count">23 casos</span>
+                </div>
+
+                <div class="category-card health" data-animate data-category="Saúde" style="cursor: pointer; transition: transform 0.3s ease;" title="Clique para ver casos de Saúde">
+                    <div class="category-icon">🏥</div>
+                    <h3>Saúde</h3>
+                    <p>Iniciativas que promovem bem-estar, prevenção e acesso universal aos cuidados de saúde</p>
+                    <span class="category-count">18 casos</span>
+                </div>
+
+                <div class="category-card environment" data-animate data-category="Meio Ambiente" style="cursor: pointer; transition: transform 0.3s ease;" title="Clique para ver casos de Meio Ambiente">
+                    <div class="category-icon">🌱</div>
+                    <h3>Meio Ambiente</h3>
+                    <p>Soluções sustentáveis para preservação ambiental e desenvolvimento verde</p>
+                    <span class="category-count">31 casos</span>
+                </div>
+
+                <div class="category-card social" data-animate data-category="Inclusão Social" style="cursor: pointer; transition: transform 0.3s ease;" title="Clique para ver casos de Inclusão Social">
+                    <div class="category-icon">🤝</div>
+                    <h3>Inclusão Social</h3>
+                    <p>Projetos que promovem equidade, diversidade e oportunidades para todos</p>
+                    <span class="category-count">27 casos</span>
+                </div>
+
+                <div class="category-card technology" data-animate data-category="Tecnologia Social" style="cursor: pointer; transition: transform 0.3s ease;" title="Clique para ver casos de Tecnologia Social">
+                    <div class="category-icon">💡</div>
+                    <h3>Tecnologia Social</h3>
+                    <p>Inovações tecnológicas aplicadas para resolver problemas sociais complexos</p>
+                    <span class="category-count">15 casos</span>
+                </div>
+
+                <div class="category-card economy" data-animate data-category="Economia Solidária" style="cursor: pointer; transition: transform 0.3s ease;" title="Clique para ver casos de Economia Solidária">
+                    <div class="category-icon">💰</div>
+                    <h3>Economia Solidária</h3>
+                    <p>Alternativas econômicas que valorizam pessoas e sustentabilidade</p>
+                    <span class="category-count">19 casos</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- Stats Section - Modern Design -->
+    <section class="stats-section-modern">
+        <div class="container">
+            <div class="stats-header">
+                <span class="stats-badge">📊 Impacto Real</span>
+                <h2 class="section-title">Transformando o Rio em Números</h2>
+                <p class="section-subtitle">Métricas que demonstram o poder da inovação social colaborativa</p>
+            </div>
+            
+            <div class="stats-showcase">
+                <!-- Hero Stat -->
+                <div class="stat-hero" data-animate>
+                    <div class="stat-hero-number" data-stat="beneficiarios">0</div>
+                    <div class="stat-hero-label">Vidas Impactadas</div>
+                    <div class="stat-hero-visual">
+                        <div class="pulse-ring"></div>
+                        <div class="pulse-ring"></div>
+                        <div class="pulse-ring"></div>
+                    </div>
+                </div>
+                
+                <!-- Stats Grid Modern -->
+                <div class="stats-grid-modern">
+                    <div class="stat-modern" data-animate>
+                        <div class="stat-modern-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                                <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                            </svg>
+                        </div>
+                        <div class="stat-modern-content">
+                            <div class="stat-modern-number" data-stat="casos">0</div>
+                            <div class="stat-modern-label">Projetos Ativos</div>
+                            <div class="stat-modern-trend">+23% este mês</div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-modern" data-animate>
+                        <div class="stat-modern-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <polyline points="12 6 12 12 16 14"></polyline>
+                            </svg>
+                        </div>
+                        <div class="stat-modern-content">
+                            <div class="stat-modern-number" data-stat="regioes">0</div>
+                            <div class="stat-modern-label">Regiões Alcançadas</div>
+                            <div class="stat-modern-trend">100% cobertura</div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-modern" data-animate>
+                        <div class="stat-modern-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="9" cy="7" r="4"></circle>
+                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                            </svg>
+                        </div>
+                        <div class="stat-modern-content">
+                            <div class="stat-modern-number" data-stat="organizacoes">0</div>
+                            <div class="stat-modern-label">Organizações Parceiras</div>
+                            <div class="stat-modern-trend">Rede colaborativa</div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-modern" data-animate>
+                        <div class="stat-modern-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="12" y1="1" x2="12" y2="23"></line>
+                                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                            </svg>
+                        </div>
+                        <div class="stat-modern-content">
+                            <div class="stat-modern-number">R$ 2.5M</div>
+                            <div class="stat-modern-label">Investimento Social</div>
+                            <div class="stat-modern-trend">Mobilizados</div>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+    </section>
+
+    <!-- Map Section -->
+    <section class="map-section" id="mapa">
+        <div class="container">
+            <h2 class="section-title">Mapa dos Casos no Rio de Janeiro</h2>
+            <p class="section-subtitle">Explore geograficamente as iniciativas de inovação social mapeadas em toda a região metropolitana</p>
+            
+            <div class="map-container">
+                <div id="rio-map" style="height: 500px; border-radius: var(--border-radius-lg); overflow: hidden; box-shadow: var(--shadow-lg);"></div>
+            </div>
+            
+            <div class="map-legend">
+                <h4>Legenda:</h4>
+                <div class="legend-items">
+                    <div class="legend-item">
+                        <span class="legend-marker education"></span>
+                        <span>Educação</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-marker health"></span>
+                        <span>Saúde</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-marker environment"></span>
+                        <span>Meio Ambiente</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-marker social"></span>
+                        <span>Inclusão Social</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-marker technology"></span>
+                        <span>Tecnologia Social</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-marker economy"></span>
+                        <span>Economia Solidária</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Methodology Section -->
+    <section class="methodology-section-horizontal">
+        <div class="container">
+            <div class="methodology-header">
+                <span class="methodology-badge">🔬 Metodologia</span>
+                <h2 class="section-title">Como Trabalhamos</h2>
+                <p class="section-subtitle">Processo integrado de mapeamento e amplificação de inovação social</p>
+            </div>
+            
+            <div class="methodology-timeline-horizontal">
+                <div class="timeline-progress">
+                    <div class="progress-line" id="progressLine"></div>
+                </div>
+                
+                <div class="methodology-steps-horizontal">
+                    <div class="methodology-step-horizontal" data-step="1">
+                        <div class="step-marker">
+                            <div class="step-number">1</div>
+                            <div class="step-icon">🔍</div>
+                        </div>
+                        <div class="step-content">
+                            <h3>Identificação</h3>
+                            <p>Mapeamento territorial participativo através de extensionistas em campo</p>
+                            <ul class="step-highlights">
+                                <li>Territórios mapeados</li>
+                                <li>Escuta da comunidade</li>
+                                <li>Práticas identificadas</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="methodology-step-horizontal" data-step="2">
+                        <div class="step-marker">
+                            <div class="step-number">2</div>
+                            <div class="step-icon">📝</div>
+                        </div>
+                        <div class="step-content">
+                            <h3>Documentação</h3>
+                            <p>Registro detalhado de metodologias, impactos e aprendizados</p>
+                            <ul class="step-highlights">
+                                <li>Entrevistas profundas</li>
+                                <li>Análise de indicadores</li>
+                                <li>Relatórios técnicos</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="methodology-step-horizontal" data-step="3">
+                        <div class="step-marker">
+                            <div class="step-number">3</div>
+                            <div class="step-icon">🌐</div>
+                        </div>
+                        <div class="step-content">
+                            <h3>Amplificação</h3>
+                            <p>Divulgação estratégica e conexão entre iniciativas</p>
+                            <ul class="step-highlights">
+                                <li>Plataforma digital</li>
+                                <li>Redes colaborativas</li>
+                                <li>Replicação de práticas</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="methodology-step-horizontal" data-step="4">
+                        <div class="step-marker">
+                            <div class="step-number">4</div>
+                            <div class="step-icon">🔄</div>
+                        </div>
+                        <div class="step-content">
+                            <h3>Retroalimentação</h3>
+                            <p>Monitoramento contínuo e melhoria baseada em feedback</p>
+                            <ul class="step-highlights">
+                                <li>Acompanhamento de resultados</li>
+                                <li>Feedback contínuo</li>
+                                <li>Melhorias constantes</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section cta-with-background" id="participar">
+        <div class="container">
+            <div class="cta-content">
+                <div class="cta-header">
+                    <span class="cta-badge">🚀 Junte-se ao movimento</span>
+                    <h2>Faça Parte da Transformação</h2>
+                    <p>Sua iniciativa ou conhecimento sobre inovação social pode fazer a diferença. Descubra como contribuir para amplificar o impacto positivo no Rio de Janeiro.</p>
+                </div>
+                
+                <div class="cta-options">
+                    <div class="cta-card">
+                        <div class="cta-card-icon">📝</div>
+                        <h3>Cadastrar Iniciativa</h3>
+                        <p>Conhece uma organização ou projeto inovador? Cadastre no nosso observatório.</p>
+                        <div class="cta-benefits">
+                            <span>✓ Amplificação gratuita</span>
+                            <span>✓ Conexão com rede de parceiros</span>
+                            <span>✓ Visibilidade acadêmica</span>
+                        </div>
+                        <a href="pages/cadastro.html" class="btn-primary cta-btn">Cadastrar Caso</a>
+                    </div>
+                    
+                    <div class="cta-card">
+                        <div class="cta-card-icon">🎓</div>
+                        <h3>Ser Extensionista</h3>
+                        <p>Participe como estudante extensionista e contribua diretamente no mapeamento.</p>
+                        <div class="cta-benefits">
+                            <span>✓ Experiência prática</span>
+                            <span>✓ Certificado de extensão</span>
+                            <span>✓ Impacto social direto</span>
+                        </div>
+                        <a href="pages/contato.html" class="btn-secondary cta-btn">Solicitar Acesso</a>
+                    </div>
+                    
+                    <div class="cta-card">
+                        <div class="cta-card-icon">🤝</div>
+                        <h3>Ser Parceiro</h3>
+                        <p>Organizações e empresas interessadas em apoiar o observatório.</p>
+                        <div class="cta-benefits">
+                            <span>✓ Responsabilidade social</span>
+                            <span>✓ Networking qualificado</span>
+                            <span>✓ Dados e insights</span>
+                        </div>
+                        <a href="pages/contato.html" class="btn-outline cta-btn">Quero ser Parceiro</a>
+                    </div>
+                </div>
+                
+                <div class="cta-footer">
+                    <div class="cta-contact">
+                        <h4>Tem dúvidas? Fale conosco!</h4>
+                        <div class="contact-options">
+                            <a href="mailto:observatorio@ufrj.br" class="contact-link">
+                                <span class="contact-icon">📧</span>
+                                observatorio@ufrj.br
+                            </a>
+                            <a href="tel:+5521999999999" class="contact-link">
+                                <span class="contact-icon">📱</span>
+                                (21) 99999-9999
+                            </a>
+                            <a href="https://wa.me/5521999999999" class="contact-link" target="_blank">
+                                <span class="contact-icon">💬</span>
+                                WhatsApp
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>Observatório</h4>
+                    <ul>
+                        <li><a href="pages/sobre.html">Sobre o Projeto</a></li>
+                        <li><a href="pages/metodologia.html">Metodologia</a></li>
+                        <li><a href="pages/equipe.html">Nossa Equipe</a></li>
+                        <li><a href="pages/parceiros.html">Parceiros</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Casos</h4>
+                    <ul>
+                        <li><a href="#casos">Explorar Casos</a></li>
+                        <li><a href="#categorias">Por Categoria</a></li>
+                        <li><a href="pages/mapa.html">Mapa Interativo</a></li>
+                        <li><a href="pages/relatorios.html">Relatórios</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Participação</h4>
+                    <ul>
+                        <li><a href="pages/cadastro.html">Cadastrar Caso</a></li>
+                        <li><a href="pages/extensao.html">Programa de Extensão</a></li>
+                        <li><a href="pages/voluntario.html">Seja Voluntário</a></li>
+                        <li><a href="pages/newsletter.html">Newsletter</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>UFRJ</h4>
+                    <ul>
+                        <li><a href="https://ufrj.br" target="_blank" rel="noopener">Site Oficial</a></li>
+                        <li><a href="https://extensao.ufrj.br" target="_blank" rel="noopener">Extensão UFRJ</a></li>
+                        <li><a href="pages/pesquisa.html">Pesquisa</a></li>
+                        <li><a href="pages/contato.html">Contato</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 Designário - Observatório de Inovação Social do Rio de Janeiro. Todos os direitos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <!-- Leaflet JavaScript -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+     crossorigin=""></script>
+    <!-- Leaflet MarkerCluster -->
+    <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
+    <script src="js/DataManager.js"></script>
+    <script src="js/AuthManager.js"></script>
+    <script src="js/map.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>

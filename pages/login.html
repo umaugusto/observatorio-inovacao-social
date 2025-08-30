@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | Observatório Social RJ</title>
+    <meta name="description" content="Acesse sua conta do Observatório de Inovação Social do Rio de Janeiro.">
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet" href="../css/components.css">
+    <style>
+        .login-hero {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 100px 0;
+            margin-top: 70px;
+            text-align: center;
+            min-height: calc(100vh - 70px);
+            display: flex;
+            align-items: center;
+        }
+
+        .login-container {
+            max-width: 450px;
+            margin: 0 auto;
+            background: white;
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
+        }
+
+        .login-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+        }
+
+        .login-header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .login-header p {
+            opacity: 0.9;
+            font-size: 16px;
+        }
+
+        .login-body {
+            padding: 40px 30px;
+        }
+
+        .login-form {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        .form-group {
+            position: relative;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 8px;
+            font-size: 15px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 16px;
+            border: 2px solid var(--border-light);
+            border-radius: var(--border-radius);
+            font-size: 15px;
+            transition: var(--transition);
+            background: white;
+            font-family: inherit;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(45, 122, 95, 0.1);
+        }
+
+        .form-input.error {
+            border-color: #e74c3c;
+            box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.1);
+        }
+
+        .error-message {
+            color: #e74c3c;
+            font-size: 13px;
+            margin-top: 6px;
+            display: none;
+        }
+
+        .form-input.error + .error-message {
+            display: block;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--text-light);
+            cursor: pointer;
+            font-size: 16px;
+            padding: 5px;
+            margin-top: -8px;
+        }
+
+        .password-toggle:hover {
+            color: var(--text-dark);
+        }
+
+        .form-options {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+        }
+
+        .remember-me {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .remember-me input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+        }
+
+        .forgot-password {
+            color: var(--primary-color);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .forgot-password:hover {
+            text-decoration: underline;
+        }
+
+        .btn-login {
+            background: var(--primary-color);
+            color: white;
+            padding: 16px;
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-login:hover:not(:disabled) {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-login:disabled {
+            background: var(--border-light);
+            color: var(--text-light);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn-login.loading {
+            position: relative;
+        }
+
+        .btn-login.loading::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 20px;
+            height: 20px;
+            margin: -10px 0 0 -10px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top: 2px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .btn-login.loading {
+            color: transparent;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .login-footer {
+            background: var(--background-light);
+            padding: 25px 30px;
+            text-align: center;
+            border-top: 1px solid var(--border-light);
+        }
+
+        .login-footer p {
+            color: var(--text-light);
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+
+        .btn-register {
+            background: white;
+            color: var(--primary-color);
+            padding: 12px 24px;
+            border: 2px solid var(--primary-color);
+            border-radius: var(--border-radius);
+            text-decoration: none;
+            font-weight: 600;
+            transition: var(--transition);
+            display: inline-block;
+        }
+
+        .btn-register:hover {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .demo-credentials {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: var(--border-radius);
+            padding: 15px;
+            margin-bottom: 25px;
+            font-size: 14px;
+        }
+
+        .demo-credentials h4 {
+            color: #856404;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .demo-credentials p {
+            color: #856404;
+            margin-bottom: 8px;
+        }
+
+        .demo-credentials button {
+            background: none;
+            border: none;
+            color: var(--primary-color);
+            text-decoration: underline;
+            cursor: pointer;
+            font-size: 13px;
+            padding: 2px 4px;
+        }
+
+        @media (max-width: 768px) {
+            .login-hero {
+                padding: 60px 20px;
+            }
+
+            .login-container {
+                margin: 0 15px;
+            }
+
+            .login-header,
+            .login-body,
+            .login-footer {
+                padding: 30px 20px;
+            }
+
+            .form-options {
+                flex-direction: column;
+                gap: 10px;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <nav class="nav container">
+            <a href="../index.html" class="logo">
+                <span class="logo-main">Designário</span>
+                <span class="logo-subtitle">OBSERVATÓRIO DE INOVAÇÃO SOCIAL</span>
+            </a>
+            
+            <ul class="nav-links">
+                <li><a href="../index.html">Início</a></li>
+                <li><a href="casos.html">Casos</a></li>
+                <li><a href="categorias.html">Categorias</a></li>
+                <li><a href="sobre.html">Sobre</a></li>
+                <li><a href="contato.html">Contato</a></li>
+            </ul>
+
+            <div class="nav-actions">
+                <a href="login.html" class="login-required">Entrar</a>
+                <a href="cadastro.html" class="btn-header">Cadastrar Caso</a>
+            </div>
+
+            <button class="mobile-menu-btn" aria-label="Menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </nav>
+    </header>
+
+    <!-- Login Section -->
+    <section class="login-hero">
+        <div class="container">
+            <div class="login-container">
+                <!-- Header -->
+                <div class="login-header">
+                    <h1>Bem-vindo de volta!</h1>
+                    <p>Acesse sua conta para gerenciar casos de inovação social</p>
+                </div>
+
+                <!-- Body -->
+                <div class="login-body">
+                    <!-- Demo Credentials -->
+                    <div class="demo-credentials">
+                        <h4>🔧 Para demonstração:</h4>
+                        <p><strong>Extensionista:</strong> aluno@ufrj.br / 123456</p>
+                        <p><strong>Admin:</strong> admin@ufrj.br / admin123</p>
+                        <button id="demo-aluno-btn">Preencher dados de Aluno</button> |
+                        <button id="demo-admin-btn">Preencher dados de Admin</button>
+                    </div>
+
+                    <form class="login-form" id="login-form">
+                        <div class="form-group">
+                            <label class="form-label" for="email">E-mail</label>
+                            <input type="email" id="email" name="email" class="form-input" 
+                                   placeholder="seu.email@ufrj.br" required>
+                            <div class="error-message">Por favor, insira um e-mail válido</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="password">Senha</label>
+                            <div style="position: relative;">
+                                <input type="password" id="password" name="password" class="form-input" 
+                                       placeholder="Sua senha" required>
+                                <button type="button" class="password-toggle" id="password-toggle-btn">👁️</button>
+                            </div>
+                            <div class="error-message">A senha deve ter pelo menos 6 caracteres</div>
+                        </div>
+
+                        <div class="form-options">
+                            <label class="remember-me">
+                                <input type="checkbox" name="remember" id="remember">
+                                <span>Lembrar de mim</span>
+                            </label>
+                            <a href="#" class="forgot-password" id="forgot-password-link">Esqueceu a senha?</a>
+                        </div>
+
+                        <button type="submit" class="btn-login" id="login-btn">
+                            Entrar
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Footer -->
+                <div class="login-footer">
+                    <p>Ainda não tem acesso ao sistema?</p>
+                    <a href="contato.html" class="btn-register">Solicitar Conta</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Scripts -->
+    <script src="../js/DataManager.js"></script>
+    <script src="../js/AuthManager.js"></script>
+    <script src="../js/main.js"></script>
+    <script>
+        class LoginPage {
+            constructor() {
+                this.authManager = null;
+                this.init();
+            }
+
+            init() {
+                this.authManager = AuthManager.getInstance();
+                this.setupEventListeners();
+                this.checkExistingSession();
+            }
+
+            setupEventListeners() {
+                const form = document.getElementById('login-form');
+                const emailInput = document.getElementById('email');
+                const passwordInput = document.getElementById('password');
+
+                form.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.handleLogin();
+                });
+
+                // Real-time validation
+                emailInput.addEventListener('blur', () => this.validateEmail());
+                passwordInput.addEventListener('blur', () => this.validatePassword());
+                emailInput.addEventListener('input', () => this.clearError('email'));
+                passwordInput.addEventListener('input', () => this.clearError('password'));
+
+                // Demo buttons
+                document.getElementById('demo-aluno-btn').addEventListener('click', () => this.fillDemo('aluno'));
+                document.getElementById('demo-admin-btn').addEventListener('click', () => this.fillDemo('admin'));
+
+                // Password toggle
+                document.getElementById('password-toggle-btn').addEventListener('click', () => this.togglePassword());
+
+                // Forgot password
+                document.getElementById('forgot-password-link').addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.showForgotPassword();
+                });
+            }
+
+            validateEmail() {
+                const email = document.getElementById('email');
+                const isValid = email.value && email.checkValidity();
+                
+                if (!isValid) {
+                    email.classList.add('error');
+                    return false;
+                } else {
+                    email.classList.remove('error');
+                    return true;
+                }
+            }
+
+            validatePassword() {
+                const password = document.getElementById('password');
+                const isValid = password.value.length >= 6;
+                
+                if (!isValid) {
+                    password.classList.add('error');
+                    return false;
+                } else {
+                    password.classList.remove('error');
+                    return true;
+                }
+            }
+
+            clearError(fieldName) {
+                document.getElementById(fieldName).classList.remove('error');
+            }
+
+            async handleLogin() {
+                const email = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
+                const remember = document.getElementById('remember').checked;
+                const loginBtn = document.getElementById('login-btn');
+
+                // Validate form
+                const emailValid = this.validateEmail();
+                const passwordValid = this.validatePassword();
+                
+                if (!emailValid || !passwordValid) {
+                    if (window.app) {
+                        window.app.showNotification('Por favor, corrija os erros no formulário', 'error');
+                    }
+                    return;
+                }
+
+                // Show loading state
+                const originalText = loginBtn.textContent;
+                loginBtn.textContent = 'Entrando...';
+                loginBtn.classList.add('loading');
+                loginBtn.disabled = true;
+
+                try {
+                    // Usar AuthManager para login
+                    const user = await this.authManager.login(email, password, remember);
+
+                    // Show success state
+                    loginBtn.textContent = '✓ Login realizado!';
+                    loginBtn.style.background = '#27ae60';
+                    
+                    if (window.app) {
+                        window.app.showNotification(`Bem-vindo, ${user.name}!`, 'success');
+                    }
+                        
+                    // Redirect based on user type
+                    setTimeout(() => {
+                        if (user.role === 'admin') {
+                            window.location.href = 'admin.html';
+                        } else {
+                            window.location.href = '../index.html';
+                        }
+                    }, 1500);
+
+                } catch (error) {
+                    console.error('Login failed:', error);
+                    
+                    // Show error state
+                    loginBtn.textContent = '✗ Erro no login';
+                    loginBtn.style.background = '#e74c3c';
+                    
+                    if (window.app) {
+                        window.app.showNotification('E-mail ou senha incorretos', 'error');
+                    } else {
+                        alert('E-mail ou senha incorretos');
+                    }
+                    
+                    // Reset button after error
+                    setTimeout(() => {
+                        loginBtn.textContent = originalText;
+                        loginBtn.style.background = '';
+                        loginBtn.classList.remove('loading');
+                        loginBtn.disabled = false;
+                    }, 2000);
+                }
+            }
+
+
+            checkExistingSession() {
+                if (this.authManager.isAuthenticated()) {
+                    const user = this.authManager.getCurrentUser();
+                    if (user.role === 'admin') {
+                        window.location.href = 'admin.html';
+                    } else {
+                        window.location.href = '../index.html';
+                    }
+                }
+            }
+
+            fillDemo(userType) {
+                const emailInput = document.getElementById('email');
+                const passwordInput = document.getElementById('password');
+                
+                if (userType === 'aluno') {
+                    emailInput.value = 'aluno@ufrj.br';
+                    passwordInput.value = '123456';
+                } else if (userType === 'admin') {
+                    emailInput.value = 'admin@ufrj.br';
+                    passwordInput.value = 'admin123';
+                }
+                
+                // Clear any existing errors
+                emailInput.classList.remove('error');
+                passwordInput.classList.remove('error');
+            }
+
+            togglePassword() {
+                const passwordInput = document.getElementById('password');
+                const toggleBtn = document.getElementById('password-toggle-btn');
+                
+                if (passwordInput.type === 'password') {
+                    passwordInput.type = 'text';
+                    toggleBtn.textContent = '🙈';
+                } else {
+                    passwordInput.type = 'password';
+                    toggleBtn.textContent = '👁️';
+                }
+            }
+
+            showForgotPassword() {
+                if (window.app) {
+                    window.app.showNotification('Entre em contato com a coordenação do projeto para recuperar sua senha', 'info');
+                } else {
+                    alert('Entre em contato com a coordenação do projeto para recuperar sua senha');
+                }
+            }
+        }
+
+
+        // Initialize when DOM is ready
+        document.addEventListener('DOMContentLoaded', () => {
+            window.loginPage = new LoginPage();
+        });
+    </script>
+</body>
+</html>

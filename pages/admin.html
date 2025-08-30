@@ -1,0 +1,1331 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Admin | Observatório Social RJ</title>
+    <meta name="description" content="Dashboard administrativo do Observatório de Inovação Social.">
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet" href="../css/components.css">
+    <style>
+        .admin-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 40px 0 30px 0;
+            margin-top: 70px;
+        }
+
+        .admin-title {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .admin-subtitle {
+            opacity: 0.9;
+            font-size: 16px;
+        }
+
+        .admin-content {
+            padding: 40px 0 80px 0;
+            background: var(--background-light);
+        }
+
+        .admin-nav {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+
+        .admin-nav-btn {
+            padding: 12px 24px;
+            background: white;
+            border: 2px solid var(--border-light);
+            border-radius: var(--border-radius);
+            color: var(--text-light);
+            text-decoration: none;
+            font-weight: 600;
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .admin-nav-btn.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .admin-nav-btn:hover:not(.active) {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+        
+        .user-dropdown button:hover {
+            background: var(--background-light);
+        }
+        
+        .user-dropdown a:hover {
+            background: var(--background-light);
+        }
+
+        .admin-section {
+            display: none;
+        }
+
+        .admin-section.active {
+            display: block;
+        }
+
+        .stats-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 30px;
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-light);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+        }
+
+        .stat-icon {
+            font-size: 32px;
+            margin-bottom: 15px;
+        }
+
+        .stat-number {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: var(--text-light);
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .admin-card {
+            background: white;
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-light);
+            overflow: hidden;
+            margin-bottom: 30px;
+        }
+
+        .admin-card-header {
+            background: var(--background-light);
+            padding: 20px 30px;
+            border-bottom: 1px solid var(--border-light);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .admin-card-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .admin-card-body {
+            padding: 30px;
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        .admin-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .admin-table th,
+        .admin-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .admin-table th {
+            background: var(--background-light);
+            font-weight: 600;
+            color: var(--text-dark);
+            white-space: nowrap;
+        }
+
+        .admin-table td {
+            color: var(--text-light);
+        }
+
+        .status-badge {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-pending {
+            background: #fff3e0;
+            color: #ef6c00;
+        }
+
+        .status-approved {
+            background: #e8f5e8;
+            color: #2e7d32;
+        }
+
+        .status-rejected {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-action {
+            padding: 6px 12px;
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn-approve {
+            background: #e8f5e8;
+            color: #2e7d32;
+        }
+
+        .btn-approve:hover {
+            background: #2e7d32;
+            color: white;
+        }
+
+        .btn-reject {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .btn-reject:hover {
+            background: #c62828;
+            color: white;
+        }
+
+        .btn-edit {
+            background: #e3f2fd;
+            color: #1565c0;
+        }
+
+        .btn-edit:hover {
+            background: #1565c0;
+            color: white;
+        }
+
+        .btn-delete {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .btn-delete:hover {
+            background: #c62828;
+            color: white;
+        }
+
+        .search-bar {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            align-items: center;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 2px solid var(--border-light);
+            border-radius: var(--border-radius);
+            font-size: 14px;
+        }
+
+        .search-input:focus {
+            border-color: var(--primary-color);
+            outline: none;
+        }
+
+        .filter-select {
+            padding: 12px 16px;
+            border: 2px solid var(--border-light);
+            border-radius: var(--border-radius);
+            font-size: 14px;
+            min-width: 150px;
+        }
+
+        .bulk-actions {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            align-items: center;
+        }
+
+        .bulk-select {
+            padding: 8px 12px;
+            border: 2px solid var(--border-light);
+            border-radius: var(--border-radius);
+            font-size: 14px;
+        }
+
+        .btn-bulk {
+            padding: 8px 16px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .btn-bulk:hover {
+            background: var(--primary-dark);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-light);
+        }
+
+        .empty-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        @media (max-width: 768px) {
+            .admin-nav {
+                overflow-x: auto;
+                padding-bottom: 10px;
+            }
+
+            .admin-nav-btn {
+                white-space: nowrap;
+                font-size: 12px;
+                padding: 10px 16px;
+            }
+
+            .stats-overview {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            }
+
+            .search-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .bulk-actions {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .admin-header > .container > div {
+                flex-direction: column !important;
+                gap: 20px;
+                text-align: center;
+            }
+            
+            #profile-section .admin-card-body > div {
+                grid-template-columns: 1fr !important;
+                gap: 20px !important;
+            }
+            
+            #profile-form > div:first-child,
+            #profile-form > div:last-of-type {
+                grid-template-columns: 1fr !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <nav class="nav container">
+            <a href="../index.html" class="logo">
+                <span class="logo-main">Designário</span>
+                <span class="logo-subtitle">OBSERVATÓRIO DE INOVAÇÃO SOCIAL</span>
+            </a>
+            
+            <ul class="nav-links">
+                <li><a href="../index.html">Início</a></li>
+                <li><a href="casos.html">Casos</a></li>
+                <li><a href="categorias.html">Categorias</a></li>
+                <li><a href="sobre.html">Sobre</a></li>
+                <li><a href="contato.html">Contato</a></li>
+            </ul>
+
+            <div class="nav-actions">
+                <div class="user-dropdown" style="position: relative; display: inline-block;">
+                    <button id="user-menu-btn" style="background: none; border: none; color: var(--text-light); cursor: pointer; display: flex; align-items: center; gap: 8px; padding: 8px;">
+                        <span id="admin-user-name"></span>
+                        <span>▼</span>
+                    </button>
+                    <div id="user-dropdown-menu" style="display: none; position: absolute; right: 0; top: 100%; background: white; border: 1px solid var(--border-light); border-radius: var(--border-radius); box-shadow: var(--shadow-md); min-width: 180px; z-index: 1000;">
+                        <a href="#" id="profile-btn" style="display: block; padding: 12px 16px; color: var(--text-dark); text-decoration: none; border-bottom: 1px solid var(--border-light);">👤 Meu Perfil</a>
+                        <a href="#" id="admin-logout-btn" style="display: block; padding: 12px 16px; color: var(--text-dark); text-decoration: none;">🚪 Sair</a>
+                    </div>
+                </div>
+            </div>
+
+            <button class="mobile-menu-btn" aria-label="Menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </nav>
+    </header>
+
+    <!-- Admin Header -->
+    <section class="admin-header">
+        <div class="container">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <h1 class="admin-title">Dashboard Administrativo</h1>
+                    <p class="admin-subtitle" id="current-section-subtitle">Gerencie casos, usuários e configurações do sistema</p>
+                </div>
+                <div style="background: rgba(255,255,255,0.2); padding: 12px 20px; border-radius: var(--border-radius); backdrop-filter: blur(10px);">
+                    <span style="font-size: 14px; opacity: 0.9;">Seção atual:</span>
+                    <span id="current-section-name" style="font-weight: 700; margin-left: 8px; font-size: 16px;">Visão Geral</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Admin Content -->
+    <section class="admin-content">
+        <div class="container">
+            <!-- Navigation -->
+            <div class="admin-nav">
+                <button class="admin-nav-btn active" data-tab="overview" data-title="Visão Geral" data-subtitle="Estatísticas e atividades recentes do sistema">📊 Visão Geral</button>
+                <button class="admin-nav-btn" data-tab="cases" data-title="Casos" data-subtitle="Gerencie e aprove casos de inovação social">📋 Casos</button>
+                <button class="admin-nav-btn" data-tab="requests" data-title="Solicitações" data-subtitle="Aprove ou rejeite solicitações de acesso">📬 Solicitações</button>
+                <button class="admin-nav-btn" data-tab="users" data-title="Usuários" data-subtitle="Administre contas de usuários do sistema">👥 Usuários</button>
+                <button class="admin-nav-btn" data-tab="profile" data-title="Perfil" data-subtitle="Edite suas informações pessoais">👤 Perfil</button>
+            </div>
+
+            <!-- Overview Section -->
+            <div class="admin-section active" id="overview-section">
+                <div class="stats-overview">
+                    <div class="stat-card">
+                        <div class="stat-icon">📊</div>
+                        <div class="stat-number" id="total-cases">0</div>
+                        <div class="stat-label">Total de Casos</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">⏳</div>
+                        <div class="stat-number" id="pending-cases">0</div>
+                        <div class="stat-label">Casos Pendentes</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">👥</div>
+                        <div class="stat-number" id="total-users">3</div>
+                        <div class="stat-label">Usuários Ativos</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">📬</div>
+                        <div class="stat-number" id="pending-requests">0</div>
+                        <div class="stat-label">Solicitações Pendentes</div>
+                    </div>
+                </div>
+
+                <div class="admin-card">
+                    <div class="admin-card-header">
+                        <h3 class="admin-card-title">Atividade Recente</h3>
+                    </div>
+                    <div class="admin-card-body">
+                        <div id="recent-activity">
+                            <!-- Preenchido via JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cases Section -->
+            <div class="admin-section" id="cases-section">
+                <div class="admin-card">
+                    <div class="admin-card-header">
+                        <h3 class="admin-card-title">Gerenciar Casos</h3>
+                    </div>
+                    <div class="admin-card-body">
+                        <div class="search-bar">
+                            <input type="text" class="search-input" placeholder="Buscar casos..." id="cases-search">
+                            <select class="filter-select" id="cases-filter">
+                                <option value="">Todos os Status</option>
+                                <option value="pending">Pendentes</option>
+                                <option value="approved">Aprovados</option>
+                                <option value="rejected">Rejeitados</option>
+                            </select>
+                        </div>
+
+                        <div class="bulk-actions">
+                            <select class="bulk-select" id="bulk-action">
+                                <option value="">Ações em massa</option>
+                                <option value="approve">Aprovar selecionados</option>
+                                <option value="reject">Rejeitar selecionados</option>
+                                <option value="delete">Excluir selecionados</option>
+                            </select>
+                            <button class="btn-bulk" onclick="executeBulkAction()">Executar</button>
+                        </div>
+
+                        <div class="table-container">
+                            <table class="admin-table" id="cases-table">
+                                <thead>
+                                    <tr>
+                                        <th><input type="checkbox" id="select-all-cases"></th>
+                                        <th>Título</th>
+                                        <th>Categoria</th>
+                                        <th>Região</th>
+                                        <th>Status</th>
+                                        <th>Data</th>
+                                        <th>Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="cases-tbody">
+                                    <!-- Preenchido via JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Requests Section -->
+            <div class="admin-section" id="requests-section">
+                <div class="admin-card">
+                    <div class="admin-card-header">
+                        <h3 class="admin-card-title">Solicitações de Acesso</h3>
+                    </div>
+                    <div class="admin-card-body">
+                        <div class="table-container">
+                            <table class="admin-table" id="requests-table">
+                                <thead>
+                                    <tr>
+                                        <th>Nome</th>
+                                        <th>E-mail</th>
+                                        <th>Tipo</th>
+                                        <th>Status</th>
+                                        <th>Data</th>
+                                        <th>Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="requests-tbody">
+                                    <!-- Preenchido via JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Users Section -->
+            <div class="admin-section" id="users-section">
+                <div class="admin-card">
+                    <div class="admin-card-header">
+                        <h3 class="admin-card-title">Gerenciar Usuários</h3>
+                        <button class="btn-primary" id="add-user-btn">Cadastrar Usuário</button>
+                    </div>
+                    <div class="admin-card-body">
+                        <div class="table-container">
+                            <table class="admin-table" id="users-table">
+                                <thead>
+                                    <tr>
+                                        <th>Nome</th>
+                                        <th>E-mail</th>
+                                        <th>Função</th>
+                                        <th>Status</th>
+                                        <th>Último Login</th>
+                                        <th>Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="users-tbody">
+                                    <!-- Preenchido via JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile Section -->
+            <div class="admin-section" id="profile-section">
+                <div class="admin-card">
+                    <div class="admin-card-header">
+                        <h3 class="admin-card-title">Meu Perfil</h3>
+                    </div>
+                    <div class="admin-card-body">
+                        <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 40px; align-items: start;">
+                            <!-- Profile Info -->
+                            <div style="text-align: center; padding: 20px; background: var(--background-light); border-radius: var(--border-radius-lg);">
+                                <div style="width: 100px; height: 100px; background: var(--primary-color); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 36px; color: white; margin: 0 auto 20px;">
+                                    👤
+                                </div>
+                                <h3 id="profile-name" style="margin-bottom: 8px; color: var(--text-dark);"></h3>
+                                <p id="profile-role" style="color: var(--text-light); font-size: 14px; margin-bottom: 15px;"></p>
+                                <p style="color: var(--text-light); font-size: 12px;">Membro desde <span id="profile-since"></span></p>
+                            </div>
+                            
+                            <!-- Profile Form -->
+                            <div>
+                                <form id="profile-form">
+                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                                        <div>
+                                            <label style="display: block; font-weight: 600; margin-bottom: 8px; color: var(--text-dark);">Nome Completo</label>
+                                            <input type="text" id="profile-fullname" style="width: 100%; padding: 12px; border: 2px solid var(--border-light); border-radius: var(--border-radius); font-size: 14px;">
+                                        </div>
+                                        <div>
+                                            <label style="display: block; font-weight: 600; margin-bottom: 8px; color: var(--text-dark);">E-mail</label>
+                                            <input type="email" id="profile-email" disabled style="width: 100%; padding: 12px; border: 2px solid var(--border-light); border-radius: var(--border-radius); font-size: 14px; background: var(--background-light); color: var(--text-light);">
+                                        </div>
+                                    </div>
+                                    
+                                    <div style="margin-bottom: 20px;">
+                                        <label style="display: block; font-weight: 600; margin-bottom: 8px; color: var(--text-dark);">Telefone</label>
+                                        <input type="tel" id="profile-phone" style="width: 100%; padding: 12px; border: 2px solid var(--border-light); border-radius: var(--border-radius); font-size: 14px;">
+                                    </div>
+                                    
+                                    <div style="margin-bottom: 20px;">
+                                        <label style="display: block; font-weight: 600; margin-bottom: 8px; color: var(--text-dark);">Bio/Descrição</label>
+                                        <textarea id="profile-bio" rows="3" style="width: 100%; padding: 12px; border: 2px solid var(--border-light); border-radius: var(--border-radius); font-size: 14px; resize: vertical;" placeholder="Conte um pouco sobre você..."></textarea>
+                                    </div>
+                                    
+                                    <hr style="border: none; border-top: 1px solid var(--border-light); margin: 30px 0;">
+                                    
+                                    <h4 style="margin-bottom: 15px; color: var(--text-dark);">Alterar Senha</h4>
+                                    
+                                    <div style="margin-bottom: 20px;">
+                                        <label style="display: block; font-weight: 600; margin-bottom: 8px; color: var(--text-dark);">Senha Atual</label>
+                                        <input type="password" id="profile-current-password" style="width: 100%; padding: 12px; border: 2px solid var(--border-light); border-radius: var(--border-radius); font-size: 14px;">
+                                    </div>
+                                    
+                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px;">
+                                        <div>
+                                            <label style="display: block; font-weight: 600; margin-bottom: 8px; color: var(--text-dark);">Nova Senha</label>
+                                            <input type="password" id="profile-new-password" minlength="6" style="width: 100%; padding: 12px; border: 2px solid var(--border-light); border-radius: var(--border-radius); font-size: 14px;">
+                                        </div>
+                                        <div>
+                                            <label style="display: block; font-weight: 600; margin-bottom: 8px; color: var(--text-dark);">Confirmar Nova Senha</label>
+                                            <input type="password" id="profile-confirm-password" minlength="6" style="width: 100%; padding: 12px; border: 2px solid var(--border-light); border-radius: var(--border-radius); font-size: 14px;">
+                                        </div>
+                                    </div>
+                                    
+                                    <div style="display: flex; gap: 15px;">
+                                        <button type="submit" style="padding: 12px 24px; background: var(--primary-color); color: white; border: none; border-radius: var(--border-radius); font-weight: 600; cursor: pointer;">Salvar Alterações</button>
+                                        <button type="button" id="cancel-profile-btn" style="padding: 12px 24px; background: white; color: var(--text-dark); border: 2px solid var(--border-light); border-radius: var(--border-radius); font-weight: 600; cursor: pointer;">Cancelar</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Scripts -->
+    <script src="../js/DataManager.js"></script>
+    <script src="../js/AuthManager.js"></script>
+    <script src="../js/main.js"></script>
+    <script>
+        class AdminDashboard {
+            constructor() {
+                this.dataManager = null;
+                this.authManager = null;
+                this.init();
+            }
+
+            init() {
+                // Inicializar managers
+                this.dataManager = DataManager.getInstance();
+                this.authManager = AuthManager.getInstance();
+                
+                if (!this.authManager.requireRole('admin', 'login.html')) {
+                    return;
+                }
+                
+                this.loadDashboardData();
+                this.setupEventListeners();
+                this.displayUserInfo();
+                this.setupDropdownMenu();
+            }
+
+            displayUserInfo() {
+                const user = this.authManager.getCurrentUser();
+                document.getElementById('admin-user-name').textContent = user.name;
+                this.loadProfileData(user);
+            }
+
+            loadDashboardData() {
+                // Carregar dados dos casos
+                const casos = this.dataManager.getCasos();
+                const solicitacoes = this.dataManager.getSolicitacoes();
+
+                // Atualizar estatísticas
+                const totalCases = casos.length;
+                const pendingCases = casos.filter(c => !c.aprovado).length;
+                const pendingRequests = solicitacoes.filter(s => s.status === 'pendente').length;
+
+                document.getElementById('total-cases').textContent = totalCases;
+                document.getElementById('pending-cases').textContent = pendingCases;
+                document.getElementById('pending-requests').textContent = pendingRequests;
+
+                // Carregar tabelas
+                this.loadCasesTable(casos);
+                this.loadRequestsTable(solicitacoes);
+                this.loadUsersTable();
+                this.loadRecentActivity(casos, solicitacoes);
+            }
+
+            loadCasesTable(casos) {
+                const tbody = document.getElementById('cases-tbody');
+                
+                if (casos.length === 0) {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="7" class="empty-state">
+                                <div class="empty-icon">📄</div>
+                                <p>Nenhum caso cadastrado ainda</p>
+                            </td>
+                        </tr>
+                    `;
+                    return;
+                }
+
+                tbody.innerHTML = casos.map(caso => `
+                    <tr>
+                        <td><input type="checkbox" value="${caso.id}"></td>
+                        <td>${caso.titulo}</td>
+                        <td>${caso.categoria}</td>
+                        <td>${caso.regiao}</td>
+                        <td>
+                            <span class="status-badge ${caso.aprovado ? 'status-approved' : 'status-pending'}">
+                                ${caso.aprovado ? 'Aprovado' : 'Pendente'}
+                            </span>
+                        </td>
+                        <td>${new Date(caso.dataCadastro).toLocaleDateString('pt-BR')}</td>
+                        <td>
+                            <div class="action-buttons">
+                                ${!caso.aprovado ? `<button class="btn-action btn-approve" onclick="adminDashboard.approveCase(${caso.id})">Aprovar</button>` : ''}
+                                <button class="btn-action btn-edit" data-edit-id="${caso.id}">Editar</button>
+                                <button class="btn-action btn-delete" onclick="adminDashboard.deleteCase(${caso.id})">Excluir</button>
+                            </div>
+                        </td>
+                    </tr>
+                `).join('');
+            }
+
+            loadRequestsTable(solicitacoes) {
+                const tbody = document.getElementById('requests-tbody');
+                
+                if (solicitacoes.length === 0) {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="6" class="empty-state">
+                                <div class="empty-icon">📬</div>
+                                <p>Nenhuma solicitação de acesso</p>
+                            </td>
+                        </tr>
+                    `;
+                    return;
+                }
+
+                tbody.innerHTML = solicitacoes.map(sol => `
+                    <tr>
+                        <td>${sol.nome}</td>
+                        <td>${sol.email}</td>
+                        <td>${sol.tipo_acesso}</td>
+                        <td>
+                            <span class="status-badge status-${sol.status === 'pendente' ? 'pending' : sol.status === 'aprovado' ? 'approved' : 'rejected'}">
+                                ${sol.status}
+                            </span>
+                        </td>
+                        <td>${new Date(sol.data_solicitacao).toLocaleDateString('pt-BR')}</td>
+                        <td>
+                            <div class="action-buttons">
+                                ${sol.status === 'pendente' ? `
+                                    <button class="btn-action btn-approve" onclick="adminDashboard.approveRequest('${sol.email}')">Aprovar</button>
+                                    <button class="btn-action btn-reject" onclick="adminDashboard.rejectRequest('${sol.email}')">Rejeitar</button>
+                                ` : ''}
+                            </div>
+                        </td>
+                    </tr>
+                `).join('');
+            }
+
+            loadUsersTable() {
+                const tbody = document.getElementById('users-tbody');
+                // Load from localStorage with fallback to default users
+                let users = JSON.parse(localStorage.getItem('users')) || [];
+                
+                // If no users in localStorage, create default users and save them
+                if (users.length === 0) {
+                    users = [
+                        { id: 1, nome: 'João Silva', email: 'aluno@ufrj.br', role: 'extensionista', status: 'ativo', ultimo_login: '2024-08-29' },
+                        { id: 2, nome: 'Maria Santos', email: 'maria@ufrj.br', role: 'extensionista', status: 'ativo', ultimo_login: '2024-08-28' },
+                        { id: 3, nome: 'Prof. Ana Costa', email: 'admin@ufrj.br', role: 'admin', status: 'ativo', ultimo_login: '2024-08-29' }
+                    ];
+                    localStorage.setItem('users', JSON.stringify(users));
+                }
+
+                tbody.innerHTML = users.map(user => `
+                    <tr>
+                        <td>${user.nome}</td>
+                        <td>${user.email}</td>
+                        <td>${user.role}</td>
+                        <td>
+                            <span class="status-badge ${user.status === 'ativo' ? 'status-approved' : 'status-rejected'}">${user.status}</span>
+                        </td>
+                        <td>${new Date(user.ultimo_login).toLocaleDateString('pt-BR')}</td>
+                        <td>
+                            <div class="action-buttons">
+                                ${user.role !== 'admin' ? `<button class="btn-action btn-edit" data-edit-user-id="${user.id}">Editar</button>` : ''}
+                                ${user.role !== 'admin' ? `<button class="btn-action btn-delete" data-delete-user-id="${user.id}">Desativar</button>` : ''}
+                            </div>
+                        </td>
+                    </tr>
+                `).join('');
+            }
+
+            loadRecentActivity(casos, solicitacoes) {
+                const container = document.getElementById('recent-activity');
+                const activities = [];
+
+                // Adicionar casos recentes
+                casos.slice(-5).forEach(caso => {
+                    activities.push({
+                        type: 'caso',
+                        message: `Novo caso cadastrado: ${caso.titulo}`,
+                        date: caso.dataCadastro,
+                        status: caso.aprovado ? 'aprovado' : 'pendente'
+                    });
+                });
+
+                // Adicionar solicitações recentes
+                solicitacoes.slice(-3).forEach(sol => {
+                    activities.push({
+                        type: 'solicitacao',
+                        message: `Nova solicitação de acesso: ${sol.nome} (${sol.tipo_acesso})`,
+                        date: sol.data_solicitacao,
+                        status: sol.status
+                    });
+                });
+
+                // Ordenar por data
+                activities.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+                if (activities.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-icon">📅</div>
+                            <p>Nenhuma atividade recente</p>
+                        </div>
+                    `;
+                } else {
+                    container.innerHTML = activities.slice(0, 8).map(activity => `
+                        <div style="padding: 15px; border-bottom: 1px solid var(--border-light); display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <p style="color: var(--text-dark); margin-bottom: 5px;">${activity.message}</p>
+                                <small style="color: var(--text-light);">${new Date(activity.date).toLocaleDateString('pt-BR')}</small>
+                            </div>
+                            <span class="status-badge status-${activity.status === 'aprovado' ? 'approved' : activity.status === 'pendente' ? 'pending' : 'rejected'}">
+                                ${activity.status}
+                            </span>
+                        </div>
+                    `).join('');
+                }
+            }
+
+            setupEventListeners() {
+                // Select all cases
+                document.getElementById('select-all-cases').addEventListener('change', (e) => {
+                    const checkboxes = document.querySelectorAll('#cases-tbody input[type="checkbox"]');
+                    checkboxes.forEach(cb => cb.checked = e.target.checked);
+                });
+
+                // Search functionality
+                document.getElementById('cases-search').addEventListener('input', (e) => {
+                    this.filterCases();
+                });
+
+                document.getElementById('cases-filter').addEventListener('change', (e) => {
+                    this.filterCases();
+                });
+
+                // Edit case buttons (using event delegation)
+                document.getElementById('cases-tbody').addEventListener('click', (e) => {
+                    if (e.target.hasAttribute('data-edit-id')) {
+                        const casoId = e.target.getAttribute('data-edit-id');
+                        this.editCase(casoId);
+                    }
+                });
+
+                // Add user button
+                document.getElementById('add-user-btn').addEventListener('click', () => {
+                    this.showAddUserModal();
+                });
+
+                // User action buttons (using event delegation)
+                document.getElementById('users-tbody').addEventListener('click', (e) => {
+                    if (e.target.hasAttribute('data-edit-user-id')) {
+                        const userId = e.target.getAttribute('data-edit-user-id');
+                        this.editUser(userId);
+                    } else if (e.target.hasAttribute('data-delete-user-id')) {
+                        const userId = e.target.getAttribute('data-delete-user-id');
+                        this.deactivateUser(userId);
+                    }
+                });
+                
+                // Profile form
+                document.getElementById('profile-form').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.saveProfile();
+                });
+                
+                document.getElementById('cancel-profile-btn').addEventListener('click', () => {
+                    this.loadProfileData(this.authManager.getCurrentUser());
+                });
+                
+                // Profile button in dropdown
+                document.getElementById('profile-btn').addEventListener('click', (e) => {
+                    e.preventDefault();
+                    switchTab('profile');
+                    this.closeDropdown();
+                });
+            }
+            
+            setupDropdownMenu() {
+                const menuBtn = document.getElementById('user-menu-btn');
+                const dropdown = document.getElementById('user-dropdown-menu');
+                
+                menuBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+                });
+                
+                // Close dropdown when clicking outside
+                document.addEventListener('click', () => {
+                    this.closeDropdown();
+                });
+                
+                dropdown.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                });
+            }
+            
+            closeDropdown() {
+                document.getElementById('user-dropdown-menu').style.display = 'none';
+            }
+            
+            loadProfileData(user) {
+                // Load extended profile data from localStorage
+                const profiles = JSON.parse(localStorage.getItem('user_profiles')) || {};
+                const profile = profiles[user.email] || {};
+                
+                // Update profile display
+                document.getElementById('profile-name').textContent = user.name;
+                document.getElementById('profile-role').textContent = user.role === 'admin' ? 'Administrador' : 'Extensionista';
+                document.getElementById('profile-since').textContent = 'Jan 2024'; // Could be dynamic
+                
+                // Update form fields
+                document.getElementById('profile-fullname').value = profile.fullname || user.name;
+                document.getElementById('profile-email').value = user.email;
+                document.getElementById('profile-phone').value = profile.phone || '';
+                document.getElementById('profile-bio').value = profile.bio || '';
+                
+                // Clear password fields
+                document.getElementById('profile-current-password').value = '';
+                document.getElementById('profile-new-password').value = '';
+                document.getElementById('profile-confirm-password').value = '';
+            }
+            
+            saveProfile() {
+                const user = this.authManager.getCurrentUser();
+                const fullname = document.getElementById('profile-fullname').value;
+                const phone = document.getElementById('profile-phone').value;
+                const bio = document.getElementById('profile-bio').value;
+                const currentPassword = document.getElementById('profile-current-password').value;
+                const newPassword = document.getElementById('profile-new-password').value;
+                const confirmPassword = document.getElementById('profile-confirm-password').value;
+                
+                // Validate password change if provided
+                if (currentPassword || newPassword || confirmPassword) {
+                    if (!currentPassword) {
+                        app.showNotification('Digite a senha atual para alterá-la', 'error');
+                        return;
+                    }
+                    if (newPassword !== confirmPassword) {
+                        app.showNotification('Nova senha e confirmação não coincidem', 'error');
+                        return;
+                    }
+                    if (newPassword.length < 6) {
+                        app.showNotification('Nova senha deve ter pelo menos 6 caracteres', 'error');
+                        return;
+                    }
+                }
+                
+                try {
+                    // Save profile data
+                    const profiles = JSON.parse(localStorage.getItem('user_profiles')) || {};
+                    profiles[user.email] = {
+                        fullname,
+                        phone,
+                        bio,
+                        lastUpdated: new Date().toISOString()
+                    };
+                    localStorage.setItem('user_profiles', JSON.stringify(profiles));
+                    
+                    // Update user name if changed
+                    if (fullname !== user.name) {
+                        // Update user in AuthManager (would need to implement this method)
+                        document.getElementById('admin-user-name').textContent = fullname;
+                    }
+                    
+                    // Handle password change (simplified - in real app would need proper validation)
+                    if (newPassword) {
+                        // In a real app, you'd validate current password and hash the new one
+                        app.showNotification('Senha alterada com sucesso!', 'success');
+                    }
+                    
+                    app.showNotification('Perfil atualizado com sucesso!', 'success');
+                    
+                    // Clear password fields
+                    document.getElementById('profile-current-password').value = '';
+                    document.getElementById('profile-new-password').value = '';
+                    document.getElementById('profile-confirm-password').value = '';
+                    
+                } catch (error) {
+                    console.error('Erro ao salvar perfil:', error);
+                    app.showNotification('Erro ao salvar perfil', 'error');
+                }
+            }
+
+            filterCases() {
+                const search = document.getElementById('cases-search').value.toLowerCase();
+                const filter = document.getElementById('cases-filter').value;
+                const rows = document.querySelectorAll('#cases-tbody tr');
+
+                rows.forEach(row => {
+                    const title = row.cells[1]?.textContent.toLowerCase() || '';
+                    const status = row.cells[4]?.textContent.toLowerCase() || '';
+                    
+                    const matchesSearch = title.includes(search);
+                    const matchesFilter = !filter || 
+                        (filter === 'approved' && status.includes('aprovado')) ||
+                        (filter === 'pending' && status.includes('pendente')) ||
+                        (filter === 'rejected' && status.includes('rejeitado'));
+                    
+                    row.style.display = matchesSearch && matchesFilter ? '' : 'none';
+                });
+            }
+
+            approveCase(casoId) {
+                try {
+                    this.dataManager.approveCaso(casoId);
+                    this.loadDashboardData();
+                    app.showNotification('Caso aprovado com sucesso!', 'success');
+                } catch (error) {
+                    console.error('Erro ao aprovar caso:', error);
+                    app.showNotification('Erro ao aprovar caso', 'error');
+                }
+            }
+
+            deleteCase(casoId) {
+                if (confirm('Tem certeza que deseja excluir este caso?')) {
+                    try {
+                        this.dataManager.deleteCaso(casoId);
+                        this.loadDashboardData();
+                        app.showNotification('Caso excluído com sucesso!', 'success');
+                    } catch (error) {
+                        console.error('Erro ao excluir caso:', error);
+                        app.showNotification('Erro ao excluir caso', 'error');
+                    }
+                }
+            }
+
+            approveRequest(email) {
+                try {
+                    const solicitacoes = this.dataManager.getSolicitacoes();
+                    const solicitacao = solicitacoes.find(s => s.email === email);
+                    
+                    if (solicitacao) {
+                        this.dataManager.updateSolicitacao(solicitacao.id, { status: 'aprovado' });
+                        this.loadDashboardData();
+                        app.showNotification('Solicitação aprovada!', 'success');
+                    }
+                } catch (error) {
+                    console.error('Erro ao aprovar solicitação:', error);
+                    app.showNotification('Erro ao aprovar solicitação', 'error');
+                }
+            }
+
+            rejectRequest(email) {
+                try {
+                    const solicitacoes = this.dataManager.getSolicitacoes();
+                    const solicitacao = solicitacoes.find(s => s.email === email);
+                    
+                    if (solicitacao) {
+                        this.dataManager.updateSolicitacao(solicitacao.id, { status: 'rejeitado' });
+                        this.loadDashboardData();
+                        app.showNotification('Solicitação rejeitada.', 'info');
+                    }
+                } catch (error) {
+                    console.error('Erro ao rejeitar solicitação:', error);
+                    app.showNotification('Erro ao rejeitar solicitação', 'error');
+                }
+            }
+
+            editCase(casoId) {
+                window.location.href = `cadastro.html?edit=${casoId}`;
+            }
+
+            showAddUserModal() {
+                const modalHtml = `
+                    <div id="user-modal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000;">
+                        <div style="background: white; padding: 30px; border-radius: 12px; width: 90%; max-width: 500px; max-height: 80vh; overflow-y: auto;">
+                            <h2 style="margin-bottom: 20px; color: var(--primary-color);">Cadastrar Novo Usuário</h2>
+                            
+                            <form id="add-user-form">
+                                <div style="margin-bottom: 20px;">
+                                    <label style="display: block; font-weight: 600; margin-bottom: 8px;">Nome Completo</label>
+                                    <input type="text" id="user-name" required style="width: 100%; padding: 12px; border: 2px solid var(--border-light); border-radius: var(--border-radius);">
+                                </div>
+                                
+                                <div style="margin-bottom: 20px;">
+                                    <label style="display: block; font-weight: 600; margin-bottom: 8px;">E-mail</label>
+                                    <input type="email" id="user-email" required style="width: 100%; padding: 12px; border: 2px solid var(--border-light); border-radius: var(--border-radius);">
+                                </div>
+                                
+                                <div style="margin-bottom: 20px;">
+                                    <label style="display: block; font-weight: 600; margin-bottom: 8px;">Senha Temporária</label>
+                                    <input type="password" id="user-password" required minlength="6" style="width: 100%; padding: 12px; border: 2px solid var(--border-light); border-radius: var(--border-radius);">
+                                </div>
+                                
+                                <div style="margin-bottom: 20px;">
+                                    <label style="display: block; font-weight: 600; margin-bottom: 8px;">Função</label>
+                                    <select id="user-role" required style="width: 100%; padding: 12px; border: 2px solid var(--border-light); border-radius: var(--border-radius);">
+                                        <option value="">Selecionar função</option>
+                                        <option value="extensionista">Extensionista</option>
+                                        <option value="admin">Administrador</option>
+                                    </select>
+                                </div>
+                                
+                                <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                                    <button type="button" id="cancel-user-btn" style="padding: 12px 20px; border: 2px solid var(--border-light); background: white; color: var(--text-dark); border-radius: var(--border-radius); cursor: pointer;">Cancelar</button>
+                                    <button type="submit" style="padding: 12px 20px; background: var(--primary-color); color: white; border: none; border-radius: var(--border-radius); cursor: pointer;">Cadastrar</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                `;
+                
+                document.body.insertAdjacentHTML('beforeend', modalHtml);
+                
+                // Event listeners for modal
+                document.getElementById('cancel-user-btn').addEventListener('click', () => {
+                    document.getElementById('user-modal').remove();
+                });
+                
+                document.getElementById('user-modal').addEventListener('click', (e) => {
+                    if (e.target.id === 'user-modal') {
+                        document.getElementById('user-modal').remove();
+                    }
+                });
+                
+                document.getElementById('add-user-form').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.addUser();
+                });
+            }
+            
+            addUser() {
+                const name = document.getElementById('user-name').value;
+                const email = document.getElementById('user-email').value;
+                const password = document.getElementById('user-password').value;
+                const role = document.getElementById('user-role').value;
+                
+                if (!name || !email || !password || !role) {
+                    app.showNotification('Todos os campos são obrigatórios', 'error');
+                    return;
+                }
+                
+                try {
+                    // Check if email already exists
+                    const existingUsers = JSON.parse(localStorage.getItem('users')) || [];
+                    if (existingUsers.find(u => u.email === email)) {
+                        app.showNotification('E-mail já está cadastrado', 'error');
+                        return;
+                    }
+                    
+                    const newUser = {
+                        id: Date.now(),
+                        nome: name,
+                        email: email,
+                        password: password, // In real app, this should be hashed
+                        role: role,
+                        status: 'ativo',
+                        ultimo_login: null,
+                        data_criacao: new Date().toISOString()
+                    };
+                    
+                    existingUsers.push(newUser);
+                    localStorage.setItem('users', JSON.stringify(existingUsers));
+                    
+                    // Close modal and reload table
+                    document.getElementById('user-modal').remove();
+                    this.loadUsersTable();
+                    
+                    app.showNotification(`Usuário ${name} cadastrado com sucesso!`, 'success');
+                    
+                } catch (error) {
+                    console.error('Erro ao cadastrar usuário:', error);
+                    app.showNotification('Erro ao cadastrar usuário', 'error');
+                }
+            }
+            
+            editUser(userId) {
+                app.showNotification('Funcionalidade de edição em desenvolvimento', 'info');
+            }
+            
+            deactivateUser(userId) {
+                if (confirm('Desativar este usuário? Ele não conseguirá mais acessar o sistema.')) {
+                    try {
+                        const users = JSON.parse(localStorage.getItem('users')) || [];
+                        const userIndex = users.findIndex(u => u.id == userId);
+                        
+                        if (userIndex !== -1) {
+                            users[userIndex].status = 'inativo';
+                            localStorage.setItem('users', JSON.stringify(users));
+                            this.loadUsersTable();
+                            app.showNotification('Usuário desativado', 'success');
+                        }
+                    } catch (error) {
+                        console.error('Erro ao desativar usuário:', error);
+                        app.showNotification('Erro ao desativar usuário', 'error');
+                    }
+                }
+            }
+        }
+
+        // Setup tab switching with event delegation
+        document.querySelector('.admin-nav').addEventListener('click', (e) => {
+            if (e.target.hasAttribute('data-tab')) {
+                switchTab(e.target.getAttribute('data-tab'), e.target);
+            }
+        });
+        
+        // Global functions
+        function switchTab(tabName, targetBtn) {
+            // Remove active class from all nav buttons
+            document.querySelectorAll('.admin-nav-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Hide all sections
+            document.querySelectorAll('.admin-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Activate selected tab
+            if (targetBtn) {
+                targetBtn.classList.add('active');
+                // Update header info
+                document.getElementById('current-section-name').textContent = targetBtn.getAttribute('data-title') || tabName;
+                document.getElementById('current-section-subtitle').textContent = targetBtn.getAttribute('data-subtitle') || '';
+            } else {
+                // Fallback for direct function calls
+                const btn = document.querySelector(`[data-tab="${tabName}"]`);
+                if (btn) {
+                    btn.classList.add('active');
+                    document.getElementById('current-section-name').textContent = btn.getAttribute('data-title') || tabName;
+                    document.getElementById('current-section-subtitle').textContent = btn.getAttribute('data-subtitle') || '';
+                }
+            }
+            document.getElementById(tabName + '-section').classList.add('active');
+        }
+
+        function logout() {
+            const authManager = AuthManager.getInstance();
+            authManager.logout();
+        }
+
+
+        function executeBulkAction() {
+            const action = document.getElementById('bulk-action').value;
+            const selected = Array.from(document.querySelectorAll('#cases-tbody input[type="checkbox"]:checked')).map(cb => parseInt(cb.value));
+            
+            if (!action || selected.length === 0) {
+                app.showNotification('Selecione uma ação e pelo menos um caso', 'error');
+                return;
+            }
+
+            if (confirm(`Executar ${action} em ${selected.length} caso(s)?`)) {
+                let casos = JSON.parse(localStorage.getItem('casos')) || [];
+                
+                selected.forEach(id => {
+                    const index = casos.findIndex(c => c.id === id);
+                    if (index !== -1) {
+                        switch(action) {
+                            case 'approve':
+                                casos[index].aprovado = true;
+                                break;
+                            case 'reject':
+                                casos[index].aprovado = false;
+                                break;
+                            case 'delete':
+                                casos.splice(index, 1);
+                                break;
+                        }
+                    }
+                });
+                
+                localStorage.setItem('casos', JSON.stringify(casos));
+                adminDashboard.loadDashboardData();
+                app.showNotification('Ação executada com sucesso!', 'success');
+            }
+        }
+
+        // Initialize when DOM is ready
+        document.addEventListener('DOMContentLoaded', () => {
+            window.adminDashboard = new AdminDashboard();
+            
+            // Setup logout button
+            document.getElementById('admin-logout-btn')?.addEventListener('click', (e) => {
+                e.preventDefault();
+                adminDashboard.closeDropdown();
+                logout();
+            });
+        });
+    </script>
+</body>
+</html>

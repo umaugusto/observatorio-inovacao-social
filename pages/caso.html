@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Caso: Carregando... | Observatório Social RJ</title>
+    <meta name="description" content="Detalhes completos de um caso de inovação social no Rio de Janeiro.">
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet" href="../css/components.css">
+    <style>
+        .case-hero {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+            color: white;
+            padding: 100px 0 60px 0;
+            margin-top: 70px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .case-hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 30% 40%, rgba(255,255,255,0.1) 0%, transparent 50%),
+                        radial-gradient(circle at 70% 80%, rgba(255,255,255,0.05) 0%, transparent 50%);
+        }
+
+        .case-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .breadcrumb {
+            margin-bottom: 20px;
+            font-size: 14px;
+            opacity: 0.8;
+        }
+
+        .breadcrumb a {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .breadcrumb a:hover {
+            color: white;
+        }
+
+        .breadcrumb span {
+            margin: 0 8px;
+        }
+
+        .case-title {
+            font-size: clamp(28px, 4vw, 42px);
+            font-weight: 700;
+            margin-bottom: 20px;
+            line-height: 1.3;
+            color: white !important;
+        }
+
+        .case-hero-meta {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+            font-size: 16px;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            opacity: 0.95;
+        }
+
+        .meta-icon {
+            font-size: 18px;
+        }
+
+        .case-details {
+            padding: 80px 0;
+            background: var(--background-light);
+        }
+
+        .case-details-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 50px;
+            margin-top: 40px;
+        }
+
+        .case-main-content {
+            background: white;
+            padding: 50px;
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow-md);
+        }
+
+        .content-section {
+            margin-bottom: 40px;
+        }
+
+        .content-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .section-header {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--primary-color);
+        }
+
+        .description {
+            font-size: 16px;
+            line-height: 1.8;
+            color: var(--text-light);
+            margin-bottom: 25px;
+        }
+
+        .impact-list {
+            list-style: none;
+            margin: 20px 0;
+        }
+
+        .impact-list li {
+            padding: 15px;
+            background: var(--background-light);
+            margin-bottom: 10px;
+            border-radius: var(--border-radius);
+            border-left: 4px solid var(--accent-color);
+            font-size: 15px;
+            color: var(--text-light);
+            position: relative;
+            padding-left: 50px;
+        }
+
+        .impact-list li::before {
+            content: '✓';
+            position: absolute;
+            left: 18px;
+            color: var(--accent-color);
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .tags-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .tag {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .case-sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .sidebar-card {
+            background: white;
+            padding: 30px;
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border-light);
+        }
+
+        .sidebar-card h3 {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 20px;
+        }
+
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .info-item:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: var(--text-dark);
+            min-width: 80px;
+        }
+
+        .info-value {
+            color: var(--text-light);
+            text-align: right;
+            flex: 1;
+        }
+
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-active {
+            background: #e8f5e8;
+            color: #2e7d32;
+        }
+
+        .status-completed {
+            background: #e3f2fd;
+            color: #1565c0;
+        }
+
+        .status-paused {
+            background: #fff3e0;
+            color: #ef6c00;
+        }
+
+        .contact-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .btn-contact {
+            padding: 12px 20px;
+            border-radius: var(--border-radius);
+            text-decoration: none;
+            font-weight: 600;
+            text-align: center;
+            transition: var(--transition);
+            font-size: 14px;
+        }
+
+        .btn-primary-contact {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary-contact:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary-contact {
+            background: white;
+            color: var(--primary-color);
+            border: 2px solid var(--primary-color);
+        }
+
+        .btn-secondary-contact:hover {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .related-cases {
+            padding: 80px 0;
+            background: white;
+        }
+
+        .related-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .related-card {
+            background: var(--background-light);
+            padding: 25px;
+            border-radius: var(--border-radius-lg);
+            border: 1px solid var(--border-light);
+            transition: var(--transition);
+        }
+
+        .related-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-md);
+            background: white;
+        }
+
+        .related-card h4 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: var(--text-dark);
+        }
+
+        .related-card p {
+            color: var(--text-light);
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+
+        .related-card .case-category-badge {
+            font-size: 11px;
+            padding: 4px 8px;
+        }
+
+        /* Actions Floating */
+        .floating-actions {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            z-index: 100;
+        }
+
+        .floating-btn {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            border: none;
+            box-shadow: var(--shadow-lg);
+            cursor: pointer;
+            font-size: 20px;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .floating-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .btn-share {
+            background: var(--accent-color);
+            color: white;
+        }
+
+        .btn-favorite {
+            background: white;
+            color: var(--text-light);
+            border: 2px solid var(--border-light);
+        }
+
+        .btn-favorite.active {
+            background: #e91e63;
+            color: white;
+            border-color: #e91e63;
+        }
+
+        .btn-edit {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        @media (max-width: 1024px) {
+            .case-details-grid {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+
+            .case-main-content {
+                padding: 30px;
+            }
+
+            .floating-actions {
+                bottom: 20px;
+                right: 20px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .case-hero-meta {
+                grid-template-columns: 1fr;
+            }
+
+            .related-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .case-main-content {
+                padding: 25px;
+            }
+
+            .sidebar-card {
+                padding: 25px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <nav class="nav container">
+            <a href="../index.html" class="logo">
+                <span class="logo-main">Designário</span>
+                <span class="logo-subtitle">OBSERVATÓRIO DE INOVAÇÃO SOCIAL</span>
+            </a>
+            
+            <ul class="nav-links">
+                <li><a href="../index.html">Início</a></li>
+                <li><a href="casos.html">Casos</a></li>
+                <li><a href="categorias.html">Categorias</a></li>
+                <li><a href="sobre.html">Sobre</a></li>
+                <li><a href="contato.html">Contato</a></li>
+            </ul>
+
+            <div class="nav-actions">
+                <a href="login.html" class="login-required">Entrar</a>
+                <a href="cadastro.html" class="btn-header">Cadastrar Caso</a>
+            </div>
+
+            <button class="mobile-menu-btn" aria-label="Menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </nav>
+    </header>
+
+    <!-- Case Hero -->
+    <section class="case-hero">
+        <div class="container">
+            <div class="case-content">
+                <div class="breadcrumb">
+                    <a href="../index.html">Início</a>
+                    <span>›</span>
+                    <a href="../index.html#casos">Casos</a>
+                    <span>›</span>
+                    <span id="breadcrumb-title">Carregando...</span>
+                </div>
+                
+                <h1 class="case-title" id="case-title">Carregando...</h1>
+                <p class="description" id="case-summary">Carregando descrição...</p>
+                
+                <div class="case-hero-meta" id="case-meta">
+                    <!-- Preenchido via JavaScript -->
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Case Details -->
+    <section class="case-details">
+        <div class="container">
+            <div class="case-details-grid">
+                <!-- Conteúdo Principal -->
+                <div class="case-main-content">
+                    <div class="content-section">
+                        <h2 class="section-header">Sobre o Projeto</h2>
+                        <div class="description" id="case-description">
+                            Carregando descrição completa...
+                        </div>
+                    </div>
+
+                    <div class="content-section" id="impacts-section" style="display: none;">
+                        <h2 class="section-header">Impactos Alcançados</h2>
+                        <ul class="impact-list" id="case-impacts">
+                            <!-- Preenchido via JavaScript -->
+                        </ul>
+                    </div>
+
+                    <div class="content-section" id="methodology-section" style="display: none;">
+                        <h2 class="section-header">Metodologia</h2>
+                        <div class="description" id="case-methodology">
+                            <!-- Preenchido via JavaScript -->
+                        </div>
+                    </div>
+
+                    <div class="content-section" id="challenges-section" style="display: none;">
+                        <h2 class="section-header">Desafios Enfrentados</h2>
+                        <div class="description" id="case-challenges">
+                            <!-- Preenchido via JavaScript -->
+                        </div>
+                    </div>
+
+                    <div class="content-section" id="tags-section">
+                        <h2 class="section-header">Tags</h2>
+                        <div class="tags-container" id="case-tags">
+                            <!-- Preenchido via JavaScript -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sidebar -->
+                <div class="case-sidebar">
+                    <!-- Informações Gerais -->
+                    <div class="sidebar-card">
+                        <h3>Informações Gerais</h3>
+                        <div id="case-info">
+                            <!-- Preenchido via JavaScript -->
+                        </div>
+                    </div>
+
+                    <!-- Contato -->
+                    <div class="sidebar-card" id="contact-section" style="display: none;">
+                        <h3>Entre em Contato</h3>
+                        <p>Interessado em saber mais sobre este projeto?</p>
+                        <div class="contact-buttons">
+                            <a href="#" class="btn-contact btn-primary-contact" id="contact-email">Enviar E-mail</a>
+                            <a href="#" class="btn-contact btn-secondary-contact" id="contact-website" style="display: none;">Visitar Site</a>
+                        </div>
+                    </div>
+
+                    <!-- Dados do Cadastro -->
+                    <div class="sidebar-card">
+                        <h3>Dados do Cadastro</h3>
+                        <div id="cadastro-info">
+                            <!-- Preenchido via JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Related Cases -->
+    <section class="related-cases">
+        <div class="container">
+            <h2 class="section-title">Casos Relacionados</h2>
+            <div class="related-grid" id="related-cases">
+                <!-- Preenchido via JavaScript -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Floating Actions -->
+    <div class="floating-actions">
+        <button class="floating-btn btn-share" title="Compartilhar" onclick="sharePage()">🔗</button>
+        <button class="floating-btn btn-edit auth-required" title="Editar" onclick="editCase()" style="display: none;">✏️</button>
+    </div>
+
+    <!-- Scripts -->
+    <script src="../js/DataManager.js"></script>
+    <script src="../js/AuthManager.js"></script>
+    <script src="../js/main.js"></script>
+    <script>
+        class CasoPage {
+            constructor() {
+                this.casoId = this.getCasoIdFromURL();
+                this.caso = null;
+                this.dataManager = null;
+                this.authManager = null;
+                this.init();
+            }
+
+            init() {
+                this.dataManager = DataManager.getInstance();
+                this.authManager = AuthManager.getInstance();
+                
+                if (this.casoId) {
+                    this.loadCaso();
+                } else {
+                    this.showError('ID do caso não encontrado na URL');
+                }
+                
+                this.authManager.updateUI();
+            }
+
+            getCasoIdFromURL() {
+                const urlParams = new URLSearchParams(window.location.search);
+                return parseInt(urlParams.get('id'));
+            }
+
+            loadCaso() {
+                try {
+                    const casos = this.dataManager.getCasos();
+                    this.caso = casos.find(c => c.id === this.casoId);
+                    
+                    if (this.caso) {
+                        this.renderCaso();
+                        this.loadRelatedCases();
+                        this.updatePageMeta();
+                    } else {
+                        this.showError('Caso não encontrado');
+                    }
+                } catch (error) {
+                    console.error('Erro ao carregar caso:', error);
+                    this.showError('Erro ao carregar dados do caso');
+                }
+            }
+
+            getMockCasos() {
+                return [
+                    {
+                        id: 1,
+                        titulo: 'Horta Comunitária da Providência',
+                        categoria: 'Meio Ambiente',
+                        regiao: 'Centro',
+                        descricaoResumo: 'Transformação de área degradada em espaço produtivo que beneficia 150 famílias com alimentos orgânicos e geração de renda.',
+                        descricaoCompleta: 'O projeto Horta Comunitária da Providência nasceu da necessidade de aproveitar um espaço urbano subutilizado no coração do Centro do Rio. Através da mobilização de moradores locais e apoio de ONGs ambientais, a iniciativa transformou uma área de 500m² anteriormente degradada em um próspero espaço de agricultura urbana. O projeto utiliza técnicas de permacultura e agricultura orgânica, envolvendo diretamente os moradores da comunidade em todas as etapas do processo, desde o planejamento até a colheita. Além da produção de alimentos, o espaço funciona como centro de educação ambiental, oferecendo oficinas regulares sobre compostagem, cultivo sustentável e alimentação saudável.',
+                        organizacao: 'Coletivo Verde Urbano',
+                        beneficiarios: 150,
+                        status: 'Em andamento',
+                        dataInicio: '2023-03-15',
+                        dataCadastro: '2024-08-15',
+                        responsavelCadastro: 'Maria Silva - Extensão UFRJ',
+                        contato: 'contato@verdereurbano.org.br',
+                        site: 'https://verdereurbano.org.br',
+                        impactos: [
+                            'Produção de 2 toneladas de alimentos orgânicos mensais',
+                            'Geração de renda complementar para 40 famílias',
+                            'Capacitação de 80 pessoas em técnicas de cultivo urbano',
+                            'Redução de 30% no descarte de resíduos orgânicos na comunidade'
+                        ],
+                        metodologia: 'Agricultura urbana participativa utilizando técnicas de permacultura, compostagem de resíduos orgânicos locais e sistema de captação de água da chuva. O projeto emprega metodologia de educação popular, onde os próprios moradores se tornam multiplicadores do conhecimento adquirido.',
+                        desafios: 'Acesso limitado à água durante períodos de seca, necessidade constante de formação técnica para novos participantes, dificuldades de comercialização dos produtos e sustentabilidade financeira do projeto a longo prazo.',
+                        tags: ['agricultura urbana', 'sustentabilidade', 'geração de renda', 'segurança alimentar', 'educação ambiental'],
+                        fotos: [],
+                        aprovado: true
+                    },
+                    {
+                        id: 2,
+                        titulo: 'Biblioteca Móvel Zona Oeste',
+                        categoria: 'Educação',
+                        regiao: 'Campo Grande',
+                        descricaoResumo: 'Ônibus adaptado que leva literatura e atividades educativas para comunidades com baixo acesso a equipamentos culturais.',
+                        descricaoCompleta: 'A Biblioteca Móvel é uma iniciativa inovadora que quebra barreiras geográficas e sociais no acesso à educação e cultura. Um ônibus especialmente adaptado percorre semanalmente diferentes pontos da Zona Oeste do Rio, oferecendo acesso gratuito a mais de 5.000 títulos, internet gratuita, oficinas de leitura e atividades culturais. O projeto atende prioritariamente áreas com baixo IDH e pouco acesso a equipamentos culturais, levando não apenas livros, mas também promovendo encontros literários, contação de histórias, oficinas de escrita criativa e inclusão digital. A biblioteca móvel funciona como um verdadeiro centro cultural itinerante, adaptando sua programação às necessidades específicas de cada comunidade.',
+                        organizacao: 'Instituto Leitura Para Todos',
+                        beneficiarios: 800,
+                        status: 'Em andamento',
+                        dataInicio: '2022-06-01',
+                        dataCadastro: '2024-08-12',
+                        responsavelCadastro: 'João Santos - Extensão UFRJ',
+                        contato: 'biblioteca.movel@leituraparatodos.org',
+                        impactos: [
+                            'Atendimento a 800 pessoas mensalmente',
+                            'Empréstimo de 1.200 livros por mês',
+                            'Realização de 40 oficinas educativas mensais',
+                            'Criação de 12 clubes de leitura comunitários'
+                        ],
+                        metodologia: 'Educação itinerante com foco na democratização do acesso ao conhecimento, utilizando pedagogia freireana e metodologias participativas de animação cultural.',
+                        desafios: 'Manutenção constante do veículo, necessidade de expansão do acervo, formação de novos leitores em comunidades com baixo letramento e sustentabilidade financeira.',
+                        tags: ['educação', 'literatura', 'inclusão digital', 'democratização cultural'],
+                        fotos: [],
+                        aprovado: true
+                    }
+                ];
+            }
+
+            renderCaso() {
+                // Atualizar título e meta
+                document.title = `${this.caso.titulo} | Observatório Social RJ`;
+                document.getElementById('breadcrumb-title').textContent = this.caso.titulo;
+                document.getElementById('case-title').textContent = this.caso.titulo;
+                document.getElementById('case-summary').textContent = this.caso.descricaoResumo;
+
+                // Meta informações do hero
+                const metaHTML = `
+                    <div class="meta-item">
+                        <span class="meta-icon">📍</span>
+                        <span>${this.caso.regiao}</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-icon">🏢</span>
+                        <span>${this.caso.organizacao}</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-icon">👥</span>
+                        <span>${this.caso.beneficiarios} beneficiários</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-icon">📂</span>
+                        <span>${this.caso.categoria}</span>
+                    </div>
+                `;
+                document.getElementById('case-meta').innerHTML = metaHTML;
+
+                // Descrição completa
+                document.getElementById('case-description').textContent = this.caso.descricaoCompleta;
+
+                // Impactos
+                if (this.caso.impactos && this.caso.impactos.length > 0) {
+                    document.getElementById('impacts-section').style.display = 'block';
+                    document.getElementById('case-impacts').innerHTML = 
+                        this.caso.impactos.map(impacto => `<li>${impacto}</li>`).join('');
+                }
+
+                // Metodologia
+                if (this.caso.metodologia) {
+                    document.getElementById('methodology-section').style.display = 'block';
+                    document.getElementById('case-methodology').textContent = this.caso.metodologia;
+                }
+
+                // Desafios
+                if (this.caso.desafios) {
+                    document.getElementById('challenges-section').style.display = 'block';
+                    document.getElementById('case-challenges').textContent = this.caso.desafios;
+                }
+
+                // Tags
+                if (this.caso.tags && this.caso.tags.length > 0) {
+                    document.getElementById('case-tags').innerHTML = 
+                        this.caso.tags.map(tag => `<span class="tag">${tag}</span>`).join('');
+                }
+
+                // Informações gerais sidebar
+                const statusClass = this.caso.status === 'Em andamento' ? 'status-active' : 
+                                   this.caso.status === 'Concluído' ? 'status-completed' : 'status-paused';
+                
+                const infoHTML = `
+                    <div class="info-item">
+                        <span class="info-label">Status</span>
+                        <span class="info-value"><span class="status-badge ${statusClass}">${this.caso.status}</span></span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Categoria</span>
+                        <span class="info-value">${this.caso.categoria}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Região</span>
+                        <span class="info-value">${this.caso.regiao}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Organização</span>
+                        <span class="info-value">${this.caso.organizacao}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Beneficiários</span>
+                        <span class="info-value">${this.caso.beneficiarios}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Início</span>
+                        <span class="info-value">${new Date(this.caso.dataInicio).toLocaleDateString('pt-BR')}</span>
+                    </div>
+                `;
+                document.getElementById('case-info').innerHTML = infoHTML;
+
+                // Contato
+                if (this.caso.contato) {
+                    document.getElementById('contact-section').style.display = 'block';
+                    document.getElementById('contact-email').href = `mailto:${this.caso.contato}`;
+                    
+                    if (this.caso.site) {
+                        const siteBtn = document.getElementById('contact-website');
+                        siteBtn.style.display = 'block';
+                        siteBtn.href = this.caso.site;
+                        siteBtn.target = '_blank';
+                    }
+                }
+
+                // Dados do cadastro
+                const cadastroHTML = `
+                    <div class="info-item">
+                        <span class="info-label">Cadastrado em</span>
+                        <span class="info-value">${new Date(this.caso.dataCadastro).toLocaleDateString('pt-BR')}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Responsável</span>
+                        <span class="info-value">${this.caso.responsavelCadastro}</span>
+                    </div>
+                `;
+                document.getElementById('cadastro-info').innerHTML = cadastroHTML;
+            }
+
+            loadRelatedCases() {
+                const casos = JSON.parse(localStorage.getItem('casos')) || this.getMockCasos();
+                const related = casos
+                    .filter(c => c.id !== this.casoId && c.categoria === this.caso.categoria)
+                    .slice(0, 3);
+
+                if (related.length > 0) {
+                    const relatedHTML = related.map(caso => `
+                        <div class="related-card">
+                            <span class="case-category-badge badge-${this.getCategorySlug(caso.categoria)}">${caso.categoria}</span>
+                            <h4>${caso.titulo}</h4>
+                            <p>${caso.descricaoResumo.substring(0, 120)}...</p>
+                            <a href="caso.html?id=${caso.id}" class="btn-outline btn-small">Ver Detalhes</a>
+                        </div>
+                    `).join('');
+
+                    document.getElementById('related-cases').innerHTML = relatedHTML;
+                } else {
+                    document.querySelector('.related-cases').style.display = 'none';
+                }
+            }
+
+            getCategorySlug(categoria) {
+                const slugs = {
+                    'Educação': 'education',
+                    'Saúde': 'health',
+                    'Meio Ambiente': 'environment',
+                    'Inclusão Social': 'social',
+                    'Tecnologia Social': 'technology',
+                    'Economia Solidária': 'economy'
+                };
+                return slugs[categoria] || 'social';
+            }
+
+            updatePageMeta() {
+                const metaDescription = document.querySelector('meta[name="description"]');
+                if (metaDescription) {
+                    metaDescription.content = this.caso.descricaoResumo;
+                }
+            }
+
+            showError(message) {
+                document.querySelector('.case-hero .container').innerHTML = `
+                    <div style="text-align: center; padding: 60px 0;">
+                        <h1 style="color: white; margin-bottom: 20px;">Erro</h1>
+                        <p style="color: rgba(255,255,255,0.9); margin-bottom: 30px;">${message}</p>
+                        <a href="../index.html" class="btn-primary">Voltar ao Início</a>
+                    </div>
+                `;
+                
+                document.querySelector('.case-details').style.display = 'none';
+                document.querySelector('.related-cases').style.display = 'none';
+            }
+        }
+
+        // Funções globais para os floating buttons
+        function sharePage() {
+            if (navigator.share) {
+                navigator.share({
+                    title: document.title,
+                    text: document.getElementById('case-summary').textContent,
+                    url: window.location.href
+                });
+            } else {
+                navigator.clipboard.writeText(window.location.href).then(() => {
+                    app.showNotification('Link copiado para a área de transferência!', 'success');
+                });
+            }
+        }
+
+
+        function editCase() {
+            const casoId = new URLSearchParams(window.location.search).get('id');
+            window.location.href = `cadastro.html?edit=${casoId}`;
+        }
+
+        // Inicializar página quando DOM estiver pronto
+        document.addEventListener('DOMContentLoaded', () => {
+            window.casoPage = new CasoPage();
+        });
+    </script>
+</body>
+</html>

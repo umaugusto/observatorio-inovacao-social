@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Categorias - Observatório de Inovação Social RJ</title>
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet" href="../css/components.css">
+    <style>
+        .categories-page-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            padding: 100px 0 60px;
+            color: white;
+            text-align: center;
+        }
+        
+        .categories-page-grid {
+            padding: 80px 0;
+        }
+        
+        .category-page-card {
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+        
+        .category-page-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.12);
+            border-color: var(--primary-light);
+        }
+        
+        .category-icon-large {
+            font-size: 64px;
+            margin-bottom: 20px;
+            display: block;
+            text-align: center;
+        }
+        
+        .category-title {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: var(--text-dark);
+            text-align: center;
+        }
+        
+        .category-description {
+            color: var(--text-light);
+            line-height: 1.6;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+        
+        .category-stats {
+            display: flex;
+            justify-content: space-around;
+            padding-top: 20px;
+            border-top: 1px solid #e8e8e8;
+        }
+        
+        .category-stat {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary-color);
+            display: block;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 5px;
+        }
+        
+        .view-cases-btn {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            background: var(--primary-color);
+            color: white;
+            text-align: center;
+            border-radius: 8px;
+            font-weight: 600;
+            text-decoration: none;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .view-cases-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <nav class="nav container">
+            <a href="../index.html" class="logo">
+                <span class="logo-main">Designário</span>
+                <span class="logo-subtitle">OBSERVATÓRIO DE INOVAÇÃO SOCIAL</span>
+            </a>
+            
+            <ul class="nav-links">
+                <li><a href="../index.html">Início</a></li>
+                <li><a href="casos.html">Casos</a></li>
+                <li><a href="categorias.html" class="active">Categorias</a></li>
+                <li><a href="sobre.html">Sobre</a></li>
+                <li><a href="contato.html">Contato</a></li>
+            </ul>
+
+            <div class="nav-actions">
+                <a href="login.html" class="login-required">Entrar</a>
+                <a href="cadastro.html" class="btn-header auth-required" style="display: none;">Cadastrar Caso</a>
+            </div>
+
+            <button class="mobile-menu-btn" aria-label="Menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </nav>
+    </header>
+
+    <!-- Page Header -->
+    <section class="categories-page-header">
+        <div class="container">
+            <h1>Áreas de Inovação Social</h1>
+            <p>Explore as diferentes categorias de projetos que estão transformando o Rio de Janeiro</p>
+        </div>
+    </section>
+
+    <!-- Categories Grid -->
+    <section class="categories-page-grid">
+        <div class="container">
+            <div class="categories-grid">
+                <div class="category-page-card" onclick="location.href='casos.html?categoria=Educação'">
+                    <span class="category-icon-large">📚</span>
+                    <h2 class="category-title">Educação</h2>
+                    <p class="category-description">
+                        Projetos inovadores que democratizam o acesso ao conhecimento, transformam práticas pedagógicas e criam novas oportunidades de aprendizagem para todos.
+                    </p>
+                    <div class="category-stats">
+                        <div class="category-stat">
+                            <span class="stat-value" data-category-count="Educação">0</span>
+                            <span class="stat-label">Projetos</span>
+                        </div>
+                        <div class="category-stat">
+                            <span class="stat-value">5k+</span>
+                            <span class="stat-label">Beneficiários</span>
+                        </div>
+                    </div>
+                    <a href="casos.html?categoria=Educação" class="view-cases-btn">Ver Casos de Educação</a>
+                </div>
+
+                <div class="category-page-card" onclick="location.href='casos.html?categoria=Saúde'">
+                    <span class="category-icon-large">🏥</span>
+                    <h2 class="category-title">Saúde</h2>
+                    <p class="category-description">
+                        Iniciativas que promovem bem-estar, prevenção e acesso universal aos cuidados de saúde através de soluções criativas e tecnologias sociais.
+                    </p>
+                    <div class="category-stats">
+                        <div class="category-stat">
+                            <span class="stat-value" data-category-count="Saúde">0</span>
+                            <span class="stat-label">Projetos</span>
+                        </div>
+                        <div class="category-stat">
+                            <span class="stat-value">3k+</span>
+                            <span class="stat-label">Beneficiários</span>
+                        </div>
+                    </div>
+                    <a href="casos.html?categoria=Saúde" class="view-cases-btn">Ver Casos de Saúde</a>
+                </div>
+
+                <div class="category-page-card" onclick="location.href='casos.html?categoria=Meio Ambiente'">
+                    <span class="category-icon-large">🌱</span>
+                    <h2 class="category-title">Meio Ambiente</h2>
+                    <p class="category-description">
+                        Soluções sustentáveis e tecnologias verdes que promovem a preservação ambiental e o desenvolvimento sustentável em comunidades cariocas.
+                    </p>
+                    <div class="category-stats">
+                        <div class="category-stat">
+                            <span class="stat-value" data-category-count="Meio Ambiente">0</span>
+                            <span class="stat-label">Projetos</span>
+                        </div>
+                        <div class="category-stat">
+                            <span class="stat-value">8k+</span>
+                            <span class="stat-label">Beneficiários</span>
+                        </div>
+                    </div>
+                    <a href="casos.html?categoria=Meio Ambiente" class="view-cases-btn">Ver Casos Ambientais</a>
+                </div>
+
+                <div class="category-page-card" onclick="location.href='casos.html?categoria=Inclusão Social'">
+                    <span class="category-icon-large">🤝</span>
+                    <h2 class="category-title">Inclusão Social</h2>
+                    <p class="category-description">
+                        Projetos que promovem equidade, diversidade e criam oportunidades para grupos em situação de vulnerabilidade social.
+                    </p>
+                    <div class="category-stats">
+                        <div class="category-stat">
+                            <span class="stat-value" data-category-count="Inclusão Social">0</span>
+                            <span class="stat-label">Projetos</span>
+                        </div>
+                        <div class="category-stat">
+                            <span class="stat-value">6k+</span>
+                            <span class="stat-label">Beneficiários</span>
+                        </div>
+                    </div>
+                    <a href="casos.html?categoria=Inclusão Social" class="view-cases-btn">Ver Casos de Inclusão</a>
+                </div>
+
+                <div class="category-page-card" onclick="location.href='casos.html?categoria=Tecnologia Social'">
+                    <span class="category-icon-large">💡</span>
+                    <h2 class="category-title">Tecnologia Social</h2>
+                    <p class="category-description">
+                        Inovações tecnológicas aplicadas para resolver problemas sociais complexos e criar impacto positivo nas comunidades.
+                    </p>
+                    <div class="category-stats">
+                        <div class="category-stat">
+                            <span class="stat-value" data-category-count="Tecnologia Social">0</span>
+                            <span class="stat-label">Projetos</span>
+                        </div>
+                        <div class="category-stat">
+                            <span class="stat-value">4k+</span>
+                            <span class="stat-label">Beneficiários</span>
+                        </div>
+                    </div>
+                    <a href="casos.html?categoria=Tecnologia Social" class="view-cases-btn">Ver Casos de Tecnologia</a>
+                </div>
+
+                <div class="category-page-card" onclick="location.href='casos.html?categoria=Economia Solidária'">
+                    <span class="category-icon-large">💰</span>
+                    <h2 class="category-title">Economia Solidária</h2>
+                    <p class="category-description">
+                        Alternativas econômicas inovadoras que valorizam pessoas, cooperação e sustentabilidade em vez do lucro a qualquer custo.
+                    </p>
+                    <div class="category-stats">
+                        <div class="category-stat">
+                            <span class="stat-value" data-category-count="Economia Solidária">0</span>
+                            <span class="stat-label">Projetos</span>
+                        </div>
+                        <div class="category-stat">
+                            <span class="stat-value">2k+</span>
+                            <span class="stat-label">Beneficiários</span>
+                        </div>
+                    </div>
+                    <a href="casos.html?categoria=Economia Solidária" class="view-cases-btn">Ver Casos de Economia</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <h3>Observatório de Inovação Social RJ</h3>
+                    <p>Projeto de Extensão da UFRJ</p>
+                </div>
+                <div class="footer-links">
+                    <a href="sobre.html">Sobre</a>
+                    <a href="contato.html">Contato</a>
+                    <a href="login.html">Acesso Restrito</a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 UFRJ. Todos os direitos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="../js/DataManager.js"></script>
+    <script>
+        // Atualizar contadores de categorias
+        document.addEventListener('DOMContentLoaded', () => {
+            const dataManager = DataManager.getInstance();
+            
+            const updateCounts = () => {
+                const casos = dataManager.getCasos().filter(caso => caso.aprovado);
+                const counts = {};
+                
+                casos.forEach(caso => {
+                    counts[caso.categoria] = (counts[caso.categoria] || 0) + 1;
+                });
+                
+                document.querySelectorAll('[data-category-count]').forEach(el => {
+                    const categoria = el.dataset.categoryCount;
+                    el.textContent = counts[categoria] || 0;
+                });
+            };
+            
+            dataManager.loadCasos().then(updateCounts);
+        });
+    </script>
+</body>
+</html>

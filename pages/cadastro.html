@@ -1,0 +1,1163 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastrar Novo Caso | Observatório Social RJ</title>
+    <meta name="description" content="Cadastre uma nova iniciativa de inovação social no Rio de Janeiro.">
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet" href="../css/components.css">
+    <style>
+        .cadastro-hero {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 100px 0 60px 0;
+            margin-top: 70px;
+            text-align: center;
+        }
+
+        .form-container {
+            max-width: 900px;
+            margin: -40px auto 80px auto;
+            background: white;
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
+            position: relative;
+            z-index: 10;
+        }
+
+        .form-progress {
+            background: var(--background-light);
+            padding: 30px;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .form-steps {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 40px;
+            margin-bottom: 20px;
+        }
+
+        .step {
+            display: flex;
+            align-items: center;
+            color: var(--text-light);
+            font-size: 14px;
+            font-weight: 600;
+            position: relative;
+        }
+
+        .step.active {
+            color: var(--primary-color);
+        }
+
+        .step.completed {
+            color: var(--accent-color);
+        }
+
+        .step-number {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--border-light);
+            color: var(--text-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            margin-right: 12px;
+            transition: var(--transition);
+            font-size: 16px;
+        }
+
+        .step.active .step-number {
+            background: var(--primary-color);
+            color: white;
+            box-shadow: 0 0 0 4px rgba(45, 122, 95, 0.2);
+        }
+
+        .step.completed .step-number {
+            background: var(--accent-color);
+            color: white;
+        }
+
+        .step.completed .step-number::before {
+            content: '✓';
+        }
+
+        .step:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            right: -40px;
+            top: 50%;
+            width: 80px;
+            height: 2px;
+            background: var(--border-light);
+            transform: translateY(-50%);
+            z-index: -1;
+        }
+
+        .step.completed:not(:last-child)::after {
+            background: var(--accent-color);
+        }
+
+        .progress-text {
+            text-align: center;
+            color: var(--text-light);
+            font-size: 14px;
+        }
+
+        .form-body {
+            padding: 50px;
+        }
+
+        .form-step {
+            display: none;
+        }
+
+        .form-step.active {
+            display: block;
+            animation: fadeInUp 0.4s ease-out;
+        }
+
+        .step-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 10px;
+        }
+
+        .step-description {
+            color: var(--text-light);
+            margin-bottom: 30px;
+            font-size: 16px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .form-group-full {
+            grid-column: 1 / -1;
+        }
+
+        .form-group {
+            position: relative;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 8px;
+            font-size: 15px;
+        }
+
+        .form-label.required::after {
+            content: ' *';
+            color: #e74c3c;
+        }
+
+        .form-input,
+        .form-select,
+        .form-textarea {
+            width: 100%;
+            padding: 16px;
+            border: 2px solid var(--border-light);
+            border-radius: var(--border-radius);
+            font-size: 15px;
+            transition: var(--transition);
+            background: white;
+            font-family: inherit;
+        }
+
+        .form-input:focus,
+        .form-select:focus,
+        .form-textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(45, 122, 95, 0.1);
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 120px;
+            line-height: 1.6;
+        }
+
+        .textarea-counter {
+            font-size: 12px;
+            color: var(--text-light);
+            text-align: right;
+            margin-top: 5px;
+        }
+
+        .form-help {
+            font-size: 13px;
+            color: var(--text-light);
+            margin-top: 6px;
+        }
+
+        .form-error {
+            color: #e74c3c;
+            font-size: 13px;
+            margin-top: 6px;
+            display: none;
+        }
+
+        .form-group.error .form-input,
+        .form-group.error .form-select,
+        .form-group.error .form-textarea {
+            border-color: #e74c3c;
+            box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.1);
+        }
+
+        .form-group.error .form-error {
+            display: block;
+        }
+
+        .checkbox-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px;
+            border: 2px solid var(--border-light);
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: var(--transition);
+            background: white;
+        }
+
+        .checkbox-item:hover {
+            border-color: var(--primary-color);
+            background: rgba(45, 122, 95, 0.02);
+        }
+
+        .checkbox-item.checked {
+            border-color: var(--primary-color);
+            background: rgba(45, 122, 95, 0.05);
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            margin: 0;
+        }
+
+        .tags-input-container {
+            position: relative;
+        }
+
+        .tags-display {
+            min-height: 60px;
+            border: 2px solid var(--border-light);
+            border-radius: var(--border-radius);
+            padding: 12px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: flex-start;
+            cursor: text;
+            transition: var(--transition);
+        }
+
+        .tags-display:focus-within {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(45, 122, 95, 0.1);
+        }
+
+        .tag-item {
+            background: var(--primary-color);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .tag-remove {
+            background: rgba(255, 255, 255, 0.3);
+            border: none;
+            color: white;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .tag-input {
+            border: none;
+            outline: none;
+            padding: 8px;
+            flex: 1;
+            min-width: 120px;
+            font-size: 14px;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 1px solid var(--border-light);
+        }
+
+        .btn-form {
+            padding: 16px 32px;
+            border-radius: var(--border-radius);
+            font-size: 16px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: var(--transition);
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-back {
+            background: white;
+            color: var(--text-light);
+            border: 2px solid var(--border-light);
+        }
+
+        .btn-back:hover {
+            border-color: var(--text-light);
+            color: var(--text-dark);
+        }
+
+        .btn-next {
+            background: var(--primary-color);
+            color: white;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn-next:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-next:disabled {
+            background: var(--border-light);
+            color: var(--text-light);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .preview-section {
+            background: var(--background-light);
+            padding: 30px;
+            border-radius: var(--border-radius);
+            margin-bottom: 30px;
+        }
+
+        .preview-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 20px;
+        }
+
+        .preview-card {
+            background: white;
+            padding: 25px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-light);
+        }
+
+        .success-message {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .success-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+
+        .success-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--accent-color);
+            margin-bottom: 15px;
+        }
+
+        .success-description {
+            color: var(--text-light);
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .form-body {
+                padding: 30px 25px;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .form-steps {
+                gap: 20px;
+                overflow-x: auto;
+                padding-bottom: 10px;
+            }
+
+            .step:not(:last-child)::after {
+                width: 40px;
+                right: -20px;
+            }
+
+            .step-text {
+                display: none;
+            }
+
+            .form-actions {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .btn-form {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <nav class="nav container">
+            <a href="../index.html" class="logo">
+                <span class="logo-main">Designário</span>
+                <span class="logo-subtitle">OBSERVATÓRIO DE INOVAÇÃO SOCIAL</span>
+            </a>
+            
+            <ul class="nav-links">
+                <li><a href="../index.html">Início</a></li>
+                <li><a href="casos.html">Casos</a></li>
+                <li><a href="categorias.html">Categorias</a></li>
+                <li><a href="sobre.html">Sobre</a></li>
+                <li><a href="contato.html">Contato</a></li>
+            </ul>
+
+            <div class="nav-actions">
+                <a href="login.html" class="login-required">Entrar</a>
+                <a href="cadastro.html" class="btn-header">Cadastrar Caso</a>
+            </div>
+
+            <button class="mobile-menu-btn" aria-label="Menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </nav>
+    </header>
+
+    <!-- Hero -->
+    <section class="cadastro-hero">
+        <div class="container">
+            <h1>Cadastrar Novo Caso</h1>
+            <p>Compartilhe uma iniciativa de inovação social e amplifique seu impacto</p>
+        </div>
+    </section>
+
+    <!-- Formulário -->
+    <section style="padding: 0 0 80px 0;">
+        <div class="container">
+            <div class="form-container">
+                <!-- Progress Bar -->
+                <div class="form-progress">
+                    <div class="form-steps">
+                        <div class="step active" data-step="1">
+                            <div class="step-number">1</div>
+                            <div class="step-text">Informações Básicas</div>
+                        </div>
+                        <div class="step" data-step="2">
+                            <div class="step-number">2</div>
+                            <div class="step-text">Detalhes do Projeto</div>
+                        </div>
+                        <div class="step" data-step="3">
+                            <div class="step-number">3</div>
+                            <div class="step-text">Revisão e Envio</div>
+                        </div>
+                    </div>
+                    <div class="progress-text">Passo <span id="current-step">1</span> de 3</div>
+                </div>
+
+                <!-- Form Body -->
+                <div class="form-body">
+                    <form id="cadastro-form">
+                        <!-- Step 1: Informações Básicas -->
+                        <div class="form-step active" data-step="1">
+                            <h2 class="step-title">Informações Básicas</h2>
+                            <p class="step-description">Vamos começar com as informações essenciais sobre a iniciativa.</p>
+
+                            <div class="form-grid">
+                                <div class="form-group form-group-full">
+                                    <label class="form-label required" for="titulo">Nome da Iniciativa</label>
+                                    <input type="text" id="titulo" name="titulo" class="form-input" 
+                                           placeholder="Ex: Horta Comunitária da Providência" required>
+                                    <div class="form-help">Nome pelo qual o projeto é conhecido na comunidade</div>
+                                    <div class="form-error">Este campo é obrigatório</div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label required" for="categoria">Categoria</label>
+                                    <select id="categoria" name="categoria" class="form-select" required>
+                                        <option value="">Selecione uma categoria</option>
+                                        <option value="Educação">Educação</option>
+                                        <option value="Saúde">Saúde</option>
+                                        <option value="Meio Ambiente">Meio Ambiente</option>
+                                        <option value="Inclusão Social">Inclusão Social</option>
+                                        <option value="Tecnologia Social">Tecnologia Social</option>
+                                        <option value="Economia Solidária">Economia Solidária</option>
+                                    </select>
+                                    <div class="form-error">Selecione uma categoria</div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label required" for="regiao">Região</label>
+                                    <select id="regiao" name="regiao" class="form-select" required>
+                                        <option value="">Selecione a região</option>
+                                        <option value="Centro">Centro</option>
+                                        <option value="Zona Norte">Zona Norte</option>
+                                        <option value="Zona Sul">Zona Sul</option>
+                                        <option value="Zona Oeste">Zona Oeste</option>
+                                        <option value="Baixada Fluminense">Baixada Fluminense</option>
+                                    </select>
+                                    <div class="form-error">Selecione uma região</div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label required" for="organizacao">Organização Responsável</label>
+                                    <input type="text" id="organizacao" name="organizacao" class="form-input" 
+                                           placeholder="Ex: Instituto ABC, Coletivo XYZ" required>
+                                    <div class="form-help">Nome da organização, coletivo ou pessoa física responsável</div>
+                                    <div class="form-error">Este campo é obrigatório</div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label required" for="status">Status do Projeto</label>
+                                    <select id="status" name="status" class="form-select" required>
+                                        <option value="">Selecione o status</option>
+                                        <option value="Em andamento">Em andamento</option>
+                                        <option value="Concluído">Concluído</option>
+                                        <option value="Pausado">Pausado</option>
+                                    </select>
+                                    <div class="form-error">Selecione o status atual</div>
+                                </div>
+
+                                <div class="form-group form-group-full">
+                                    <label class="form-label required" for="descricaoResumo">Descrição Resumida</label>
+                                    <textarea id="descricaoResumo" name="descricaoResumo" class="form-textarea" 
+                                              placeholder="Descreva brevemente o projeto em até 280 caracteres..." 
+                                              maxlength="280" required></textarea>
+                                    <div class="textarea-counter">
+                                        <span id="resumo-counter">0</span>/280 caracteres
+                                    </div>
+                                    <div class="form-help">Esta descrição aparecerá nos cards de listagem</div>
+                                    <div class="form-error">Este campo é obrigatório</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Step 2: Detalhes do Projeto -->
+                        <div class="form-step" data-step="2">
+                            <h2 class="step-title">Detalhes do Projeto</h2>
+                            <p class="step-description">Agora vamos detalhar melhor a iniciativa, seus impactos e metodologia.</p>
+
+                            <div class="form-grid">
+                                <div class="form-group form-group-full">
+                                    <label class="form-label" for="descricaoCompleta">Descrição Completa</label>
+                                    <textarea id="descricaoCompleta" name="descricaoCompleta" class="form-textarea" 
+                                              placeholder="Conte a história completa do projeto: como surgiu, como funciona, quais são os principais aspectos..." 
+                                              style="min-height: 150px;"></textarea>
+                                    <div class="form-help">Descrição detalhada que aparecerá na página individual do caso</div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label" for="publicoAlvo">Público-Alvo</label>
+                                    <input type="text" id="publicoAlvo" name="publicoAlvo" class="form-input" 
+                                           placeholder="Ex: Crianças 6-12 anos, famílias baixa renda">
+                                    <div class="form-help">Quem são os beneficiários diretos</div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label" for="beneficiarios">Número de Beneficiários (aprox.)</label>
+                                    <input type="number" id="beneficiarios" name="beneficiarios" class="form-input" 
+                                           placeholder="150" min="1">
+                                    <div class="form-help">Estimativa de pessoas diretamente impactadas</div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label" for="dataInicio">Data de Início</label>
+                                    <input type="date" id="dataInicio" name="dataInicio" class="form-input">
+                                    <div class="form-help">Quando o projeto começou a funcionar</div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label" for="contato">Contato para Mais Informações</label>
+                                    <input type="email" id="contato" name="contato" class="form-input" 
+                                           placeholder="contato@projeto.org.br">
+                                    <div class="form-help">E-mail para quem quiser saber mais sobre o projeto</div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label" for="site">Site ou Rede Social</label>
+                                    <input type="url" id="site" name="site" class="form-input" 
+                                           placeholder="https://www.projeto.org.br">
+                                    <div class="form-help">Link para site oficial ou rede social principal</div>
+                                </div>
+
+                                <div class="form-group form-group-full">
+                                    <label class="form-label" for="metodologia">Metodologia/Abordagem</label>
+                                    <textarea id="metodologia" name="metodologia" class="form-textarea" 
+                                              placeholder="Como o projeto funciona? Que métodos e técnicas utiliza?"></textarea>
+                                    <div class="form-help">Descreva as principais estratégias e métodos utilizados</div>
+                                </div>
+
+                                <div class="form-group form-group-full">
+                                    <label class="form-label" for="impactos">Impactos e Resultados Alcançados</label>
+                                    <textarea id="impactos" name="impactos" class="form-textarea" 
+                                              placeholder="Liste os principais resultados e impactos (um por linha)&#10;Ex: Produção de 2 toneladas de alimentos mensais&#10;Capacitação de 80 pessoas"></textarea>
+                                    <div class="form-help">Digite um impacto por linha. Estes serão listados como pontos destacados.</div>
+                                </div>
+
+                                <div class="form-group form-group-full">
+                                    <label class="form-label" for="desafios">Principais Desafios Enfrentados</label>
+                                    <textarea id="desafios" name="desafios" class="form-textarea" 
+                                              placeholder="Quais são os principais obstáculos e como o projeto lida com eles?"></textarea>
+                                    <div class="form-help">Transparência sobre dificuldades ajuda outros projetos</div>
+                                </div>
+
+                                <div class="form-group form-group-full">
+                                    <label class="form-label" for="tags">Tags/Palavras-chave</label>
+                                    <div class="tags-input-container">
+                                        <div class="tags-display" id="tags-display">
+                                            <input type="text" class="tag-input" id="tag-input" 
+                                                   placeholder="Digite uma palavra-chave e pressione Enter">
+                                        </div>
+                                    </div>
+                                    <div class="form-help">Palavras-chave que facilitam a busca (ex: sustentabilidade, juventude, tecnologia)</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Step 3: Revisão e Envio -->
+                        <div class="form-step" data-step="3">
+                            <h2 class="step-title">Revisão e Envio</h2>
+                            <p class="step-description">Revise todas as informações antes de enviar o cadastro.</p>
+
+                            <div class="preview-section">
+                                <h3 class="preview-title">Preview do Caso</h3>
+                                <div class="preview-card" id="preview-content">
+                                    <!-- Conteúdo preenchido via JavaScript -->
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label required">Responsável pelo Cadastro</label>
+                                <input type="text" id="responsavelCadastro" name="responsavelCadastro" 
+                                       class="form-input" placeholder="Seu nome - Extensão UFRJ" required>
+                                <div class="form-help">Identifique-se como responsável por este cadastro</div>
+                                <div class="form-error">Este campo é obrigatório</div>
+                            </div>
+
+                            <div class="checkbox-group">
+                                <label class="checkbox-item">
+                                    <input type="checkbox" name="confirmacao" required>
+                                    <span>Confirmo que as informações fornecidas são verdadeiras</span>
+                                </label>
+                                <label class="checkbox-item">
+                                    <input type="checkbox" name="autorizacao" required>
+                                    <span>Autorizo a publicação deste caso no Observatório</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Success Message -->
+                        <div class="form-step" id="success-step" style="display: none;">
+                            <div class="success-message">
+                                <div class="success-icon">🎉</div>
+                                <h2 class="success-title">Caso Cadastrado com Sucesso!</h2>
+                                <p class="success-description">
+                                    Seu caso foi enviado para análise e será publicado em breve. 
+                                    Você receberá uma notificação por e-mail quando for aprovado.
+                                </p>
+                                <div style="display: flex; gap: 20px; justify-content: center; flex-wrap: wrap;">
+                                    <a href="../index.html" class="btn-primary">Voltar ao Início</a>
+                                    <a href="cadastro.html" class="btn-secondary" style="color: var(--primary-color); border-color: var(--primary-color);">Cadastrar Outro Caso</a>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Form Actions -->
+                <div class="form-actions" id="form-actions">
+                    <button type="button" class="btn-form btn-back" id="btn-back" style="visibility: hidden;">
+                        ← Voltar
+                    </button>
+                    <button type="button" class="btn-form btn-next" id="btn-next">
+                        Próximo →
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Scripts -->
+    <script src="../js/DataManager.js"></script>
+    <script src="../js/AuthManager.js"></script>
+    <script src="../js/main.js"></script>
+    <script>
+        class CadastroForm {
+            constructor() {
+                this.currentStep = 1;
+                this.totalSteps = 3;
+                this.formData = {};
+                this.tags = [];
+                this.authManager = null;
+                this.dataManager = null;
+                this.init();
+            }
+
+            init() {
+                // Inicializar managers
+                this.authManager = AuthManager.getInstance();
+                this.dataManager = DataManager.getInstance();
+                
+                // Verificar autenticação primeiro
+                if (!this.authManager.requireAuth('../login.html')) {
+                    return;
+                }
+                
+                this.setupEventListeners();
+                this.setupTagsInput();
+                this.setupFormValidation();
+                this.setupTextCounters();
+                this.checkEditMode();
+            }
+
+            showUnauthenticatedError() {
+                document.querySelector('.cadastro-hero .container').innerHTML = `
+                    <div style="text-align: center; padding: 60px 0;">
+                        <h1 style="color: white; margin-bottom: 20px;">🔒 Acesso Restrito</h1>
+                        <p style="color: rgba(255,255,255,0.9); margin-bottom: 30px; font-size: 18px;">
+                            Você precisa estar logado para cadastrar um novo caso.
+                        </p>
+                        <p style="color: rgba(255,255,255,0.8); margin-bottom: 40px;">
+                            O cadastro de casos é restrito a membros autorizados da comunidade universitária.
+                        </p>
+                        <div style="display: flex; gap: 20px; justify-content: center; flex-wrap: wrap;">
+                            <a href="login.html" class="btn-primary">Fazer Login</a>
+                            <a href="contato.html" class="btn-secondary" style="color: white; border-color: rgba(255,255,255,0.5);">Solicitar Acesso</a>
+                        </div>
+                    </div>
+                `;
+                
+                // Esconder o formulário
+                document.querySelector('.form-container').style.display = 'none';
+            }
+
+            setupEventListeners() {
+                // Navegação entre steps
+                document.getElementById('btn-next').addEventListener('click', () => this.nextStep());
+                document.getElementById('btn-back').addEventListener('click', () => this.prevStep());
+
+                // Validação em tempo real
+                document.querySelectorAll('.form-input, .form-select, .form-textarea').forEach(field => {
+                    field.addEventListener('blur', () => this.validateField(field));
+                    field.addEventListener('input', () => this.clearError(field));
+                });
+
+                // Form submission
+                document.getElementById('cadastro-form').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.submitForm();
+                });
+            }
+
+            setupTagsInput() {
+                const tagInput = document.getElementById('tag-input');
+                const tagsDisplay = document.getElementById('tags-display');
+
+                tagInput.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ',') {
+                        e.preventDefault();
+                        this.addTag(tagInput.value.trim());
+                        tagInput.value = '';
+                    }
+                });
+
+                tagInput.addEventListener('blur', () => {
+                    if (tagInput.value.trim()) {
+                        this.addTag(tagInput.value.trim());
+                        tagInput.value = '';
+                    }
+                });
+            }
+
+            addTag(tagText) {
+                if (tagText && !this.tags.includes(tagText.toLowerCase())) {
+                    this.tags.push(tagText.toLowerCase());
+                    this.renderTags();
+                }
+            }
+
+            removeTag(tagText) {
+                this.tags = this.tags.filter(tag => tag !== tagText);
+                this.renderTags();
+            }
+
+            renderTags() {
+                const tagInput = document.getElementById('tag-input');
+                const tagsDisplay = document.getElementById('tags-display');
+                
+                // Remove existing tags
+                tagsDisplay.querySelectorAll('.tag-item').forEach(tag => tag.remove());
+                
+                // Add current tags
+                this.tags.forEach(tag => {
+                    const tagElement = document.createElement('div');
+                    tagElement.className = 'tag-item';
+                    tagElement.innerHTML = `
+                        <span>${tag}</span>
+                        <button type="button" class="tag-remove" onclick="cadastroForm.removeTag('${tag}')">&times;</button>
+                    `;
+                    tagsDisplay.insertBefore(tagElement, tagInput);
+                });
+            }
+
+            setupTextCounters() {
+                const resumoTextarea = document.getElementById('descricaoResumo');
+                const resumoCounter = document.getElementById('resumo-counter');
+
+                resumoTextarea.addEventListener('input', () => {
+                    const count = resumoTextarea.value.length;
+                    resumoCounter.textContent = count;
+                    resumoCounter.style.color = count > 250 ? '#e74c3c' : '#666';
+                });
+            }
+
+            setupFormValidation() {
+                // Real-time validation setup
+                const requiredFields = document.querySelectorAll('[required]');
+                requiredFields.forEach(field => {
+                    field.addEventListener('input', () => this.validateStep(this.currentStep));
+                });
+            }
+
+            checkEditMode() {
+                const urlParams = new URLSearchParams(window.location.search);
+                const editId = urlParams.get('edit');
+                
+                if (editId) {
+                    this.loadCasoForEdit(editId);
+                }
+            }
+
+            loadCasoForEdit(casoId) {
+                try {
+                    const casos = this.dataManager.getCasos();
+                    const caso = casos.find(c => c.id == casoId);
+                    
+                    if (caso) {
+                        // Preencher formulário com dados existentes
+                        Object.keys(caso).forEach(key => {
+                            const field = document.getElementById(key);
+                            if (field) {
+                                field.value = caso[key];
+                            }
+                        });
+                        
+                        // Tags especiais
+                        if (caso.tags) {
+                            this.tags = [...caso.tags];
+                            this.renderTags();
+                        }
+                        
+                        // Alterar título
+                        document.querySelector('.cadastro-hero h1').textContent = 'Editar Caso';
+                        document.querySelector('.cadastro-hero p').textContent = 'Atualize as informações da iniciativa';
+                    }
+                } catch (error) {
+                    console.error('Erro ao carregar caso para edição:', error);
+                }
+            }
+
+            nextStep() {
+                if (this.validateStep(this.currentStep)) {
+                    if (this.currentStep < this.totalSteps) {
+                        this.currentStep++;
+                        this.updateStepDisplay();
+                        
+                        if (this.currentStep === 3) {
+                            this.generatePreview();
+                        }
+                    } else {
+                        this.submitForm();
+                    }
+                }
+            }
+
+            prevStep() {
+                if (this.currentStep > 1) {
+                    this.currentStep--;
+                    this.updateStepDisplay();
+                }
+            }
+
+            updateStepDisplay() {
+                // Update step indicators
+                document.querySelectorAll('.step').forEach(step => {
+                    const stepNumber = parseInt(step.dataset.step);
+                    step.classList.remove('active', 'completed');
+                    
+                    if (stepNumber === this.currentStep) {
+                        step.classList.add('active');
+                    } else if (stepNumber < this.currentStep) {
+                        step.classList.add('completed');
+                    }
+                });
+
+                // Update step content
+                document.querySelectorAll('.form-step').forEach(step => {
+                    step.classList.remove('active');
+                });
+                document.querySelector(`.form-step[data-step="${this.currentStep}"]`).classList.add('active');
+
+                // Update progress text
+                document.getElementById('current-step').textContent = this.currentStep;
+
+                // Update navigation buttons
+                const btnBack = document.getElementById('btn-back');
+                const btnNext = document.getElementById('btn-next');
+
+                btnBack.style.visibility = this.currentStep === 1 ? 'hidden' : 'visible';
+                
+                if (this.currentStep === this.totalSteps) {
+                    btnNext.innerHTML = 'Finalizar Cadastro ✓';
+                } else {
+                    btnNext.innerHTML = 'Próximo →';
+                }
+
+                // Scroll to top
+                document.querySelector('.form-container').scrollIntoView({ 
+                    behavior: 'smooth', 
+                    block: 'start' 
+                });
+            }
+
+            validateStep(step) {
+                const currentStepElement = document.querySelector(`.form-step[data-step="${step}"]`);
+                const requiredFields = currentStepElement.querySelectorAll('[required]');
+                let isValid = true;
+
+                requiredFields.forEach(field => {
+                    if (!this.validateField(field)) {
+                        isValid = false;
+                    }
+                });
+
+                // Update next button state
+                document.getElementById('btn-next').disabled = !isValid;
+                
+                return isValid;
+            }
+
+            validateField(field) {
+                const formGroup = field.closest('.form-group');
+                let isValid = true;
+
+                // Clear previous errors
+                formGroup.classList.remove('error');
+
+                // Check if field is required and empty
+                if (field.hasAttribute('required') && !field.value.trim()) {
+                    isValid = false;
+                }
+
+                // Email validation
+                if (field.type === 'email' && field.value && !this.isValidEmail(field.value)) {
+                    isValid = false;
+                }
+
+                // URL validation
+                if (field.type === 'url' && field.value && !this.isValidURL(field.value)) {
+                    isValid = false;
+                }
+
+                // Show error state
+                if (!isValid) {
+                    formGroup.classList.add('error');
+                }
+
+                return isValid;
+            }
+
+            clearError(field) {
+                const formGroup = field.closest('.form-group');
+                formGroup.classList.remove('error');
+            }
+
+            isValidEmail(email) {
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                return emailRegex.test(email);
+            }
+
+            isValidURL(url) {
+                try {
+                    new URL(url);
+                    return true;
+                } catch {
+                    return false;
+                }
+            }
+
+            generatePreview() {
+                const formData = new FormData(document.getElementById('cadastro-form'));
+                const preview = document.getElementById('preview-content');
+                
+                const data = {
+                    titulo: formData.get('titulo'),
+                    categoria: formData.get('categoria'),
+                    regiao: formData.get('regiao'),
+                    organizacao: formData.get('organizacao'),
+                    descricaoResumo: formData.get('descricaoResumo'),
+                    beneficiarios: formData.get('beneficiarios'),
+                    status: formData.get('status')
+                };
+
+                const categorySlug = this.getCategorySlug(data.categoria);
+                
+                preview.innerHTML = `
+                    <div style="margin-bottom: 15px;">
+                        <span class="case-category-badge badge-${categorySlug}">${data.categoria}</span>
+                    </div>
+                    <h3 style="font-size: 20px; font-weight: 600; margin-bottom: 12px; color: var(--text-dark);">
+                        ${data.titulo}
+                    </h3>
+                    <div style="display: flex; gap: 20px; flex-wrap: wrap; font-size: 14px; color: var(--text-light); margin-bottom: 15px;">
+                        <span>📍 ${data.regiao}</span>
+                        <span>🏢 ${data.organizacao}</span>
+                        ${data.beneficiarios ? `<span>👥 ${data.beneficiarios} beneficiários</span>` : ''}
+                        <span>⏱️ ${data.status}</span>
+                    </div>
+                    <p style="color: var(--text-light); line-height: 1.6;">
+                        ${data.descricaoResumo}
+                    </p>
+                    ${this.tags.length > 0 ? `
+                        <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 15px;">
+                            ${this.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+                        </div>
+                    ` : ''}
+                `;
+            }
+
+            getCategorySlug(categoria) {
+                const slugs = {
+                    'Educação': 'education',
+                    'Saúde': 'health',
+                    'Meio Ambiente': 'environment',
+                    'Inclusão Social': 'social',
+                    'Tecnologia Social': 'technology',
+                    'Economia Solidária': 'economy'
+                };
+                return slugs[categoria] || 'social';
+            }
+
+            submitForm() {
+                if (!this.validateStep(this.currentStep)) return;
+
+                const formData = new FormData(document.getElementById('cadastro-form'));
+                const caso = {
+                    id: Date.now(), // Temporary ID
+                    titulo: formData.get('titulo'),
+                    categoria: formData.get('categoria'),
+                    regiao: formData.get('regiao'),
+                    organizacao: formData.get('organizacao'),
+                    status: formData.get('status'),
+                    descricaoResumo: formData.get('descricaoResumo'),
+                    descricaoCompleta: formData.get('descricaoCompleta'),
+                    publicoAlvo: formData.get('publicoAlvo'),
+                    beneficiarios: parseInt(formData.get('beneficiarios')) || 0,
+                    dataInicio: formData.get('dataInicio'),
+                    contato: formData.get('contato'),
+                    site: formData.get('site'),
+                    metodologia: formData.get('metodologia'),
+                    desafios: formData.get('desafios'),
+                    responsavelCadastro: formData.get('responsavelCadastro'),
+                    dataCadastro: new Date().toISOString().split('T')[0],
+                    tags: [...this.tags],
+                    aprovado: false, // Aguardando aprovação
+                    impactos: formData.get('impactos') ? 
+                              formData.get('impactos').split('\n').filter(i => i.trim()) : []
+                };
+
+                try {
+                    // Salvar usando DataManager
+                    const user = this.authManager.getCurrentUser();
+                    caso.responsavelCadastro = `${user.name} - ${user.department}`;
+                    
+                    this.dataManager.addCaso(caso);
+
+                    // Mostrar sucesso
+                    this.showSuccess();
+                } catch (error) {
+                    console.error('Erro ao salvar caso:', error);
+                    app.showNotification('Erro ao salvar caso. Tente novamente.', 'error');
+                }
+            }
+
+            showSuccess() {
+                // Esconder formulário e actions
+                document.querySelectorAll('.form-step').forEach(step => {
+                    step.style.display = 'none';
+                });
+                document.getElementById('form-actions').style.display = 'none';
+                document.querySelector('.form-progress').style.display = 'none';
+
+                // Mostrar mensagem de sucesso
+                document.getElementById('success-step').style.display = 'block';
+
+                // Scroll para o topo
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+
+        // Inicializar quando DOM estiver pronto
+        document.addEventListener('DOMContentLoaded', () => {
+            window.cadastroForm = new CadastroForm();
+        });
+    </script>
+</body>
+</html>

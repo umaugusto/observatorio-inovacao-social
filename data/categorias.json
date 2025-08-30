@@ -1,0 +1,104 @@
+[
+  {
+    "id": 1,
+    "nome": "Educação",
+    "slug": "education",
+    "descricao": "Projetos que democratizam o acesso ao conhecimento e transformam a experiência educacional",
+    "icone": "📚",
+    "cor": "#667eea",
+    "corSecundaria": "#764ba2",
+    "casos": 23,
+    "exemplos": [
+      "Bibliotecas comunitárias",
+      "Educação digital",
+      "Alfabetização de adultos",
+      "Escolas alternativas",
+      "Cursos profissionalizantes"
+    ]
+  },
+  {
+    "id": 2,
+    "nome": "Saúde",
+    "slug": "health",
+    "descricao": "Iniciativas que promovem bem-estar, prevenção e acesso universal aos cuidados de saúde",
+    "icone": "🏥",
+    "cor": "#f093fb",
+    "corSecundaria": "#f5576c",
+    "casos": 18,
+    "exemplos": [
+      "Cuidados domiciliares",
+      "Prevenção em saúde",
+      "Saúde mental comunitária",
+      "Medicina tradicional",
+      "Telemedicina social"
+    ]
+  },
+  {
+    "id": 3,
+    "nome": "Meio Ambiente",
+    "slug": "environment",
+    "descricao": "Soluções sustentáveis para preservação ambiental e desenvolvimento verde",
+    "icone": "🌱",
+    "cor": "#4facfe",
+    "corSecundaria": "#00f2fe",
+    "casos": 31,
+    "exemplos": [
+      "Agricultura urbana",
+      "Reciclagem comunitária",
+      "Energias renováveis",
+      "Conservação ambiental",
+      "Educação ecológica"
+    ]
+  },
+  {
+    "id": 4,
+    "nome": "Inclusão Social",
+    "slug": "social",
+    "descricao": "Projetos que promovem equidade, diversidade e oportunidades para todos",
+    "icone": "🤝",
+    "cor": "#43e97b",
+    "corSecundaria": "#38f9d7",
+    "casos": 27,
+    "exemplos": [
+      "Integração de pessoas com deficiência",
+      "Projetos LGBTQIA+",
+      "Inclusão racial",
+      "Acolhimento de refugiados",
+      "Combate à violência"
+    ]
+  },
+  {
+    "id": 5,
+    "nome": "Tecnologia Social",
+    "slug": "technology",
+    "descricao": "Inovações tecnológicas aplicadas para resolver problemas sociais complexos",
+    "icone": "💡",
+    "cor": "#fa709a",
+    "corSecundaria": "#fee140",
+    "casos": 15,
+    "exemplos": [
+      "Aplicativos sociais",
+      "Inclusão digital",
+      "Tecnologias apropriadas",
+      "Fabricação digital",
+      "IoT para causas sociais"
+    ]
+  },
+  {
+    "id": 6,
+    "nome": "Economia Solidária",
+    "slug": "economy",
+    "descricao": "Alternativas econômicas que valorizam pessoas e sustentabilidade",
+    "icone": "💰",
+    "cor": "#a8edea",
+    "corSecundaria": "#fed6e3",
+    "casos": 19,
+    "exemplos": [
+      "Cooperativas populares",
+      "Bancos comunitários",
+      "Moedas sociais",
+      "Comércio justo",
+      "Empreendedorismo social"
+    ]
+  }
+]

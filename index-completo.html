@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Observatório de Inovação Social - Rio de Janeiro</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 15px 0;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+        }
+
+        .nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 20px;
+            font-weight: 700;
+            color: #2d7a5f;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 30px;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #555;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: #2d7a5f;
+        }
+
+        .btn-header {
+            background: #2d7a5f;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+
+        .btn-header:hover {
+            background: #235a47;
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, #a8e6cf 0%, #2d7a5f 100%);
+            padding: 120px 0 80px 0;
+            text-align: center;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="20" cy="20" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="80" cy="80" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="40" cy="60" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="60" cy="40" r="1" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+            opacity: 0.3;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero h1 {
+            font-size: 48px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            line-height: 1.2;
+        }
+
+        .hero p {
+            font-size: 20px;
+            margin-bottom: 30px;
+            opacity: 0.95;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn-primary {
+            background: white;
+            color: #2d7a5f;
+            padding: 15px 30px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 16px;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(0,0,0,0.15);
+        }
+
+        .btn-secondary {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 16px;
+            border: 2px solid rgba(255,255,255,0.3);
+            transition: all 0.3s;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255,255,255,0.3);
+            border-color: rgba(255,255,255,0.5);
+        }
+
+        /* Categories Section */
+        .categories-section {
+            padding: 80px 0;
+            background: #f8f9fa;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 36px;
+            font-weight: 700;
+            color: #2d7a5f;
+            margin-bottom: 50px;
+        }
+
+        .categories-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            margin-bottom: 60px;
+        }
+
+        .category-card {
+            background: white;
+            border-radius: 12px;
+            padding: 30px 25px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .category-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+        }
+
+        .category-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            margin: 0 auto 20px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+            font-weight: bold;
+        }
+
+        .category-card.education .category-icon { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .category-card.health .category-icon { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+        .category-card.environment .category-icon { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+        .category-card.social .category-icon { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
+        .category-card.technology .category-icon { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); }
+        .category-card.economy .category-icon { background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); }
+
+        .category-card h3 {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .category-card p {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.5;
+            margin-bottom: 20px;
+        }
+
+        .category-count {
+            background: #f1f3f4;
+            color: #2d7a5f;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        /* Recent Cases Section */
+        .recent-cases {
+            padding: 80px 0;
+            background: white;
+        }
+
+        .cases-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+        }
+
+        .cases-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+        }
+
+        .case-card {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            border: 1px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+
+        .case-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+            border-color: #2d7a5f;
+        }
+
+        .case-category-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .badge-education { background: #e3f2fd; color: #1976d2; }
+        .badge-health { background: #fce4ec; color: #c2185b; }
+        .badge-environment { background: #e0f2f1; color: #00695c; }
+        .badge-social { background: #f3e5f5; color: #7b1fa2; }
+
+        .case-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #2d7a5f;
+            line-height: 1.3;
+        }
+
+        .case-meta {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 15px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .case-meta span {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .case-description {
+            color: #555;
+            font-size: 15px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .case-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-small {
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .btn-outline {
+            border: 1px solid #2d7a5f;
+            color: #2d7a5f;
+            background: white;
+        }
+
+        .btn-outline:hover {
+            background: #2d7a5f;
+            color: white;
+        }
+
+        /* Stats Section */
+        .stats-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 80px 0;
+            color: white;
+            text-align: center;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 40px;
+            margin-top: 50px;
+        }
+
+        .stat-item h3 {
+            font-size: 48px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .stat-item p {
+            font-size: 18px;
+            opacity: 0.9;
+        }
+
+        /* CTA Section */
+        .cta-section {
+            padding: 80px 0;
+            background: #f8f9fa;
+            text-align: center;
+        }
+
+        .cta-content {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .cta-section h2 {
+            font-size: 36px;
+            font-weight: 700;
+            color: #2d7a5f;
+            margin-bottom: 20px;
+        }
+
+        .cta-section p {
+            font-size: 18px;
+            color: #666;
+            margin-bottom: 40px;
+        }
+
+        /* Footer */
+        .footer {
+            background: #2d7a5f;
+            color: white;
+            padding: 60px 0 30px 0;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        .footer-section h4 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .footer-section ul {
+            list-style: none;
+        }
+
+        .footer-section ul li {
+            margin-bottom: 10px;
+        }
+
+        .footer-section ul li a {
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer-section ul li a:hover {
+            color: white;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            color: rgba(255,255,255,0.7);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .hero h1 {
+                font-size: 36px;
+            }
+
+            .hero p {
+                font-size: 18px;
+            }
+
+            .hero-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .cases-header {
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .section-title {
+                font-size: 28px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <nav class="nav container">
+            <div class="logo">Observatório Social RJ</div>
+            <ul class="nav-links">
+                <li><a href="#casos">Casos</a></li>
+                <li><a href="#categorias">Categorias</a></li>
+                <li><a href="#sobre">Sobre</a></li>
+                <li><a href="#contato">Contato</a></li>
+            </ul>
+            <a href="#cadastrar" class="btn-header">Cadastrar Caso</a>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <h1>Inovação que transforma<br>o Rio de Janeiro</h1>
+                <p>Descubra, cadastre e compartilhe iniciativas que estão criando impacto social positivo em todas as regiões da cidade</p>
+                <div class="hero-buttons">
+                    <a href="#explorar" class="btn-primary">Explorar Casos</a>
+                    <a href="#cadastrar" class="btn-secondary">Cadastrar Projeto</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Categories Section -->
+    <section class="categories-section" id="categorias">
+        <div class="container">
+            <h2 class="section-title">Áreas de Inovação Social</h2>
+            <div class="categories-grid">
+                <div class="category-card education">
+                    <div class="category-icon">📚</div>
+                    <h3>Educação</h3>
+                    <p>Projetos que democratizam o acesso ao conhecimento e transformam a experiência educacional</p>
+                    <span class="category-count">23 casos</span>
+                </div>
+
+                <div class="category-card health">
+                    <div class="category-icon">🏥</div>
+                    <h3>Saúde</h3>
+                    <p>Iniciativas que promovem bem-estar, prevenção e acesso universal aos cuidados de saúde</p>
+                    <span class="category-count">18 casos</span>
+                </div>
+
+                <div class="category-card environment">
+                    <div class="category-icon">🌱</div>
+                    <h3>Meio Ambiente</h3>
+                    <p>Soluções sustentáveis para preservação ambiental e desenvolvimento verde</p>
+                    <span class="category-count">31 casos</span>
+                </div>
+
+                <div class="category-card social">
+                    <div class="category-icon">🤝</div>
+                    <h3>Inclusão Social</h3>
+                    <p>Projetos que promovem equidade, diversidade e oportunidades para todos</p>
+                    <span class="category-count">27 casos</span>
+                </div>
+
+                <div class="category-card technology">
+                    <div class="category-icon">💡</div>
+                    <h3>Tecnologia Social</h3>
+                    <p>Inovações tecnológicas aplicadas para resolver problemas sociais complexos</p>
+                    <span class="category-count">15 casos</span>
+                </div>
+
+                <div class="category-card economy">
+                    <div class="category-icon">💰</div>
+                    <h3>Economia Solidária</h3>
+                    <p>Alternativas econômicas que valorizam pessoas e sustentabilidade</p>
+                    <span class="category-count">19 casos</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Recent Cases Section -->
+    <section class="recent-cases" id="casos">
+        <div class="container">
+            <div class="cases-header">
+                <h2 class="section-title">Casos Recentes</h2>
+                <a href="#todos-casos" class="btn-outline btn-small">Ver Todos os Casos</a>
+            </div>
+            
+            <div class="cases-grid">
+                <div class="case-card">
+                    <span class="case-category-badge badge-environment">Meio Ambiente</span>
+                    <h3 class="case-title">Horta Comunitária da Providência</h3>
+                    <div class="case-meta">
+                        <span>📍 Centro</span>
+                        <span>👥 150 famílias</span>
+                        <span>📅 15/08/2024</span>
+                    </div>
+                    <p class="case-description">
+                        Transformação de área degradada em espaço produtivo que beneficia a comunidade local com alimentos orgânicos, geração de renda e fortalecimento de vínculos sociais.
+                    </p>
+                    <div class="case-actions">
+                        <a href="#" class="btn-outline btn-small">Ver Detalhes</a>
+                    </div>
+                </div>
+
+                <div class="case-card">
+                    <span class="case-category-badge badge-education">Educação</span>
+                    <h3 class="case-title">Biblioteca Móvel Zona Oeste</h3>
+                    <div class="case-meta">
+                        <span>📍 Campo Grande</span>
+                        <span>📚 5 mil livros</span>
+                        <span>📅 12/08/2024</span>
+                    </div>
+                    <p class="case-description">
+                        Ônibus adaptado que leva literatura e atividades educativas para comunidades com baixo acesso a equipamentos culturais, promovendo o hábito da leitura.
+                    </p>
+                    <div class="case-actions">
+                        <a href="#" class="btn-outline btn-small">Ver Detalhes</a>
+                    </div>
+                </div>
+
+                <div class="case-card">
+                    <span class="case-category-badge badge-health">Saúde</span>
+                    <h3 class="case-title">Rede de Cuidadores da Terceira Idade</h3>
+                    <div class="case-meta">
+                        <span>📍 Copacabana</span>
+                        <span>👨‍⚕️ 50 cuidadores</span>
+                        <span>📅 10/08/2024</span>
+                    </div>
+                    <p class="case-description">
+                        Plataforma que conecta famílias com cuidadores qualificados, oferecendo capacitação contínua e suporte emocional para um envelhecimento digno.
+                    </p>
+                    <div class="case-actions">
+                        <a href="#" class="btn-outline btn-small">Ver Detalhes</a>
+                    </div>
+                </div>
+
+                <div class="case-card">
+                    <span class="case-category-badge badge-social">Inclusão Social</span>
+                    <h3 class="case-title">Oficinas de Arte para Pessoas com Deficiência</h3>
+                    <div class="case-meta">
+                        <span>📍 Tijuca</span>
+                        <span>🎨 30 participantes</span>
+                        <span>📅 08/08/2024</span>
+                    </div>
+                    <p class="case-description">
+                        Programa que desenvolve habilidades artísticas e promove autonomia através da arte, criando oportunidades de expressão e inclusão social.
+                    </p>
+                    <div class="case-actions">
+                        <a href="#" class="btn-outline btn-small">Ver Detalhes</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="stats-section">
+        <div class="container">
+            <h2 class="section-title" style="color: white;">Impacto em Números</h2>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <h3>133</h3>
+                    <p>Casos Cadastrados</p>
+                </div>
+                <div class="stat-item">
+                    <h3>47</h3>
+                    <p>Bairros Mapeados</p>
+                </div>
+                <div class="stat-item">
+                    <h3>28</h3>
+                    <p>Extensionistas Ativos</p>
+                </div>
+                <div class="stat-item">
+                    <h3>15k+</h3>
+                    <p>Pessoas Beneficiadas</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section" id="cadastrar">
+        <div class="container">
+            <div class="cta-content">
+                <h2>Faça Parte da Transformação</h2>
+                <p>Conheça uma iniciativa de inovação social na sua região? Cadastre no nosso observatório e ajude a amplificar o impacto positivo no Rio de Janeiro.</p>
+                <div class="hero-buttons">
+                    <a href="#formulario" class="btn-primary">Cadastrar Novo Caso</a>
+                    <a href="#contato" class="btn-secondary" style="color: #2d7a5f; border-color: #2d7a5f;">Entrar em Contato</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>Observatório</h4>
+                    <ul>
+                        <li><a href="#sobre">Sobre o Projeto</a></li>
+                        <li><a href="#metodologia">Metodologia</a></li>
+                        <li><a href="#equipe">Nossa Equipe</a></li>
+                        <li><a href="#parceiros">Parceiros</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Casos</h4>
+                    <ul>
+                        <li><a href="#explorar">Explorar Casos</a></li>
+                        <li><a href="#categorias">Por Categoria</a></li>
+                        <li><a href="#mapa">Mapa Interativo</a></li>
+                        <li><a href="#relatorios">Relatórios</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Participação</h4>
+                    <ul>
+                        <li><a href="#cadastrar">Cadastrar Caso</a></li>
+                        <li><a href="#extensao">Programa de Extensão</a></li>
+                        <li><a href="#voluntario">Seja Voluntário</a></li>
+                        <li><a href="#newsletter">Newsletter</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>UFRJ</h4>
+                    <ul>
+                        <li><a href="https://ufrj.br" target="_blank">Site Oficial</a></li>
+                        <li><a href="#extensao-ufrj">Extensão UFRJ</a></li>
+                        <li><a href="#pesquisa">Pesquisa</a></li>
+                        <li><a href="#contato">Contato</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 Observatório de Inovação Social do Rio de Janeiro - UFRJ. Todos os direitos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Smooth scrolling para links internos
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Efeito parallax simples no hero
+        window.addEventListener('scroll', () => {
+            const scrolled = window.pageYOffset;
+            const hero = document.querySelector('.hero');
+            if (hero) {
+                hero.style.transform = `translateY(${scrolled * 0.5}px)`;
+            }
+        });
+    </script>
+</body>
+</html>

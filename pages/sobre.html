@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sobre | Observatório Social RJ</title>
+    <meta name="description" content="Conheça o Observatório de Inovação Social do Rio de Janeiro - UFRJ.">
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet" href="../css/components.css">
+    <style>
+        .about-hero {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 100px 0 60px 0;
+            margin-top: 70px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .about-hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 30% 40%, rgba(255,255,255,0.1) 0%, transparent 50%);
+        }
+
+        .about-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .about-section {
+            padding: 80px 0;
+        }
+
+        .about-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: center;
+            margin-bottom: 80px;
+        }
+
+        .about-text h2 {
+            font-size: 36px;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 25px;
+        }
+
+        .about-text p {
+            color: var(--text-light);
+            font-size: 16px;
+            line-height: 1.8;
+            margin-bottom: 20px;
+        }
+
+        .about-visual {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+            border-radius: var(--border-radius-lg);
+            padding: 40px;
+            text-align: center;
+            color: white;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .visual-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+
+        .visual-title {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .visual-description {
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+
+        .stats-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin: 60px 0;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 40px 30px;
+            border-radius: var(--border-radius-lg);
+            text-align: center;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border-light);
+            transition: var(--transition);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .stat-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+
+        .stat-number {
+            font-size: 36px;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            color: var(--text-light);
+            font-weight: 600;
+        }
+
+        .methodology-section {
+            background: var(--background-light);
+            padding: 80px 0;
+        }
+
+        .methodology-steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 40px;
+            margin-top: 60px;
+        }
+
+        .step-card {
+            background: white;
+            padding: 40px 30px;
+            border-radius: var(--border-radius-lg);
+            text-align: center;
+            box-shadow: var(--shadow-sm);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .step-number {
+            position: absolute;
+            top: -20px;
+            right: -20px;
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: 700;
+            color: white;
+            opacity: 0.8;
+        }
+
+        .step-icon {
+            font-size: 48px;
+            margin-bottom: 25px;
+        }
+
+        .step-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 15px;
+        }
+
+        .step-description {
+            color: var(--text-light);
+            line-height: 1.6;
+        }
+
+        .team-section {
+            padding: 80px 0;
+        }
+
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 40px;
+            margin-top: 60px;
+        }
+
+        .team-member {
+            background: white;
+            border-radius: var(--border-radius-lg);
+            overflow: hidden;
+            box-shadow: var(--shadow-md);
+            transition: var(--transition);
+        }
+
+        .team-member:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .member-avatar {
+            height: 200px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 64px;
+            color: white;
+        }
+
+        .member-info {
+            padding: 30px;
+            text-align: center;
+        }
+
+        .member-name {
+            font-size: 22px;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 8px;
+        }
+
+        .member-role {
+            color: var(--primary-color);
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .member-bio {
+            color: var(--text-light);
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .member-contact {
+            font-size: 13px;
+            color: var(--primary-color);
+        }
+
+        .impact-section {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 80px 0;
+            text-align: center;
+        }
+
+        .impact-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 40px;
+            margin-top: 60px;
+        }
+
+        .impact-item {
+            padding: 20px;
+        }
+
+        .impact-number {
+            font-size: 48px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            opacity: 0.9;
+        }
+
+        .impact-label {
+            font-size: 16px;
+            opacity: 0.8;
+        }
+
+        @media (max-width: 768px) {
+            .about-grid {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
+
+            .about-text h2 {
+                font-size: 28px;
+            }
+
+            .stats-cards {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            }
+
+            .methodology-steps {
+                grid-template-columns: 1fr;
+            }
+
+            .team-grid {
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <nav class="nav container">
+            <a href="../index.html" class="logo">
+                <span class="logo-main">Designário</span>
+                <span class="logo-subtitle">OBSERVATÓRIO DE INOVAÇÃO SOCIAL</span>
+            </a>
+            
+            <ul class="nav-links">
+                <li><a href="../index.html">Início</a></li>
+                <li><a href="casos.html">Casos</a></li>
+                <li><a href="categorias.html">Categorias</a></li>
+                <li><a href="sobre.html" class="active">Sobre</a></li>
+                <li><a href="contato.html">Contato</a></li>
+            </ul>
+
+            <div class="nav-actions">
+                <a href="login.html" class="login-required">Entrar</a>
+                <a href="cadastro.html" class="btn-header auth-required" style="display: none;">Cadastrar Caso</a>
+            </div>
+
+            <button class="mobile-menu-btn" aria-label="Menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </nav>
+    </header>
+
+    <!-- Hero -->
+    <section class="about-hero">
+        <div class="container">
+            <div class="about-content">
+                <h1>Sobre o Observatório</h1>
+                <p>Mapeando e amplificando a inovação social no Rio de Janeiro</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Content -->
+    <section class="about-section">
+        <div class="container">
+            <!-- Mission -->
+            <div class="about-grid">
+                <div class="about-text">
+                    <h2>Nossa Missão</h2>
+                    <p>
+                        O Observatório de Inovação Social do Rio de Janeiro é uma iniciativa do Programa de Extensão da UFRJ que tem como objetivo mapear, documentar e amplificar iniciativas de transformação social em toda a região metropolitana.
+                    </p>
+                    <p>
+                        Através de uma metodologia participativa, estudantes extensionistas percorrem diferentes territórios identificando projetos inovadores que geram impacto positivo nas comunidades, criando uma rede colaborativa de conhecimento e transformação.
+                    </p>
+                </div>
+                <div class="about-visual">
+                    <div class="visual-icon">🎯</div>
+                    <div class="visual-title">Impacto Transformador</div>
+                    <div class="visual-description">
+                        Conectamos iniciativas, pessoas e saberes para potencializar a inovação social no Rio de Janeiro
+                    </div>
+                </div>
+            </div>
+
+            <!-- Vision -->
+            <div class="about-grid">
+                <div class="about-visual">
+                    <div class="visual-icon">🌟</div>
+                    <div class="visual-title">Visão de Futuro</div>
+                    <div class="visual-description">
+                        Ser referência nacional em mapeamento e articulação de inovação social urbana
+                    </div>
+                </div>
+                <div class="about-text">
+                    <h2>Nossa Visão</h2>
+                    <p>
+                        Acreditamos que o Rio de Janeiro possui um rico ecossistema de inovação social que precisa ser visibilizado e articulado. Nossa visão é criar a maior e mais completa base de dados sobre iniciativas transformadoras da cidade.
+                    </p>
+                    <p>
+                        Queremos ser uma ponte entre a academia, a sociedade civil e o poder público, facilitando o intercâmbio de conhecimentos e a replicação de soluções bem-sucedidas em diferentes territórios.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Stats -->
+            <div class="stats-cards">
+                <div class="stat-card">
+                    <div class="stat-icon">📊</div>
+                    <div class="stat-number">133+</div>
+                    <div class="stat-label">Casos Mapeados</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🏘️</div>
+                    <div class="stat-number">47</div>
+                    <div class="stat-label">Bairros Alcançados</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">👥</div>
+                    <div class="stat-number">28</div>
+                    <div class="stat-label">Extensionistas Ativos</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">❤️</div>
+                    <div class="stat-number">15k+</div>
+                    <div class="stat-label">Pessoas Beneficiadas</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Methodology -->
+    <section class="methodology-section">
+        <div class="container">
+            <h2 class="section-title">Nossa Metodologia</h2>
+            <p style="text-align: center; color: var(--text-light); font-size: 18px; max-width: 600px; margin: 0 auto;">
+                Utilizamos uma abordagem participativa e territorial para identificar, documentar e amplificar iniciativas de inovação social.
+            </p>
+
+            <div class="methodology-steps">
+                <div class="step-card">
+                    <div class="step-number">1</div>
+                    <div class="step-icon">🔍</div>
+                    <h3 class="step-title">Identificação</h3>
+                    <p class="step-description">
+                        Mapeamento territorial através de caminhadas, conversas com lideranças locais e pesquisa em redes sociais e mídia local.
+                    </p>
+                </div>
+
+                <div class="step-card">
+                    <div class="step-number">2</div>
+                    <div class="step-icon">📝</div>
+                    <h3 class="step-title">Documentação</h3>
+                    <p class="step-description">
+                        Registro detalhado das iniciativas, incluindo metodologias, impactos, desafios e oportunidades de replicação.
+                    </p>
+                </div>
+
+                <div class="step-card">
+                    <div class="step-number">3</div>
+                    <div class="step-icon">🌐</div>
+                    <h3 class="step-title">Amplificação</h3>
+                    <p class="step-description">
+                        Divulgação através da plataforma digital, eventos acadêmicos, mídias sociais e parcerias institucionais.
+                    </p>
+                </div>
+
+                <div class="step-card">
+                    <div class="step-number">4</div>
+                    <div class="step-icon">🤝</div>
+                    <h3 class="step-title">Articulação</h3>
+                    <p class="step-description">
+                        Conexão entre iniciativas similares, facilitação de trocas de experiências e apoio à replicação.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Team -->
+    <section class="team-section">
+        <div class="container">
+            <h2 class="section-title">Nossa Equipe</h2>
+            <p style="text-align: center; color: var(--text-light); font-size: 18px; max-width: 600px; margin: 0 auto;">
+                Conheça as pessoas que fazem o Observatório acontecer.
+            </p>
+
+            <div class="team-grid">
+                <div class="team-member">
+                    <div class="member-avatar">👩‍🏫</div>
+                    <div class="member-info">
+                        <h3 class="member-name">Prof. Ana Costa</h3>
+                        <div class="member-role">Coordenadora Geral</div>
+                        <p class="member-bio">
+                            Doutora em Sociologia pela UFRJ, especialista em inovação social e desenvolvimento territorial. Coordena o projeto desde sua criação em 2022.
+                        </p>
+                        <div class="member-contact">ana.costa@ufrj.br</div>
+                    </div>
+                </div>
+
+                <div class="team-member">
+                    <div class="member-avatar">👨‍💼</div>
+                    <div class="member-info">
+                        <h3 class="member-name">Dr. Carlos Silva</h3>
+                        <div class="member-role">Vice-Coordenador</div>
+                        <p class="member-bio">
+                            Professor do Departamento de Serviço Social da UFRJ, pesquisador em políticas públicas e movimentos sociais urbanos.
+                        </p>
+                        <div class="member-contact">carlos.silva@ufrj.br</div>
+                    </div>
+                </div>
+
+                <div class="team-member">
+                    <div class="member-avatar">👩‍💻</div>
+                    <div class="member-info">
+                        <h3 class="member-name">Maria Santos</h3>
+                        <div class="member-role">Coordenadora Técnica</div>
+                        <p class="member-bio">
+                            Mestre em Comunicação Digital, responsável pela plataforma online e estratégias de divulgação do observatório.
+                        </p>
+                        <div class="member-contact">maria.santos@ufrj.br</div>
+                    </div>
+                </div>
+
+                <div class="team-member">
+                    <div class="member-avatar">👨‍🎓</div>
+                    <div class="member-info">
+                        <h3 class="member-name">João Oliveira</h3>
+                        <div class="member-role">Coordenador de Campo</div>
+                        <p class="member-bio">
+                            Graduando em Ciências Sociais, coordena as atividades de campo dos extensionistas e o relacionamento com as comunidades.
+                        </p>
+                        <div class="member-contact">joao.oliveira@ufrj.br</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Impact -->
+    <section class="impact-section">
+        <div class="container">
+            <h2 class="section-title" style="color: white;">Nosso Impacto</h2>
+            <p style="opacity: 0.9; font-size: 18px; max-width: 600px; margin: 0 auto;">
+                Números que refletem nossa contribuição para a inovação social no Rio de Janeiro.
+            </p>
+
+            <div class="impact-grid">
+                <div class="impact-item">
+                    <div class="impact-number">2022</div>
+                    <div class="impact-label">Ano de Criação</div>
+                </div>
+                <div class="impact-item">
+                    <div class="impact-number">6</div>
+                    <div class="impact-label">Áreas Temáticas</div>
+                </div>
+                <div class="impact-item">
+                    <div class="impact-number">80+</div>
+                    <div class="impact-label">Organizações Parceiras</div>
+                </div>
+                <div class="impact-item">
+                    <div class="impact-number">12</div>
+                    <div class="impact-label">Eventos Realizados</div>
+                </div>
+                <div class="impact-item">
+                    <div class="impact-number">500+</div>
+                    <div class="impact-label">Horas de Campo</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>Observatório</h4>
+                    <ul>
+                        <li><a href="sobre.html">Sobre o Projeto</a></li>
+                        <li><a href="#metodologia">Metodologia</a></li>
+                        <li><a href="contato.html">Nossa Equipe</a></li>
+                        <li><a href="#parceiros">Parceiros</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Casos</h4>
+                    <ul>
+                        <li><a href="../index.html#casos">Explorar Casos</a></li>
+                        <li><a href="../index.html#categorias">Por Categoria</a></li>
+                        <li><a href="#mapa">Mapa Interativo</a></li>
+                        <li><a href="#relatorios">Relatórios</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Participação</h4>
+                    <ul>
+                        <li><a href="cadastro.html">Cadastrar Caso</a></li>
+                        <li><a href="#extensao">Programa de Extensão</a></li>
+                        <li><a href="#voluntario">Seja Voluntário</a></li>
+                        <li><a href="#newsletter">Newsletter</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>UFRJ</h4>
+                    <ul>
+                        <li><a href="https://ufrj.br" target="_blank" rel="noopener">Site Oficial</a></li>
+                        <li><a href="https://extensao.ufrj.br" target="_blank" rel="noopener">Extensão UFRJ</a></li>
+                        <li><a href="#pesquisa">Pesquisa</a></li>
+                        <li><a href="contato.html">Contato</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 Observatório de Inovação Social do Rio de Janeiro - UFRJ. Todos os direitos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="../js/DataManager.js"></script>
+    <script src="../js/AuthManager.js"></script>
+    <script src="../js/main.js"></script>
+    <script>
+        // Verificar status de autenticação
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.app) {
+                window.app.checkAuthStatus();
+            }
+            
+            // Animação dos números
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const target = entry.target;
+                        const finalNumber = target.textContent;
+                        animateNumber(target, finalNumber);
+                        observer.unobserve(target);
+                    }
+                });
+            });
+
+            // Observar números para animação
+            document.querySelectorAll('.stat-number, .impact-number').forEach(num => {
+                observer.observe(num);
+            });
+        });
+
+        function animateNumber(element, finalValue) {
+            if (finalValue.includes('+')) {
+                const number = parseInt(finalValue.replace(/[^\d]/g, ''));
+                animateCountUp(element, number, finalValue);
+            } else if (!isNaN(parseInt(finalValue))) {
+                const number = parseInt(finalValue);
+                animateCountUp(element, number, finalValue);
+            }
+        }
+
+        function animateCountUp(element, target, finalText) {
+            let current = 0;
+            const increment = target / 60;
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= target) {
+                    element.textContent = finalText;
+                    clearInterval(timer);
+                } else {
+                    element.textContent = Math.floor(current);
+                }
+            }, 30);
+        }
+    </script>
+</body>
+</html>
