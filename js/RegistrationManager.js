@@ -159,8 +159,15 @@ class RegistrationManager {
 
     nextStep() {
         // Validações antes de avançar
-        if (this.currentStep === 1 && !this.registrationData.method) {
-            this.showError('Selecione um método de cadastro');
+        if (this.currentStep === 1) {
+            const email = document.getElementById('user-email')?.value?.trim();
+            if (!email || !this.isValidEmail(email)) {
+                this.showError('Informe um email v�lido');
+                return;
+            }
+            this.registrationData.email = email;
+            this.registrationData.suggestInstitutional = email.toLowerCase().includes('@ufrj.br');
+            this.goToStep(3);
             return;
         }
 
@@ -438,4 +445,5 @@ class RegistrationManager {
 document.addEventListener('DOMContentLoaded', () => {
     window.registrationManager = new RegistrationManager();
 });
+
 
