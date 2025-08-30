@@ -12,7 +12,13 @@ class RioMap {
             'Zona Norte': [-22.8959, -43.2583],
             'Zona Sul': [-22.9711, -43.1825],
             'Zona Oeste': [-22.9520, -43.3684],
-            'Baixada': [-22.7591, -43.4509]
+            'Baixada': [-22.7591, -43.4509],
+            'Campo Grande': [-22.9056, -43.5547],
+            'Copacabana': [-22.9711, -43.1825],
+            'Tijuca': [-22.9249, -43.2311],
+            'Maré': [-22.8590, -43.2409],
+            'São Conrado': [-22.9942, -43.2678],
+            'Santa Teresa': [-22.9145, -43.1864]
         };
 
         // Cores dos marcadores por categoria

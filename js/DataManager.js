@@ -50,23 +50,18 @@ class DataManager {
     async loadFromDatabase() {
         console.log('🌐 Carregando dados do banco de dados...');
         
-        // Carregar casos e estatísticas em paralelo
-        const [casosResponse, statsResponse] = await Promise.all([
-            fetch('/.netlify/functions/casos-api?exclude_test=true'),
-            fetch('/.netlify/functions/casos-stats?exclude_test=true')
-        ]);
+        // Carregar apenas casos - stats function está desabilitada
+        const casosResponse = await fetch('/.netlify/functions/casos-api?exclude_test=true');
         
-        if (casosResponse.ok && statsResponse.ok) {
+        if (casosResponse.ok) {
             const casosData = await casosResponse.json();
-            const statsData = await statsResponse.json();
             
             this.casosCache = casosData.casos;
-            this.statsCache = statsData;
+            this.statsCache = null; // Will calculate from local data
             this.lastCacheUpdate = Date.now();
             
             console.log('✅ Dados carregados do banco:', {
-                casos: casosData.casos.length,
-                stats: statsData.bigNumbers
+                casos: casosData.casos.length
             });
         } else {
             throw new Error('Erro ao carregar dados do banco');
