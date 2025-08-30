@@ -120,7 +120,9 @@
             </ul>
 
             <div class="nav-actions">
-                <a href="login.html" class="login-required">Entrar</a>
+                <!-- Será atualizado dinamicamente pela função updateHeaderForAuth -->
+                <a href="login.html" class="btn-secondary-header">Entrar</a>
+                <a href="registro.html" class="btn-header">Criar Conta</a>
                 <a href="cadastro.html" class="btn-header auth-required" style="display: none;">Cadastrar Caso</a>
             </div>
 
@@ -283,6 +285,8 @@
 
     <!-- Scripts -->
     <script src="../js/DataManager.js"></script>
+    <script src="../js/AuthManager.js"></script>
+    <script src="../js/main.js"></script>
     <script>
         // Atualizar contadores de categorias
         document.addEventListener('DOMContentLoaded', () => {

@@ -32,12 +32,6 @@ class RegistrationManager {
     }
 
     setupEventListeners() {
-        // Etapa 1 - Google Signup
-        const googleBtn = document.getElementById('google-signup');
-        if (googleBtn) {
-            googleBtn.addEventListener('click', () => this.handleGoogleSignup());
-        }
-
         // Etapa 1 - Email form
         const emailForm = document.getElementById('email-form');
         if (emailForm) {
@@ -169,7 +163,71 @@ class RegistrationManager {
         this.registrationData.email = email;
         this.registrationData.isUFRJEmail = email.toLowerCase().includes('@ufrj.br');
         
+        // Ir para seleção de perfil e aplicar lógica de pré-seleção
         this.goToStep(2);
+        this.applyEmailBasedLogic();
+    }
+
+    applyEmailBasedLogic() {
+        const isUFRJ = this.registrationData.isUFRJEmail;
+        const cards = document.querySelectorAll('.user-type-card');
+        
+        if (isUFRJ) {
+            // Email UFRJ: Habilitar extensionista/pesquisador, desabilitar visitante
+            cards.forEach(card => {
+                const type = card.dataset.type;
+                if (type === 'visitante') {
+                    card.classList.add('disabled');
+                    card.classList.remove('available');
+                } else {
+                    card.classList.add('available');
+                    card.classList.remove('disabled');
+                }
+            });
+            
+            // Pré-selecionar extensionista por padrão
+            this.selectUserType('extensionista');
+            
+            // Mostrar mensagem de orientação
+            this.showEmailMessage('✅ Email UFRJ detectado! Você pode escolher entre Extensionista ou Pesquisador.', 'success');
+            
+        } else {
+            // Email comum: Habilitar visitante, desabilitar outros
+            cards.forEach(card => {
+                const type = card.dataset.type;
+                if (type === 'visitante') {
+                    card.classList.add('available');
+                    card.classList.remove('disabled');
+                } else {
+                    card.classList.add('disabled');
+                    card.classList.remove('available');
+                }
+            });
+            
+            // Pré-selecionar visitante
+            this.selectUserType('visitante');
+            
+            // Mostrar mensagem informativa
+            this.showEmailMessage('ℹ️ Para perfis de Extensionista ou Pesquisador, é necessário um email institucional da UFRJ (@ufrj.br).', 'info');
+        }
+    }
+
+    showEmailMessage(message, type) {
+        // Criar ou atualizar elemento de mensagem
+        let messageEl = document.getElementById('email-based-message');
+        if (!messageEl) {
+            messageEl = document.createElement('div');
+            messageEl.id = 'email-based-message';
+            messageEl.className = 'alert';
+            
+            // Inserir antes do grid de tipos de usuário
+            const userTypeGrid = document.querySelector('.user-type-grid');
+            userTypeGrid.parentNode.insertBefore(messageEl, userTypeGrid);
+        }
+        
+        messageEl.className = `alert alert-${type}`;
+        messageEl.innerHTML = message;
+        messageEl.style.marginBottom = '20px';
     }
 
     validateEmailInput() {
@@ -199,13 +257,27 @@ class RegistrationManager {
     }
 
     selectUserType(type) {
+        const targetCard = document.querySelector(`[data-type="${type}"]`);
+        
+        // Verificar se o card está desabilitado
+        if (targetCard && targetCard.classList.contains('disabled')) {
+            // Mostrar mensagem explicativa
+            const message = type === 'visitante' 
+                ? 'Como você tem um email UFRJ, recomendamos escolher Extensionista ou Pesquisador.' 
+                : 'Para este perfil é necessário um email institucional da UFRJ (@ufrj.br).';
+            this.showNotification(message, 'warning');
+            return;
+        }
+        
         this.registrationData.userType = type;
         
         // Atualizar UI
         document.querySelectorAll('.user-type-card').forEach(card => {
             card.classList.remove('selected');
         });
-        document.querySelector(`[data-type="${type}"]`).classList.add('selected');
+        if (targetCard) {
+            targetCard.classList.add('selected');
+        }
         
         // Habilitar botão continuar
         const continueBtn = document.getElementById('btn-continue-type');
