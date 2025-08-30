@@ -772,16 +772,14 @@ class ObservatorioApp {
                 // Depois ordenar por beneficiários
                 return (b.beneficiarios || 0) - (a.beneficiarios || 0);
             })
-            .slice(0, 6);
+            .slice(0, 5);
         
         console.log('Casos filtrados para destaque:', casos.length);
         
         bentoGrid.innerHTML = casos.map((caso, index) => `
             <div class="bento-card ${index === 0 ? 'featured' : ''}" onclick="location.href='pages/caso.html?id=${caso.id}'">
                 <div class="bento-category-tag">${caso.categoria}</div>
-                <div class="bento-card-header">
-                    ${this.getCategoryIcon(caso.categoria)}
-                </div>
+                ${this.renderCaseImage(caso)}
                 <div class="bento-card-content">
                     <h3 class="bento-card-title">${this.escapeHtml(caso.titulo)}</h3>
                     <p class="bento-card-description">${this.escapeHtml(caso.descricaoResumo)}</p>
@@ -805,6 +803,26 @@ class ObservatorioApp {
         
         // Add hover animations to bento cards
         this.addBentoInteractions();
+    }
+    
+    // Renderizar imagem do caso
+    renderCaseImage(caso) {
+        if (caso.imagemUrl && caso.imagemUrl.trim()) {
+            console.log(`Carregando imagem para ${caso.titulo}: ${caso.imagemUrl}`);
+            return `<img src="${this.escapeHtml(caso.imagemUrl)}" 
+                         alt="${this.escapeHtml(caso.titulo)}" 
+                         class="bento-card-image" 
+                         loading="lazy"
+                         onerror="console.error('Erro ao carregar imagem:', this.src); this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="bento-card-image-placeholder" style="display: none;">
+                        ${this.getCategoryIcon(caso.categoria)}
+                    </div>`;
+        } else {
+            console.log(`Sem imagem para ${caso.titulo}, usando placeholder`);
+            return `<div class="bento-card-image-placeholder">
+                        ${this.getCategoryIcon(caso.categoria)}
+                    </div>`;
+        }
     }
     
     addBentoInteractions() {
@@ -1067,10 +1085,13 @@ class ObservatorioApp {
         
         if (isLoggedIn && currentUser) {
             // Usuário logado - mostrar nome e sair
+            const basePath = window.location.pathname.includes('/pages/') ? '' : 'pages/';
+            const cadastroPath = `${basePath}cadastro.html`;
+            
             navActions.innerHTML = `
                 <span class="user-greeting">Olá, ${this.escapeHtml(currentUser.name || 'Usuário')}!</span>
                 <a href="#" class="btn-secondary-header" onclick="window.app.logout()">Sair</a>
-                <a href="pages/cadastro.html" class="btn-header">Cadastrar Caso</a>
+                <a href="${cadastroPath}" class="btn-header">Cadastrar Caso</a>
             `;
         } else {
             // Usuário não logado - mostrar login e criar conta

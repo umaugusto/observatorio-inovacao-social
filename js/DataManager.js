@@ -19,6 +19,36 @@ class DataManager {
         );
     }
 
+    // Verificar se usuário atual está em modo demo
+    isDemoMode() {
+        const authManager = window.AuthManager?.getInstance();
+        return authManager?.isDemoMode() || false;
+    }
+
+    // Exibir notificação de operação bloqueada
+    showDemoBlockedNotification(operation) {
+        const authManager = window.AuthManager?.getInstance();
+        if (authManager && authManager.showDemoNotification) {
+            authManager.showDemoNotification(
+                `❌ ${operation} bloqueada no modo demo. Esta é uma demonstração do sistema.`
+            );
+        }
+    }
+
+    // Salvar no localStorage com proteção de modo demo
+    safeSetItem(key, value, cacheProperty = null) {
+        if (this.isDemoMode()) {
+            console.log(`🎭 Modo demo ativo - ${key} não foi salvo permanentemente`);
+            // Atualizar cache em memória se especificado
+            if (cacheProperty && this[cacheProperty]) {
+                this[cacheProperty] = typeof value === 'string' ? JSON.parse(value) : value;
+            }
+            return;
+        }
+        
+        localStorage.setItem(key, typeof value === 'string' ? value : JSON.stringify(value));
+    }
+
     static getInstance() {
         if (!DataManager.instance) {
             DataManager.instance = new DataManager();
@@ -72,15 +102,26 @@ class DataManager {
         console.log('💾 Carregando dados do localStorage/JSON...');
         
         // Carregar dados iniciais se não existirem
-        if (!localStorage.getItem('casos')) {
-            console.log('LocalStorage vazio, carregando dados do arquivo JSON...');
+        if (!localStorage.getItem('casos') || this.isDemoMode()) {
+            if (this.isDemoMode()) {
+                console.log('🎭 Modo demo - carregando dados padrão sem persistir');
+            } else {
+                console.log('LocalStorage vazio, carregando dados do arquivo JSON...');
+            }
             const defaultData = await this.loadDefaultData();
-            localStorage.setItem('casos', JSON.stringify(defaultData));
-            console.log('Dados salvos no localStorage:', defaultData.length, 'casos');
+            this.safeSetItem('casos', defaultData, 'casosCache');
+            console.log('Dados carregados:', defaultData.length, 'casos');
         }
         
-        const casos = JSON.parse(localStorage.getItem('casos'));
-        this.casosCache = casos;
+        // Em modo demo, usar cache em memória; caso contrário, localStorage
+        let casos;
+        if (this.isDemoMode()) {
+            // Cache já foi definido pelo safeSetItem
+            casos = this.casosCache;
+        } else {
+            casos = JSON.parse(localStorage.getItem('casos'));
+            this.casosCache = casos;
+        }
         
         // Gerar stats baseadas nos dados locais
         this.statsCache = this.generateLocalStats(casos);
@@ -256,6 +297,13 @@ class DataManager {
     }
 
     addCaso(caso) {
+        // Bloquear operações para usuários demo
+        if (this.isDemoMode()) {
+            console.warn('🎭 Modo demo: adição de caso bloqueada para preservar dados');
+            this.showDemoBlockedNotification('Adição de caso');
+            throw new Error('Operação não permitida para usuários demo. Esta é uma demonstração do sistema.');
+        }
+        
         const casos = this.getCasos();
         
         // Gerar novo ID
@@ -272,6 +320,13 @@ class DataManager {
     }
 
     updateCaso(id, updatedCaso) {
+        // Bloquear operações para usuários demo
+        if (this.isDemoMode()) {
+            console.warn('🎭 Modo demo: edição de caso bloqueada para preservar dados');
+            this.showDemoBlockedNotification('Edição de caso');
+            throw new Error('Operação não permitida para usuários demo. Esta é uma demonstração do sistema.');
+        }
+        
         const casos = this.getCasos();
         const index = casos.findIndex(caso => caso.id === parseInt(id));
         
@@ -286,6 +341,13 @@ class DataManager {
     }
 
     deleteCaso(id) {
+        // Bloquear operações para usuários demo
+        if (this.isDemoMode()) {
+            console.warn('🎭 Modo demo: exclusão de caso bloqueada para preservar dados');
+            this.showDemoBlockedNotification('Exclusão de caso');
+            throw new Error('Operação não permitida para usuários demo. Esta é uma demonstração do sistema.');
+        }
+        
         const casos = this.getCasos();
         const index = casos.findIndex(caso => caso.id === parseInt(id));
         
@@ -300,23 +362,37 @@ class DataManager {
     }
 
     approveCaso(id) {
+        // Bloquear operações para usuários demo
+        if (this.isDemoMode()) {
+            console.warn('🎭 Modo demo: aprovação de caso bloqueada para preservar dados');
+            this.showDemoBlockedNotification('Aprovação de caso');
+            throw new Error('Operação não permitida para usuários demo. Esta é uma demonstração do sistema.');
+        }
         return this.updateCaso(id, { aprovado: true });
     }
 
     rejectCaso(id) {
+        // Bloquear operações para usuários demo
+        if (this.isDemoMode()) {
+            console.warn('🎭 Modo demo: rejeição de caso bloqueada para preservar dados');
+            this.showDemoBlockedNotification('Rejeição de caso');
+            throw new Error('Operação não permitida para usuários demo. Esta é uma demonstração do sistema.');
+        }
         return this.updateCaso(id, { aprovado: false });
     }
 
     saveCasos(casos) {
-        localStorage.setItem('casos', JSON.stringify(casos));
+        this.safeSetItem('casos', casos, 'casosCache');
     }
     
     // Método para resetar e recarregar dados do arquivo JSON
     async resetData() {
         console.log('Resetando dados e recarregando do arquivo JSON...');
-        localStorage.removeItem('casos');
+        if (!this.isDemoMode()) {
+            localStorage.removeItem('casos');
+        }
         const defaultData = await this.loadDefaultData();
-        localStorage.setItem('casos', JSON.stringify(defaultData));
+        this.safeSetItem('casos', defaultData, 'casosCache');
         console.log('Dados resetados:', defaultData.length, 'casos carregados');
         this.notifyObservers('dataLoaded');
         return defaultData;
@@ -333,25 +409,39 @@ class DataManager {
     }
 
     addSolicitacao(solicitacao) {
+        // Bloquear operações para usuários demo
+        if (this.isDemoMode()) {
+            console.warn('🎭 Modo demo: adição de solicitação bloqueada para preservar dados');
+            this.showDemoBlockedNotification('Adição de solicitação');
+            throw new Error('Operação não permitida para usuários demo. Esta é uma demonstração do sistema.');
+        }
+        
         const solicitacoes = this.getSolicitacoes();
         solicitacao.id = Date.now();
         solicitacao.data_solicitacao = new Date().toISOString();
         solicitacao.status = 'pendente';
         
         solicitacoes.push(solicitacao);
-        localStorage.setItem('solicitacoes', JSON.stringify(solicitacoes));
+        this.safeSetItem('solicitacoes', solicitacoes);
         this.notifyObservers('solicitacaoAdded', solicitacao);
         
         return solicitacao;
     }
 
     updateSolicitacao(id, updates) {
+        // Bloquear operações para usuários demo
+        if (this.isDemoMode()) {
+            console.warn('🎭 Modo demo: atualização de solicitação bloqueada para preservar dados');
+            this.showDemoBlockedNotification('Atualização de solicitação');
+            throw new Error('Operação não permitida para usuários demo. Esta é uma demonstração do sistema.');
+        }
+        
         const solicitacoes = this.getSolicitacoes();
         const index = solicitacoes.findIndex(sol => sol.id === id);
         
         if (index !== -1) {
             solicitacoes[index] = { ...solicitacoes[index], ...updates };
-            localStorage.setItem('solicitacoes', JSON.stringify(solicitacoes));
+            this.safeSetItem('solicitacoes', solicitacoes);
             this.notifyObservers('solicitacaoUpdated', solicitacoes[index]);
             return solicitacoes[index];
         }
@@ -434,6 +524,13 @@ class DataManager {
     }
     
     addComentario(casoId, comentario, userId, userName) {
+        // Bloquear operações para usuários demo
+        if (this.isDemoMode()) {
+            console.warn('🎭 Modo demo: adição de comentário bloqueada para preservar dados');
+            this.showDemoBlockedNotification('Adição de comentário');
+            throw new Error('Operação não permitida para usuários demo. Esta é uma demonstração do sistema.');
+        }
+        
         const comentarios = JSON.parse(localStorage.getItem('comentarios') || '[]');
         const novoComentario = {
             id: Date.now(),
@@ -446,19 +543,26 @@ class DataManager {
         };
         
         comentarios.push(novoComentario);
-        localStorage.setItem('comentarios', JSON.stringify(comentarios));
+        this.safeSetItem('comentarios', comentarios);
         
         this.notifyObservers('comentarioAdded', novoComentario);
         return novoComentario;
     }
     
     aprovarComentario(comentarioId) {
+        // Bloquear operações para usuários demo
+        if (this.isDemoMode()) {
+            console.warn('🎭 Modo demo: aprovação de comentário bloqueada para preservar dados');
+            this.showDemoBlockedNotification('Aprovação de comentário');
+            throw new Error('Operação não permitida para usuários demo. Esta é uma demonstração do sistema.');
+        }
+        
         const comentarios = JSON.parse(localStorage.getItem('comentarios') || '[]');
         const comentario = comentarios.find(c => c.id === comentarioId);
         
         if (comentario) {
             comentario.aprovado = true;
-            localStorage.setItem('comentarios', JSON.stringify(comentarios));
+            this.safeSetItem('comentarios', comentarios);
             this.notifyObservers('comentarioApproved', comentario);
         }
         
@@ -466,9 +570,16 @@ class DataManager {
     }
     
     deleteComentario(comentarioId) {
+        // Bloquear operações para usuários demo
+        if (this.isDemoMode()) {
+            console.warn('🎭 Modo demo: exclusão de comentário bloqueada para preservar dados');
+            this.showDemoBlockedNotification('Exclusão de comentário');
+            throw new Error('Operação não permitida para usuários demo. Esta é uma demonstração do sistema.');
+        }
+        
         let comentarios = JSON.parse(localStorage.getItem('comentarios') || '[]');
         comentarios = comentarios.filter(c => c.id !== comentarioId);
-        localStorage.setItem('comentarios', JSON.stringify(comentarios));
+        this.safeSetItem('comentarios', comentarios);
         
         this.notifyObservers('comentarioDeleted', comentarioId);
     }
@@ -479,6 +590,13 @@ class DataManager {
     }
     
     addSugestao(sugestao) {
+        // Bloquear operações para usuários demo
+        if (this.isDemoMode()) {
+            console.warn('🎭 Modo demo: adição de sugestão bloqueada para preservar dados');
+            this.showDemoBlockedNotification('Adição de sugestão');
+            throw new Error('Operação não permitida para usuários demo. Esta é uma demonstração do sistema.');
+        }
+        
         const sugestoes = JSON.parse(localStorage.getItem('sugestoes') || '[]');
         const novaSugestao = {
             id: Date.now(),
@@ -488,13 +606,20 @@ class DataManager {
         };
         
         sugestoes.push(novaSugestao);
-        localStorage.setItem('sugestoes', JSON.stringify(sugestoes));
+        this.safeSetItem('sugestoes', sugestoes);
         
         this.notifyObservers('sugestaoAdded', novaSugestao);
         return novaSugestao;
     }
     
     aprovarSugestao(sugestaoId) {
+        // Bloquear operações para usuários demo
+        if (this.isDemoMode()) {
+            console.warn('🎭 Modo demo: aprovação de sugestão bloqueada para preservar dados');
+            this.showDemoBlockedNotification('Aprovação de sugestão');
+            throw new Error('Operação não permitida para usuários demo. Esta é uma demonstração do sistema.');
+        }
+        
         const sugestoes = JSON.parse(localStorage.getItem('sugestoes') || '[]');
         const sugestao = sugestoes.find(s => s.id === sugestaoId);
         
@@ -518,7 +643,7 @@ class DataManager {
             // Atualizar status da sugestão
             sugestao.status = 'aprovada';
             sugestao.casoId = novoCaso.id;
-            localStorage.setItem('sugestoes', JSON.stringify(sugestoes));
+            this.safeSetItem('sugestoes', sugestoes);
             
             this.notifyObservers('sugestaoApproved', sugestao);
         }
@@ -527,13 +652,20 @@ class DataManager {
     }
     
     rejeitarSugestao(sugestaoId, motivo) {
+        // Bloquear operações para usuários demo
+        if (this.isDemoMode()) {
+            console.warn('🎭 Modo demo: rejeição de sugestão bloqueada para preservar dados');
+            this.showDemoBlockedNotification('Rejeição de sugestão');
+            throw new Error('Operação não permitida para usuários demo. Esta é uma demonstração do sistema.');
+        }
+        
         const sugestoes = JSON.parse(localStorage.getItem('sugestoes') || '[]');
         const sugestao = sugestoes.find(s => s.id === sugestaoId);
         
         if (sugestao) {
             sugestao.status = 'rejeitada';
             sugestao.motivoRejeicao = motivo;
-            localStorage.setItem('sugestoes', JSON.stringify(sugestoes));
+            this.safeSetItem('sugestoes', sugestoes);
             
             this.notifyObservers('sugestaoRejected', sugestao);
         }

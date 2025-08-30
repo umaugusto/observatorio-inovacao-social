@@ -38,6 +38,10 @@ class AuthManager {
                 if (this.isSessionValid(user)) {
                     this.currentUser = user;
                     this.notifyObservers('userLoggedIn', user);
+                    // Mostrar banner demo se necessário
+                    if (user.isDemo) {
+                        setTimeout(() => this.showDemoBanner(), 1000);
+                    }
                 } else {
                     this.logout(false); // Logout silencioso
                 }
@@ -83,6 +87,10 @@ class AuthManager {
                     // Atualizar header
                     if (window.app && window.app.updateHeaderForAuth) {
                         window.app.updateHeaderForAuth();
+                    }
+                    // Mostrar banner demo se necessário
+                    if (this.currentUser.isDemo) {
+                        setTimeout(() => this.showDemoBanner(), 1000);
                     }
                     return;
                 }
@@ -175,6 +183,12 @@ class AuthManager {
                     }
                     
                     this.notifyObservers('userLoggedIn', sessionData);
+                    
+                    // Mostrar banner demo se necessário
+                    if (sessionData.isDemo) {
+                        setTimeout(() => this.showDemoBanner(), 1000);
+                    }
+                    
                     resolve(sessionData);
                 } else {
                     reject(new Error('Credenciais inválidas'));
@@ -192,7 +206,8 @@ class AuthManager {
                 email: 'aluno@ufrj.br',
                 role: 'aluno_extensao',
                 department: 'Ciências Sociais',
-                isAdmin: false
+                isAdmin: false,
+                isDemo: true
             },
             {
                 id: 2,
@@ -200,7 +215,8 @@ class AuthManager {
                 email: 'admin@ufrj.br',
                 role: 'pesquisador',
                 department: 'Extensão UFRJ',
-                isAdmin: true
+                isAdmin: true,
+                isDemo: true
             },
             {
                 id: 3,
@@ -208,7 +224,8 @@ class AuthManager {
                 email: 'pesquisador@ufrj.br',
                 role: 'pesquisador',
                 department: 'Instituto de Pesquisa Social',
-                isAdmin: false
+                isAdmin: false,
+                isDemo: true
             },
             {
                 id: 4,
@@ -216,7 +233,8 @@ class AuthManager {
                 email: 'coordenador@ufrj.br',
                 role: 'pesquisador',
                 department: 'Coordenação de Extensão',
-                isAdmin: true
+                isAdmin: true,
+                isDemo: true
             }
         ];
 
@@ -411,6 +429,10 @@ class AuthManager {
                     localStorage.setItem('socialLogin', provider);
                     
                     this.notifyObservers('userLoggedIn', sessionData);
+                    
+                    // Mostrar banner demo se necessário (contas sociais são demo por padrão)
+                    setTimeout(() => this.showDemoBanner(), 1000);
+                    
                     resolve(sessionData);
                 } else {
                     reject(new Error('Provedor não suportado'));
@@ -551,6 +573,159 @@ class AuthManager {
         } else {
             return 'pages/admin.html';
         }
+    }
+
+    // Verificar se usuário atual está em modo demo
+    isDemoMode() {
+        return this.currentUser && this.currentUser.isDemo === true;
+    }
+
+    // Exibir notificação de modo demo
+    showDemoNotification(message = 'Esta é uma demonstração do sistema. Suas alterações não serão salvas permanentemente.') {
+        // Criar elemento de notificação se não existir
+        let notification = document.getElementById('demo-notification');
+        if (!notification) {
+            notification = document.createElement('div');
+            notification.id = 'demo-notification';
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: linear-gradient(135deg, #ff6b35, #f7931e);
+                color: white;
+                padding: 15px 20px;
+                border-radius: 8px;
+                box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
+                z-index: 10000;
+                font-family: 'Inter', sans-serif;
+                font-size: 14px;
+                font-weight: 500;
+                max-width: 300px;
+                line-height: 1.4;
+                transform: translateX(400px);
+                transition: transform 0.3s ease;
+                border-left: 4px solid rgba(255, 255, 255, 0.3);
+            `;
+            
+            // Ícone de demo
+            const icon = document.createElement('span');
+            icon.innerHTML = '🎭 ';
+            icon.style.marginRight = '8px';
+            
+            const textSpan = document.createElement('span');
+            textSpan.id = 'demo-notification-text';
+            
+            const closeBtn = document.createElement('button');
+            closeBtn.innerHTML = '×';
+            closeBtn.style.cssText = `
+                background: none;
+                border: none;
+                color: white;
+                font-size: 18px;
+                font-weight: bold;
+                margin-left: 10px;
+                cursor: pointer;
+                padding: 0;
+                line-height: 1;
+                opacity: 0.8;
+                transition: opacity 0.2s ease;
+            `;
+            closeBtn.onmouseover = () => closeBtn.style.opacity = '1';
+            closeBtn.onmouseout = () => closeBtn.style.opacity = '0.8';
+            closeBtn.onclick = () => {
+                notification.style.transform = 'translateX(400px)';
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                }, 300);
+            };
+            
+            notification.appendChild(icon);
+            notification.appendChild(textSpan);
+            notification.appendChild(closeBtn);
+            document.body.appendChild(notification);
+        }
+        
+        // Atualizar texto
+        const textSpan = notification.querySelector('#demo-notification-text');
+        if (textSpan) {
+            textSpan.textContent = message;
+        }
+        
+        // Mostrar notificação
+        setTimeout(() => {
+            notification.style.transform = 'translateX(0)';
+        }, 100);
+        
+        // Auto-hide após 8 segundos
+        setTimeout(() => {
+            if (notification && notification.parentNode) {
+                notification.style.transform = 'translateX(400px)';
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                }, 300);
+            }
+        }, 8000);
+    }
+
+    // Exibir banner de modo demo permanente
+    showDemoBanner() {
+        if (!this.isDemoMode()) return;
+        
+        let banner = document.getElementById('demo-banner');
+        if (!banner) {
+            banner = document.createElement('div');
+            banner.id = 'demo-banner';
+            banner.style.cssText = `
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                background: linear-gradient(135deg, #ff6b35, #f7931e);
+                color: white;
+                padding: 12px 20px;
+                text-align: center;
+                font-family: 'Inter', sans-serif;
+                font-size: 14px;
+                font-weight: 500;
+                z-index: 9999;
+                border-top: 2px solid rgba(255, 255, 255, 0.2);
+                box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+            `;
+            banner.innerHTML = `
+                <span style="margin-right: 10px;">🎭</span>
+                <strong>MODO DEMONSTRAÇÃO</strong> - Você está usando uma conta demo. 
+                Suas alterações não serão salvas permanentemente no sistema.
+                <button id="demo-banner-close" style="
+                    background: rgba(255, 255, 255, 0.2);
+                    border: none;
+                    color: white;
+                    padding: 4px 8px;
+                    margin-left: 15px;
+                    border-radius: 4px;
+                    cursor: pointer;
+                    font-size: 12px;
+                ">Fechar</button>
+            `;
+            
+            document.body.appendChild(banner);
+            
+            // Evento de fechar
+            const closeBtn = banner.querySelector('#demo-banner-close');
+            closeBtn.onclick = () => {
+                banner.style.transform = 'translateY(100%)';
+                setTimeout(() => {
+                    if (banner.parentNode) {
+                        banner.parentNode.removeChild(banner);
+                    }
+                }, 300);
+            };
+        }
+        
+        banner.style.transform = 'translateY(0)';
     }
 
     // Limpeza

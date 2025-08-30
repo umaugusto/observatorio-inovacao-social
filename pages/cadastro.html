@@ -761,6 +761,11 @@
                     return;
                 }
                 
+                // Mostrar banner demo se usuário estiver em modo demo
+                if (this.authManager.isDemoMode()) {
+                    this.authManager.showDemoBanner();
+                }
+                
                 this.setupEventListeners();
                 this.setupTagsInput();
                 this.setupFormValidation();
@@ -1135,7 +1140,21 @@
                     this.showSuccess();
                 } catch (error) {
                     console.error('Erro ao salvar caso:', error);
-                    app.showNotification('Erro ao salvar caso. Tente novamente.', 'error');
+                    
+                    // Verificar se é erro de modo demo
+                    if (error.message.includes('demo')) {
+                        // Já foi exibida a notificação visual pelo DataManager
+                        // Apenas logar para debug
+                        console.warn('Tentativa de salvar caso em modo demo bloqueada');
+                        return;
+                    }
+                    
+                    // Outros erros
+                    if (window.app && window.app.showNotification) {
+                        window.app.showNotification('Erro ao salvar caso. Tente novamente.', 'error');
+                    } else {
+                        alert('Erro ao salvar caso. Tente novamente.');
+                    }
                 }
             }
 
