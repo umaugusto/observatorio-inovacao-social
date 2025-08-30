@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Criar Conta | Observatório Social RJ</title>
+    <meta name="description" content="Crie sua conta no Observatório de Inovação Social do Rio de Janeiro.">
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet" href="../css/components.css">
+    <style>
+        .registro-hero {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 100px 0;
+            margin-top: 70px;
+            text-align: center;
+            min-height: calc(100vh - 70px);
+            display: flex;
+            align-items: center;
+        }
+
+        .registro-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
+        }
+
+        .registro-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+        }
+
+        .registro-header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .registro-header p {
+            opacity: 0.9;
+            font-size: 16px;
+        }
+
+        .registro-body {
+            padding: 40px 30px;
+        }
+
+        .step-indicator {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        .step {
+            display: flex;
+            align-items: center;
+            margin: 0 10px;
+        }
+
+        .step-number {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: var(--text-light);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 14px;
+            margin-right: 8px;
+        }
+
+        .step.active .step-number {
+            background: var(--primary-color);
+        }
+
+        .step.completed .step-number {
+            background: var(--success-color);
+        }
+
+        .step-text {
+            font-size: 14px;
+            color: var(--text-color);
+            font-weight: 500;
+        }
+
+        .step-content {
+            min-height: 300px;
+            display: none;
+        }
+
+        .step-content.active {
+            display: block;
+        }
+
+        .method-options {
+            display: grid;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .method-option {
+            border: 2px solid var(--border-light);
+            border-radius: var(--border-radius);
+            padding: 25px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .method-option:hover {
+            border-color: var(--primary-color);
+            box-shadow: var(--shadow);
+        }
+
+        .method-option.selected {
+            border-color: var(--primary-color);
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .method-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        .method-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .method-description {
+            font-size: 14px;
+            opacity: 0.8;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid var(--border-light);
+            border-radius: var(--border-radius);
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .user-type-options {
+            display: grid;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .user-type-option {
+            border: 2px solid var(--border-light);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .user-type-option:hover {
+            border-color: var(--primary-color);
+        }
+
+        .user-type-option.selected {
+            border-color: var(--primary-color);
+            background: rgba(var(--primary-color-rgb), 0.05);
+        }
+
+        .user-type-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .user-type-description {
+            font-size: 14px;
+            color: var(--text-light);
+        }
+
+        .user-type-requirements {
+            font-size: 12px;
+            color: var(--warning-color);
+            margin-top: 5px;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .btn-back {
+            background: var(--background-light);
+            color: var(--text-color);
+            border: 1px solid var(--border-light);
+        }
+
+        .btn-back:hover {
+            background: var(--border-light);
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: var(--border-radius);
+            margin-bottom: 20px;
+        }
+
+        .alert-info {
+            background: rgba(var(--primary-color-rgb), 0.1);
+            border: 1px solid var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .alert-warning {
+            background: rgba(var(--warning-color-rgb), 0.1);
+            border: 1px solid var(--warning-color);
+            color: var(--warning-color);
+        }
+
+        .loading-spinner {
+            display: none;
+            text-align: center;
+            padding: 30px;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid var(--border-light);
+            border-top: 4px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <nav class="nav container">
+            <a href="../index.html" class="logo">
+                <span class="logo-main">Designário</span>
+                <span class="logo-subtitle">OBSERVATÓRIO DE INOVAÇÃO SOCIAL</span>
+            </a>
+            
+            <ul class="nav-links">
+                <li><a href="../index.html">Início</a></li>
+                <li><a href="casos.html">Casos</a></li>
+                <li><a href="categorias.html">Categorias</a></li>
+                <li><a href="sobre.html">Sobre</a></li>
+                <li><a href="contato.html">Contato</a></li>
+            </ul>
+
+            <div class="nav-actions">
+                <a href="login.html" class="btn-secondary-header">Entrar</a>
+            </div>
+
+            <button class="mobile-menu-btn" aria-label="Menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </nav>
+    </header>
+
+    <!-- Registro Hero -->
+    <section class="registro-hero">
+        <div class="container">
+            <div class="registro-container">
+                <div class="registro-header">
+                    <h1>Criar Conta</h1>
+                    <p>Junte-se à comunidade de inovação social do Rio de Janeiro</p>
+                </div>
+
+                <div class="registro-body">
+                    <!-- Indicador de Etapas -->
+                    <div class="step-indicator">
+                        <div class="step active" id="step-indicator-1">
+                            <div class="step-number">1</div>
+                            <div class="step-text">Método</div>
+                        </div>
+                        <div class="step" id="step-indicator-2">
+                            <div class="step-number">2</div>
+                            <div class="step-text">Dados</div>
+                        </div>
+                        <div class="step" id="step-indicator-3">
+                            <div class="step-number">3</div>
+                            <div class="step-text">Tipo</div>
+                        </div>
+                        <div class="step" id="step-indicator-4">
+                            <div class="step-number">4</div>
+                            <div class="step-text">Confirmar</div>
+                        </div>
+                    </div>
+
+                    <!-- Etapa 1: Escolha do Método -->
+                    <div class="step-content active" id="step-1">
+                        <h2>Como você gostaria de criar sua conta?</h2>
+                        <div class="method-options">
+                            <div class="method-option" data-method="social">
+                                <div class="method-icon">🔗</div>
+                                <div class="method-title">Login Social</div>
+                                <div class="method-description">Criar conta rapidamente com sua conta do Google</div>
+                            </div>
+                            <div class="method-option" data-method="email">
+                                <div class="method-icon">✉️</div>
+                                <div class="method-title">Cadastro com Email</div>
+                                <div class="method-description">Criar conta usando seu endereço de email</div>
+                            </div>
+                        </div>
+                        <div class="btn-group">
+                            <button class="btn btn-primary" id="btn-next-1" disabled>Continuar</button>
+                        </div>
+                    </div>
+
+                    <!-- Etapa 2: Dados do Usuário -->
+                    <div class="step-content" id="step-2">
+                        <!-- Para Social Login -->
+                        <div id="social-login-section" style="display: none;">
+                            <h2>Autenticar com Google</h2>
+                            <div class="alert alert-info">
+                                Você será redirecionado para fazer login com sua conta do Google.
+                            </div>
+                            <button class="btn btn-primary btn-block" id="btn-google-auth">
+                                <span>🔗</span> Entrar com Google
+                            </button>
+                        </div>
+
+                        <!-- Para Email -->
+                        <div id="email-section" style="display: none;">
+                            <h2>Informe seu Email</h2>
+                            <form id="email-form">
+                                <div class="form-group">
+                                    <label class="form-label" for="user-email">Email</label>
+                                    <input type="email" class="form-input" id="user-email" required>
+                                    <div id="email-validation" style="display: none; margin-top: 8px;"></div>
+                                </div>
+                            </form>
+                        </div>
+
+                        <div class="btn-group">
+                            <button class="btn btn-back" id="btn-back-2">Voltar</button>
+                            <button class="btn btn-primary" id="btn-next-2">Continuar</button>
+                        </div>
+                    </div>
+
+                    <!-- Etapa 3: Tipo de Usuário -->
+                    <div class="step-content" id="step-3">
+                        <h2>Qual seu tipo de acesso?</h2>
+                        <div class="user-type-options">
+                            <div class="user-type-option" data-type="visitante">
+                                <div class="user-type-title">👁️ Visitante</div>
+                                <div class="user-type-description">Explorar iniciativas e conhecer projetos de inovação social</div>
+                            </div>
+                            <div class="user-type-option" data-type="extensionista">
+                                <div class="user-type-title">🎓 Extensionista</div>
+                                <div class="user-type-description">Cadastrar e gerenciar projetos de extensão universitária</div>
+                                <div class="user-type-requirements">* Requer email institucional da UFRJ</div>
+                            </div>
+                            <div class="user-type-option" data-type="pesquisador">
+                                <div class="user-type-title">🔬 Pesquisador</div>
+                                <div class="user-type-description">Cadastrar pesquisas e estudos sobre inovação social</div>
+                                <div class="user-type-requirements">* Requer email institucional da UFRJ</div>
+                            </div>
+                        </div>
+
+                        <div id="institutional-email-section" style="display: none;">
+                            <div class="alert alert-warning">
+                                Para extensionistas e pesquisadores é necessário confirmar o email institucional da UFRJ.
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="institutional-email">Email Institucional UFRJ</label>
+                                <input type="email" class="form-input" id="institutional-email" placeholder="seu-email@ufrj.br">
+                            </div>
+                        </div>
+
+                        <div class="btn-group">
+                            <button class="btn btn-back" id="btn-back-3">Voltar</button>
+                            <button class="btn btn-primary" id="btn-next-3" disabled>Continuar</button>
+                        </div>
+                    </div>
+
+                    <!-- Etapa 4: Confirmação -->
+                    <div class="step-content" id="step-4">
+                        <h2>Confirmar Dados</h2>
+                        <div id="confirmation-data"></div>
+                        
+                        <div class="loading-spinner" id="loading-spinner">
+                            <div class="spinner"></div>
+                            <p>Criando sua conta...</p>
+                        </div>
+
+                        <div class="btn-group" id="confirmation-buttons">
+                            <button class="btn btn-back" id="btn-back-4">Voltar</button>
+                            <button class="btn btn-primary" id="btn-create-account">Criar Conta</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Designário</h3>
+                    <p>Observatório de Inovação Social do Rio de Janeiro</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Links</h4>
+                    <ul>
+                        <li><a href="../index.html">Início</a></li>
+                        <li><a href="casos.html">Casos</a></li>
+                        <li><a href="sobre.html">Sobre</a></li>
+                        <li><a href="contato.html">Contato</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 Observatório de Inovação Social RJ. Todos os direitos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdn.auth0.com/js/auth0/9.23.0/auth0.min.js"></script>
+    <script src="../js/auth0-client.js"></script>
+    <script src="../js/RegistrationManager.js"></script>
+</body>
+</html>

@@ -11,7 +11,8 @@
       "WebFetch(domain:observatorioisrj.netlify.app)",
       "Bash(cat:*)",
       "WebSearch",
-      "Bash(mcp-)"
+      "Bash(mcp-)",
+      "Bash(git commit:*)"
     ],
     "deny": [],
     "ask": []

@@ -152,6 +152,27 @@
                     console.log('📥 Auth result received:', authResult);
                     
                     if (authResult && authResult.idTokenPayload) {
+                        // Verificar se é fluxo de registro
+                        const isRegistrationFlow = sessionStorage.getItem('registration_flow') === 'true';
+                        
+                        if (isRegistrationFlow) {
+                            // Salvar dados do Auth0 para o fluxo de registro
+                            const auth0Data = {
+                                sub: authResult.idTokenPayload.sub,
+                                email: authResult.idTokenPayload.email,
+                                name: authResult.idTokenPayload.name,
+                                picture: authResult.idTokenPayload.picture
+                            };
+                            
+                            sessionStorage.setItem('auth0_registration_return', JSON.stringify(auth0Data));
+                            sessionStorage.removeItem('registration_flow');
+                            
+                            // Redirecionar de volta para o registro
+                            window.location.href = 'registro.html';
+                            return;
+                        }
+                        
+                        // Fluxo normal de login
                         // Sincronizar usuário with Supabase
                         const user = await this.syncUser(authResult.idTokenPayload);
                         

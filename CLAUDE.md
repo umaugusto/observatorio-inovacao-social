@@ -13,15 +13,20 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Development Commands
 
 ```bash
-# Start development server (choose one):
+# Start development server (recommended):
+npm run dev              # Uses http-server on port 8080
+# Alternative methods:
 npx http-server -p 8080 -o
 python -m http.server 8080
 php -S localhost:8080
 
-# Git workflow for changes
+# Netlify local development:
+npm run netlify          # Test with Netlify functions locally
+
+# Git workflow for changes:
 git add .
 git commit -m "describe changes"
-git push  # Automatically deploys to Netlify
+git push                 # Automatically deploys to Netlify
 
 # No build process required - direct file editing
 # No test suite - manual testing only  
@@ -42,9 +47,12 @@ git push  # Automatically deploys to Netlify
 4. All CRUD operations go through DataManager for consistency
 
 ### Authentication System
-- Mock authentication with two roles: `extensionista` and `admin`
-- Session management with automatic timeout (30 minutes)
+- **Primary**: Auth0 integration with Google OAuth
+- **User Storage**: Supabase database with user sync via Netlify functions
+- **Fallback**: Mock authentication for local development
+- Session management with automatic timeout (30 minutes) or persistent sessions
 - Role-based UI visibility controlled by AuthManager
+- Roles: `visitante` (default), `extensionista`, `admin`
 
 ## Key Implementation Details
 
@@ -107,6 +115,13 @@ await DataManager.getInstance().resetData();
 
 // Check authentication state
 console.log(AuthManager.getInstance().getCurrentUser());
+console.log(AuthManager.getInstance().isAuthenticated());
+
+// Check session validity
+console.log(AuthManager.getInstance().isSessionValid(AuthManager.getInstance().getCurrentUser()));
+
+// Test header update
+ObservatorioApp.getInstance().updateHeaderForAuth();
 ```
 
 ## Important Conventions
@@ -130,8 +145,10 @@ console.log(AuthManager.getInstance().getCurrentUser());
 
 ### Security Considerations
 - HTML escaping via `escapeHtml()` method for XSS prevention
-- Client-side only - no sensitive operations
-- Mock authentication for demonstration purposes
+- Content Security Policy (CSP) configured in netlify.toml
+- Auth0 handles secure authentication flow
+- Supabase Row Level Security (RLS) policies protect user data
+- Environment variables for sensitive configuration
 
 ## Map Integration
 
@@ -158,10 +175,35 @@ Manual testing only - no automated test suite. Test critical paths:
 4. Map interactions
 5. Responsive design breakpoints
 
+## Netlify Functions
+
+The project uses serverless functions for backend operations:
+
+- **`user-sync.js`**: Syncs Auth0 users with Supabase database
+- **`casos-api.js`**: Handles CRUD operations for case studies
+- **`comments-api.js`**: Manages user comments and interactions
+
+Functions are accessible at `/.netlify/functions/{function-name}` and automatically deployed with the site.
+
+## Environment Variables
+
+Required environment variables for production (set in Netlify dashboard):
+
+```bash
+# Auth0 Configuration
+AUTH0_DOMAIN=your-auth0-domain.auth0.com
+AUTH0_CLIENT_ID=your-auth0-client-id
+
+# Supabase Configuration  
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_SERVICE_KEY=your-service-key
+```
+
+For local development with Netlify functions, create `.env` file with these variables.
+
 ## Known Limitations
 
-- **No backend**: All data stored client-side in localStorage
-- **No real authentication**: Mock system for demonstration
-- **Data size limits**: localStorage has ~5-10MB limit
+- **Hybrid architecture**: Client-side localStorage with serverless backend functions
+- **Data size limits**: localStorage has ~5-10MB limit for client-side data
 - **No SEO**: Client-side rendering only
-- **No offline support**: Requires active internet for map tiles
+- **No offline support**: Requires active internet for map tiles and authentication

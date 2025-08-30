@@ -53,17 +53,40 @@ exports.handler = async (event, context) => {
 
     // Criar ou atualizar usuário no Supabase
     console.log('💾 Attempting Supabase upsert...');
+    
+    // Dados do usuário para inserção/atualização
+    const userData = {
+      email: user.email,
+      name: user.name || user.nickname || user.email?.split('@')[0],
+      updated_at: new Date().toISOString()
+    };
+
+    // Para usuários Auth0 (login social)
+    if (user.sub) {
+      userData.auth0_id = user.sub;
+    }
+
+    // Configurar tipo de usuário
+    if (user.user_type) {
+      userData.user_type = user.user_type;
+      userData.role = user.user_type;
+    } else {
+      userData.user_type = 'visitante';
+      userData.role = 'visitante';
+    }
+
+    // Email institucional para extensionistas e pesquisadores
+    if (user.institutional_email) {
+      userData.institutional_email = user.institutional_email;
+    }
+
+    // Configurar admin baseado no tipo
+    userData.is_admin = (userData.user_type === 'pesquisador');
+
     const { data, error } = await supabase
       .from('users')
-      .upsert({
-        auth0_id: user.sub,
-        email: user.email,
-        name: user.name || user.nickname || user.email?.split('@')[0],
-        role: 'visitante',
-        is_admin: false,
-        updated_at: new Date().toISOString()
-      }, {
-        onConflict: 'auth0_id'
+      .upsert(userData, {
+        onConflict: user.sub ? 'auth0_id' : 'email'
       })
       .select()
       .single();
