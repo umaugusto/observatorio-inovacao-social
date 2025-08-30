@@ -28,17 +28,19 @@ class RegistrationManager {
             return;
         }
         
-        // Limpar dados de fluxos anteriores
-        this.clearPreviousFlowData();
-        
         // Inicializar Auth0
         this.auth0Client = Auth0Client?.getInstance();
         
         // Setup event listeners
         this.setupEventListeners();
         
-        // Verificar se veio do Auth0 callback
-        this.checkSocialReturn();
+        // Verificar PRIMEIRO se é retorno do Auth0
+        const isSocialReturn = await this.checkSocialReturn();
+        
+        // Limpar dados APENAS se não for retorno social válido
+        if (!isSocialReturn) {
+            this.clearPreviousFlowData();
+        }
     }
 
     clearPreviousFlowData() {
@@ -479,31 +481,44 @@ class RegistrationManager {
     async checkSocialReturn() {
         const registrationFlow = sessionStorage.getItem('registration_flow');
         
-        if (registrationFlow) {
-            try {
-                const flowData = JSON.parse(registrationFlow);
-                
-                if (flowData.flow === 'registration' && flowData.method === 'google') {
-                    // Verificar se há dados do usuário do Auth0
-                    const auth0User = await this.auth0Client?.getUser();
-                    
-                    if (auth0User) {
-                        this.registrationData.method = 'google';
-                        this.registrationData.email = auth0User.email;
-                        this.registrationData.socialData = auth0User;
-                        this.registrationData.isUFRJEmail = auth0User.email.toLowerCase().includes('@ufrj.br');
-                        
-                        // Ir para seleção de tipo de perfil
-                        this.goToStep(2);
-                        
-                        // Limpar dados da sessão
-                        sessionStorage.removeItem('registration_flow');
-                    }
-                }
-            } catch (error) {
-                console.error('Error checking social return:', error);
-            }
+        if (!registrationFlow) {
+            return false;
         }
+
+        try {
+            const flowData = JSON.parse(registrationFlow);
+            
+            if (flowData.flow === 'registration' && flowData.method === 'google') {
+                console.log('🔄 Verificando retorno do Google Auth0...');
+                
+                // Verificar se há dados do usuário do Auth0
+                const auth0User = await this.auth0Client?.getUser();
+                
+                if (auth0User) {
+                    console.log('✅ Dados do usuário Auth0 encontrados:', auth0User.email);
+                    
+                    this.registrationData.method = 'google';
+                    this.registrationData.email = auth0User.email;
+                    this.registrationData.socialData = auth0User;
+                    this.registrationData.isUFRJEmail = auth0User.email.toLowerCase().includes('@ufrj.br');
+                    
+                    // Ir para seleção de tipo de perfil
+                    this.goToStep(2);
+                    this.applyEmailBasedLogic();
+                    
+                    // Limpar dados da sessão
+                    sessionStorage.removeItem('registration_flow');
+                    
+                    return true; // Processou retorno social válido
+                }
+            }
+        } catch (error) {
+            console.error('❌ Error parsing registration flow:', error);
+            // Se houve erro de JSON, limpar dados corrompidos
+            sessionStorage.removeItem('registration_flow');
+        }
+        
+        return false; // Não havia retorno social válido
     }
 
     goToStep(step) {
