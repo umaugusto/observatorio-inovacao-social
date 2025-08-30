@@ -772,7 +772,7 @@ class ObservatorioApp {
                 // Depois ordenar por beneficiários
                 return (b.beneficiarios || 0) - (a.beneficiarios || 0);
             })
-            .slice(0, 5);
+            .slice(0, 6);
         
         console.log('Casos filtrados para destaque:', casos.length);
         
