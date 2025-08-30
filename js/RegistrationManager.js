@@ -32,6 +32,12 @@ class RegistrationManager {
     }
 
     setupEventListeners() {
+        // Etapa 1 - Google Signup
+        const googleBtn = document.getElementById('google-signup');
+        if (googleBtn) {
+            googleBtn.addEventListener('click', () => this.handleGoogleSignup());
+        }
+
         // Etapa 1 - Email form
         const emailForm = document.getElementById('email-form');
         if (emailForm) {
