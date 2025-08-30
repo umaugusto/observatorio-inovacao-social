@@ -34,6 +34,7 @@ class ObservatorioApp {
         this.setupQuickFilters();
         this.setupHorizontalMethodology();
         this.authManager.updateUI();
+        this.updateHeaderForAuth();
     }
     
     // Método para sincronizar todos os displays de dados
@@ -1035,6 +1036,41 @@ class ObservatorioApp {
         }
         if (this.authManager) {
             this.authManager.removeObserver(this);
+        }
+    }
+
+    // Atualizar header baseado no estado de autenticação
+    updateHeaderForAuth() {
+        const navActions = document.querySelector('.nav-actions');
+        if (!navActions) return;
+
+        const isLoggedIn = this.authManager.isAuthenticated();
+        const currentUser = this.authManager.getCurrentUser();
+        
+        if (isLoggedIn && currentUser) {
+            // Usuário logado - mostrar nome e sair
+            navActions.innerHTML = `
+                <span class="user-greeting">Olá, ${this.escapeHtml(currentUser.name || 'Usuário')}!</span>
+                <a href="#" class="btn-secondary-header" onclick="window.app.logout()">Sair</a>
+                <a href="pages/cadastro.html" class="btn-header">Cadastrar Caso</a>
+            `;
+        } else {
+            // Usuário não logado - mostrar login e criar conta
+            const basePath = window.location.pathname.includes('/pages/') ? '' : 'pages/';
+            navActions.innerHTML = `
+                <a href="${basePath}login.html" class="btn-secondary-header">Entrar</a>
+                <a href="${basePath}contato.html" class="btn-header">Solicitar Acesso</a>
+            `;
+        }
+    }
+
+    // Função de logout
+    logout() {
+        if (this.authManager) {
+            this.authManager.logout();
+            // Recarregar e redirecionar para home
+            window.location.href = window.location.pathname.includes('/pages/') ? '../index.html' : './';
+            window.location.reload();
         }
     }
 }

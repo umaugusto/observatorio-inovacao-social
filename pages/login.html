@@ -308,8 +308,9 @@
             </ul>
 
             <div class="nav-actions">
-                <a href="login.html" class="login-required">Entrar</a>
-                <a href="cadastro.html" class="btn-header">Cadastrar Caso</a>
+                <a href="login.html" class="btn-secondary-header">Entrar</a>
+                <a href="cadastro.html" class="btn-header login-required" style="display: none;">Criar Conta</a>
+                <a href="cadastro.html" class="btn-header auth-required" style="display: none;">Cadastrar Caso</a>
             </div>
 
             <button class="mobile-menu-btn" aria-label="Menu">
@@ -613,86 +614,20 @@
                     
                 } catch (error) {
                     console.error('❌ Social login failed:', error);
-                    console.log('🔄 Tentando fallback para login mock...');
                     
-                    // Fallback para login mock
-                    try {
-                        await this.handleMockSocialLogin(provider);
-                    } catch (mockError) {
-                        console.error('❌ Mock login também falhou:', mockError);
-                        
-                        if (window.app) {
-                            window.app.showNotification('Erro ao fazer login social. Tente usar login com e-mail.', 'error');
-                        } else {
-                            alert('Erro ao fazer login social. Tente usar login com e-mail.');
-                        }
-                        
-                        // Reset button
-                        btn.disabled = false;
-                        btn.innerHTML = originalContent;
+                    // Mostrar erro sem fallback mock
+                    const errorMsg = `Erro ao conectar com ${provider}. Verifique sua conexão e tente novamente.`;
+                    
+                    if (window.app) {
+                        window.app.showNotification(errorMsg, 'error');
+                    } else {
+                        alert(errorMsg);
                     }
+                    
+                    // Reset button
+                    btn.disabled = false;
+                    btn.innerHTML = originalContent;
                 }
-            }
-            
-            // Fallback mock para login social
-            async handleMockSocialLogin(provider) {
-                console.log(`🎭 Executando mock login para ${provider}`);
-                
-                // Simular delay
-                await new Promise(resolve => setTimeout(resolve, 1000));
-                
-                // Criar usuário mock baseado no provider
-                const mockUsers = {
-                    'google': {
-                        id: 'mock_google_' + Date.now(),
-                        name: 'Usuário Google (Mock)',
-                        email: 'google.user@mock.com',
-                        role: 'visitante',
-                        provider: 'google',
-                        isAdmin: false,
-                        loginTime: new Date().toISOString(),
-                        remember: true
-                    },
-                    'facebook': {
-                        id: 'mock_facebook_' + Date.now(),
-                        name: 'Usuário Facebook (Mock)',
-                        email: 'facebook.user@mock.com',
-                        role: 'visitante',
-                        provider: 'facebook',
-                        isAdmin: false,
-                        loginTime: new Date().toISOString(),
-                        remember: true
-                    },
-                    'apple': {
-                        id: 'mock_apple_' + Date.now(),
-                        name: 'Usuário Apple (Mock)',
-                        email: 'apple.user@mock.com',
-                        role: 'visitante',
-                        provider: 'apple',
-                        isAdmin: false,
-                        loginTime: new Date().toISOString(),
-                        remember: true
-                    }
-                };
-                
-                const mockUser = mockUsers[provider];
-                if (!mockUser) {
-                    throw new Error(`Provider ${provider} não suportado no mock`);
-                }
-                
-                // Salvar no localStorage
-                localStorage.setItem('current_user', JSON.stringify(mockUser));
-                console.log('💾 Mock user saved:', mockUser);
-                
-                // Notificar sucesso
-                if (window.app) {
-                    window.app.showNotification(`Bem-vindo, ${mockUser.name}! (Modo demo)`, 'success');
-                }
-                
-                // Redirecionar
-                setTimeout(() => {
-                    window.location.href = '../index.html';
-                }, 1000);
             }
 
             togglePassword() {

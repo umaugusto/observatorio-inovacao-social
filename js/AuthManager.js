@@ -80,6 +80,10 @@ class AuthManager {
                     };
                     localStorage.setItem('current_user', JSON.stringify(this.currentUser));
                     this.notifyObservers('userLoggedIn', this.currentUser);
+                    // Atualizar header
+                    if (window.app && window.app.updateHeaderForAuth) {
+                        window.app.updateHeaderForAuth();
+                    }
                     return;
                 }
                 
@@ -229,7 +233,7 @@ class AuthManager {
         
         // Se temos Auth0, fazer logout lá também
         if (this.auth0Client) {
-            this.auth0Client.logout();
+            this.auth0Client.logout(window.location.origin);
             return; // Auth0 vai redirecionar
         }
         
