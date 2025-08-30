@@ -9,7 +9,8 @@
     <link rel="stylesheet" href="../css/components.css">
     <style>
         .registro-hero {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            background: linear-gradient(135deg, rgba(45, 122, 95, 0.8), rgba(33, 87, 68, 0.9)), 
+                        url('https://images.unsplash.com/photo-1511593358241-7eea1f3c84e5?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80') center/cover;
             color: white;
             padding: 100px 0;
             margin-top: 70px;
@@ -17,10 +18,27 @@
             min-height: calc(100vh - 70px);
             display: flex;
             align-items: center;
+            position: relative;
+        }
+        
+        .registro-hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(45, 122, 95, 0.7), rgba(33, 87, 68, 0.8));
+            z-index: 1;
+        }
+        
+        .registro-hero .container {
+            position: relative;
+            z-index: 2;
         }
 
         .registro-container {
-            max-width: 600px;
+            max-width: 500px;
             margin: 0 auto;
             background: white;
             border-radius: var(--border-radius-lg);
@@ -50,46 +68,6 @@
             padding: 40px 30px;
         }
 
-        .step-indicator {
-            display: flex;
-            justify-content: center;
-            margin-bottom: 30px;
-        }
-
-        .step {
-            display: flex;
-            align-items: center;
-            margin: 0 10px;
-        }
-
-        .step-number {
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            background: var(--text-light);
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 600;
-            font-size: 14px;
-            margin-right: 8px;
-        }
-
-        .step.active .step-number {
-            background: var(--primary-color);
-        }
-
-        .step.completed .step-number {
-            background: var(--success-color);
-        }
-
-        .step-text {
-            font-size: 14px;
-            color: var(--text-color);
-            font-weight: 500;
-        }
-
         .step-content {
             min-height: 300px;
             display: none;
@@ -99,51 +77,8 @@
             display: block;
         }
 
-        .method-options {
-            display: grid;
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .method-option {
-            border: 2px solid var(--border-light);
-            border-radius: var(--border-radius);
-            padding: 25px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            background: white;
-        }
-
-        .method-option:hover {
-            border-color: var(--primary-color);
-            box-shadow: var(--shadow);
-        }
-
-        .method-option.selected {
-            border-color: var(--primary-color);
-            background: var(--primary-color);
-            color: white;
-        }
-
-        .method-icon {
-            font-size: 48px;
-            margin-bottom: 15px;
-        }
-
-        .method-title {
-            font-size: 18px;
-            font-weight: 600;
-            margin-bottom: 8px;
-        }
-
-        .method-description {
-            font-size: 14px;
-            opacity: 0.8;
-        }
-
         .form-group {
-            margin-bottom: 25px;
+            margin-bottom: 20px;
         }
 
         .form-label {
@@ -151,6 +86,7 @@
             margin-bottom: 8px;
             font-weight: 600;
             color: var(--text-color);
+            font-size: 15px;
         }
 
         .form-input {
@@ -160,84 +96,275 @@
             border-radius: var(--border-radius);
             font-size: 16px;
             transition: border-color 0.3s;
+            background: white;
         }
 
         .form-input:focus {
             outline: none;
             border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(45, 122, 95, 0.1);
         }
 
-        .user-type-options {
+        .form-input.error {
+            border-color: #e74c3c;
+        }
+
+        .error-message {
+            color: #e74c3c;
+            font-size: 13px;
+            margin-top: 6px;
+            display: none;
+        }
+
+        .form-input.error + .error-message {
+            display: block;
+        }
+
+        .password-field {
+            position: relative;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #666;
+            cursor: pointer;
+            padding: 5px;
+            font-size: 18px;
+        }
+
+        .password-toggle:hover {
+            color: var(--text-dark);
+        }
+
+        .password-strength {
+            margin-top: 8px;
+            height: 4px;
+            background: #e0e0e0;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .password-strength-bar {
+            height: 100%;
+            transition: width 0.3s, background-color 0.3s;
+            width: 0;
+        }
+
+        .password-strength-text {
+            font-size: 12px;
+            margin-top: 4px;
+            color: var(--text-light);
+        }
+
+        .google-btn {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #4285f4;
+            border-radius: var(--border-radius);
+            background: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.3s;
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .google-btn:hover {
+            background: #f8f9fa;
+            box-shadow: 0 2px 8px rgba(66, 133, 244, 0.2);
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 25px 0;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border-light);
+        }
+
+        .divider span {
+            padding: 0 15px;
+            color: var(--text-light);
+            font-size: 14px;
+        }
+
+        .user-type-grid {
             display: grid;
             gap: 15px;
-            margin-bottom: 30px;
+            margin: 25px 0;
         }
 
-        .user-type-option {
+        .user-type-card {
             border: 2px solid var(--border-light);
             border-radius: var(--border-radius);
             padding: 20px;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.3s;
+            background: white;
+            position: relative;
         }
 
-        .user-type-option:hover {
+        .user-type-card:hover {
             border-color: var(--primary-color);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            transform: translateY(-2px);
         }
 
-        .user-type-option.selected {
+        .user-type-card.selected {
             border-color: var(--primary-color);
-            background: rgba(var(--primary-color-rgb), 0.05);
+            background: linear-gradient(135deg, rgba(45, 122, 95, 0.05), rgba(45, 122, 95, 0.02));
+        }
+
+        .user-type-card.selected::after {
+            content: '✓';
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 24px;
+            height: 24px;
+            background: var(--primary-color);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .user-type-icon {
+            font-size: 32px;
+            margin-bottom: 12px;
         }
 
         .user-type-title {
+            font-size: 18px;
             font-weight: 600;
-            margin-bottom: 5px;
+            margin-bottom: 8px;
+            color: var(--text-dark);
         }
 
         .user-type-description {
             font-size: 14px;
             color: var(--text-light);
+            line-height: 1.5;
         }
 
-        .user-type-requirements {
-            font-size: 12px;
-            color: var(--warning-color);
-            margin-top: 5px;
+        .user-type-badge {
+            display: inline-block;
+            background: #fff3cd;
+            color: #856404;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            margin-top: 8px;
+            font-weight: 600;
+        }
+
+        .email-validation {
+            margin-top: 8px;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            display: none;
+        }
+
+        .email-validation.ufrj {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            display: block;
+        }
+
+        .email-validation.regular {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+            display: block;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+            padding: 16px;
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-primary:disabled {
+            background: var(--border-light);
+            color: var(--text-light);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn-back {
+            background: white;
+            color: var(--text-color);
+            padding: 12px 24px;
+            border: 1px solid var(--border-light);
+            border-radius: var(--border-radius);
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-back:hover {
+            background: var(--background-light);
         }
 
         .btn-group {
             display: flex;
             gap: 15px;
-            margin-top: 30px;
-        }
-
-        .btn-back {
-            background: var(--background-light);
-            color: var(--text-color);
-            border: 1px solid var(--border-light);
-        }
-
-        .btn-back:hover {
-            background: var(--border-light);
+            margin-top: 25px;
         }
 
         .alert {
-            padding: 15px;
+            padding: 12px 16px;
             border-radius: var(--border-radius);
             margin-bottom: 20px;
+            font-size: 14px;
         }
 
         .alert-info {
-            background: rgba(var(--primary-color-rgb), 0.1);
-            border: 1px solid var(--primary-color);
-            color: var(--primary-color);
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
         }
 
         .alert-warning {
-            background: rgba(var(--warning-color-rgb), 0.1);
-            border: 1px solid var(--warning-color);
-            color: var(--warning-color);
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
         }
 
         .loading-spinner {
@@ -259,6 +386,40 @@
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
+        }
+
+        .success-container {
+            text-align: center;
+            padding: 40px;
+            display: none;
+        }
+
+        .success-icon {
+            width: 80px;
+            height: 80px;
+            background: #4caf50;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 40px;
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .registro-hero {
+                padding: 60px 20px;
+            }
+
+            .registro-container {
+                margin: 0 15px;
+            }
+
+            .registro-header,
+            .registro-body {
+                padding: 30px 20px;
+            }
         }
     </style>
 </head>
@@ -291,7 +452,7 @@
         </nav>
     </header>
 
-    <!-- Registro Hero -->
+    <!-- Registro Section -->
     <section class="registro-hero">
         <div class="container">
             <div class="registro-container">
@@ -301,172 +462,188 @@
                 </div>
 
                 <div class="registro-body">
-                    <!-- Indicador de Etapas -->
-                    <div class="step-indicator">
-                        <div class="step active" id="step-indicator-1">
-                            <div class="step-number">1</div>
-                            <div class="step-text">Método</div>
-                        </div>
-                        <div class="step" id="step-indicator-2">
-                            <div class="step-number">2</div>
-                            <div class="step-text">Dados</div>
-                        </div>
-                        <div class="step" id="step-indicator-3">
-                            <div class="step-number">3</div>
-                            <div class="step-text">Tipo</div>
-                        </div>
-                        <div class="step" id="step-indicator-4">
-                            <div class="step-number">4</div>
-                            <div class="step-text">Confirmar</div>
-                        </div>
-                    </div>
+                    <!-- Etapa 1: Email ou Google -->
+                    <div class="step-content active" id="step-1">
+                        <h2 style="font-size: 20px; margin-bottom: 8px;">Como deseja criar sua conta?</h2>
+                        <p style="color: var(--text-light); font-size: 14px; margin-bottom: 25px;">
+                            Você pode criar uma conta com Google ou usar seu email
+                        </p>
 
-                    <!-- Etapa 1: Escolha do Método -->
-                                        <div class="step-content active" id="step-1">
-                        <h2>Qual email voc� vai usar?</h2>
-                        <p style="color: var(--text-light); margin: 6px 0 16px;">Voc� pode digitar seu email ou criar com o Google.</p>
+                        <!-- Botão do Google -->
+                        <button type="button" class="google-btn" id="google-signup">
+                            <svg width="20" height="20" viewBox="0 0 24 24">
+                                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                            </svg>
+                            Criar conta com Google
+                        </button>
+
+                        <div class="divider">
+                            <span>ou</span>
+                        </div>
+
+                        <!-- Campo de Email -->
                         <form id="email-form">
                             <div class="form-group">
                                 <label class="form-label" for="user-email">Email</label>
-                                <input type="email" class="form-input" id="user-email" required>
-                                <div id="email-validation" style="display: none; margin-top: 8px;"></div>
+                                <input type="email" class="form-input" id="user-email" 
+                                       placeholder="seu.email@exemplo.com" required>
+                                <div class="email-validation" id="email-validation"></div>
+                                <div class="error-message">Por favor, insira um email válido</div>
                             </div>
+
+                            <button type="submit" class="btn-primary" id="btn-continue-email">
+                                Continuar com Email
+                            </button>
                         </form>
-                        <div class="btn-group" style="margin-top: 10px; gap: 10px; display: flex; flex-wrap: wrap;">
-                            <button class="btn btn-primary" id="btn-next-1">Continuar</button>
-                            <button class="btn btn-secondary" type="button" id="btn-google-auth">Entrar com Google</button>
-                        </div>
-                    </div>
-                                <div class="method-title">Login Social</div>
-                                <div class="method-description">Criar conta rapidamente com sua conta do Google</div>
-                            </div>
-                            <div class="method-option" data-method="email">
-                                <div class="method-icon">✉️</div>
-                                <div class="method-title">Cadastro com Email</div>
-                                <div class="method-description">Criar conta usando seu endereço de email</div>
-                            </div>
-                        </div>
-                        <div class="btn-group">
-                            <button class="btn btn-primary" id="btn-next-1" disabled>Continuar</button>
-                        </div>
                     </div>
 
-                    <!-- Etapa 2: Dados do Usuário -->
+                    <!-- Etapa 2: Tipo de Perfil -->
                     <div class="step-content" id="step-2">
-                        <!-- Para Social Login -->
-                        <div id="social-login-section" style="display: none;">
-                            <h2>Autenticar com Google</h2>
-                            <div class="alert alert-info">
-                                Você será redirecionado para fazer login com sua conta do Google.
+                        <h2 style="font-size: 20px; margin-bottom: 8px;">Qual tipo de perfil você deseja?</h2>
+                        <p style="color: var(--text-light); font-size: 14px; margin-bottom: 25px;">
+                            Escolha o perfil que melhor descreve sua atuação
+                        </p>
+
+                        <div class="user-type-grid">
+                            <div class="user-type-card" data-type="visitante">
+                                <div class="user-type-icon">👁️</div>
+                                <div class="user-type-title">Visitante</div>
+                                <div class="user-type-description">
+                                    Explorar iniciativas e conhecer projetos de inovação social
+                                </div>
                             </div>
-                            <button class="btn btn-primary btn-block" id="btn-google-auth">
-                                <span>🔗</span> Entrar com Google
+
+                            <div class="user-type-card" data-type="extensionista">
+                                <div class="user-type-icon">🎓</div>
+                                <div class="user-type-title">Extensionista</div>
+                                <div class="user-type-description">
+                                    Cadastrar e gerenciar projetos de extensão universitária
+                                </div>
+                                <div class="user-type-badge">Requer email UFRJ</div>
+                            </div>
+
+                            <div class="user-type-card" data-type="pesquisador">
+                                <div class="user-type-icon">🔬</div>
+                                <div class="user-type-title">Pesquisador</div>
+                                <div class="user-type-description">
+                                    Cadastrar pesquisas e estudos sobre inovação social
+                                </div>
+                                <div class="user-type-badge">Requer email UFRJ</div>
+                            </div>
+                        </div>
+
+                        <div class="btn-group">
+                            <button class="btn-back" id="btn-back-2">Voltar</button>
+                            <button class="btn-primary" id="btn-continue-type" disabled style="flex: 1;">
+                                Continuar
                             </button>
                         </div>
-
-                        <!-- Para Email -->
-                        <div id="email-section" style="display: none;">
-                            <h2>Informe seu Email</h2>
-                            <form id="email-form">
-                                <div class="form-group">
-                                    <label class="form-label" for="user-email">Email</label>
-                                    <input type="email" class="form-input" id="user-email" required>
-                                    <div id="email-validation" style="display: none; margin-top: 8px;"></div>
-                                </div>
-                            </form>
-                        </div>
-
-                        <div class="btn-group">
-                            <button class="btn btn-back" id="btn-back-2">Voltar</button>
-                            <button class="btn btn-primary" id="btn-next-2">Continuar</button>
-                        </div>
                     </div>
 
-                    <!-- Etapa 3: Tipo de Usuário -->
-                    <div class="step-content" id="step-3">
-                        <h2>Qual seu tipo de acesso?</h2>
-                        <div class="user-type-options">
-                            <div class="user-type-option" data-type="visitante">
-                                <div class="user-type-title">👁️ Visitante</div>
-                                <div class="user-type-description">Explorar iniciativas e conhecer projetos de inovação social</div>
-                            </div>
-                            <div class="user-type-option" data-type="extensionista">
-                                <div class="user-type-title">🎓 Extensionista</div>
-                                <div class="user-type-description">Cadastrar e gerenciar projetos de extensão universitária</div>
-                                <div class="user-type-requirements">* Requer email institucional da UFRJ</div>
-                            </div>
-                            <div class="user-type-option" data-type="pesquisador">
-                                <div class="user-type-title">🔬 Pesquisador</div>
-                                <div class="user-type-description">Cadastrar pesquisas e estudos sobre inovação social</div>
-                                <div class="user-type-requirements">* Requer email institucional da UFRJ</div>
-                            </div>
+                    <!-- Etapa 3: Email UFRJ (para extensionista/pesquisador) -->
+                    <div class="step-content" id="step-3-ufrj">
+                        <h2 style="font-size: 20px; margin-bottom: 8px;">Confirme seu email institucional</h2>
+                        <p style="color: var(--text-light); font-size: 14px; margin-bottom: 25px;">
+                            Para o perfil selecionado, é necessário um email da UFRJ
+                        </p>
+
+                        <div class="alert alert-info">
+                            💡 Use seu email institucional da UFRJ (@ufrj.br) para validar seu perfil de 
+                            <span id="selected-profile-text"></span>
                         </div>
 
-                        <div id="institutional-email-section" style="display: none;">
-                            <div class="alert alert-warning">
-                                Para extensionistas e pesquisadores é necessário confirmar o email institucional da UFRJ.
-                            </div>
+                        <form id="ufrj-form">
                             <div class="form-group">
-                                <label class="form-label" for="institutional-email">Email Institucional UFRJ</label>
-                                <input type="email" class="form-input" id="institutional-email" placeholder="seu-email@ufrj.br">
+                                <label class="form-label" for="ufrj-email">Email Institucional UFRJ</label>
+                                <input type="email" class="form-input" id="ufrj-email" 
+                                       placeholder="seu.nome@ufrj.br" required>
+                                <div class="error-message">Por favor, insira um email válido da UFRJ</div>
                             </div>
-                        </div>
 
-                        <div class="btn-group">
-                            <button class="btn btn-back" id="btn-back-3">Voltar</button>
-                            <button class="btn btn-primary" id="btn-next-3" disabled>Continuar</button>
+                            <div class="btn-group">
+                                <button type="button" class="btn-back" id="btn-back-3">Voltar</button>
+                                <button type="submit" class="btn-primary" style="flex: 1;">
+                                    Validar e Continuar
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Etapa 4: Criar Senha (para visitante ou após validação UFRJ) -->
+                    <div class="step-content" id="step-4-password">
+                        <h2 style="font-size: 20px; margin-bottom: 8px;">Crie sua senha</h2>
+                        <p style="color: var(--text-light); font-size: 14px; margin-bottom: 25px;">
+                            Escolha uma senha segura para proteger sua conta
+                        </p>
+
+                        <form id="password-form">
+                            <div class="form-group">
+                                <label class="form-label" for="password">Senha</label>
+                                <div class="password-field">
+                                    <input type="password" class="form-input" id="password" 
+                                           placeholder="Mínimo 6 caracteres" required style="padding-right: 50px;">
+                                    <button type="button" class="password-toggle" id="password-toggle">
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                            <circle cx="12" cy="12" r="3"></circle>
+                                        </svg>
+                                    </button>
+                                </div>
+                                <div class="password-strength">
+                                    <div class="password-strength-bar" id="strength-bar"></div>
+                                </div>
+                                <div class="password-strength-text" id="strength-text"></div>
+                                <div class="error-message">A senha deve ter pelo menos 6 caracteres</div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label" for="password-confirm">Confirmar Senha</label>
+                                <input type="password" class="form-input" id="password-confirm" 
+                                       placeholder="Digite a senha novamente" required>
+                                <div class="error-message">As senhas não coincidem</div>
+                            </div>
+
+                            <button type="submit" class="btn-primary" id="btn-create-account">
+                                Criar Conta
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Etapa 5: Sucesso -->
+                    <div class="step-content" id="step-success">
+                        <div class="success-container" style="display: block;">
+                            <div class="success-icon">✓</div>
+                            <h2 style="font-size: 24px; margin-bottom: 12px;">Conta criada com sucesso!</h2>
+                            <p style="color: var(--text-light); margin-bottom: 20px;">
+                                Um email de confirmação foi enviado para <strong id="confirmation-email"></strong>
+                            </p>
+                            <p style="color: var(--text-light); font-size: 14px; margin-bottom: 30px;">
+                                Verifique sua caixa de entrada e clique no link para ativar sua conta
+                            </p>
+                            <button class="btn-primary" onclick="window.location.href='login.html'">
+                                Ir para Login
+                            </button>
                         </div>
                     </div>
 
-                    <!-- Etapa 4: Confirmação -->
-                    <div class="step-content" id="step-4">
-                        <h2>Confirmar Dados</h2>
-                        <div id="confirmation-data"></div>
-                        
-                        <div class="loading-spinner" id="loading-spinner">
-                            <div class="spinner"></div>
-                            <p>Criando sua conta...</p>
-                        </div>
-
-                        <div class="btn-group" id="confirmation-buttons">
-                            <button class="btn btn-back" id="btn-back-4">Voltar</button>
-                            <button class="btn btn-primary" id="btn-create-account">Criar Conta</button>
-                        </div>
+                    <!-- Loading -->
+                    <div class="loading-spinner" id="loading-spinner">
+                        <div class="spinner"></div>
+                        <p>Criando sua conta...</p>
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-section">
-                    <h3>Designário</h3>
-                    <p>Observatório de Inovação Social do Rio de Janeiro</p>
-                </div>
-                <div class="footer-section">
-                    <h4>Links</h4>
-                    <ul>
-                        <li><a href="../index.html">Início</a></li>
-                        <li><a href="casos.html">Casos</a></li>
-                        <li><a href="sobre.html">Sobre</a></li>
-                        <li><a href="contato.html">Contato</a></li>
-                    </ul>
-                </div>
-            </div>
-            <div class="footer-bottom">
-                <p>&copy; 2024 Observatório de Inovação Social RJ. Todos os direitos reservados.</p>
-            </div>
-        </div>
-    </footer>
-
     <!-- Scripts -->
     <script src="https://cdn.auth0.com/js/auth0/9.23.0/auth0.min.js"></script>
     <script src="../js/auth0-client.js"></script>
+    <script src="../js/DataManager.js"></script>
+    <script src="../js/AuthManager.js"></script>
     <script src="../js/RegistrationManager.js"></script>
 </body>
 </html>
-
-

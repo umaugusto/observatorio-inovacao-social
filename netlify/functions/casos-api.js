@@ -1,9 +1,39 @@
 const { createClient } = require('@supabase/supabase-js');
 
-const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_KEY
-);
+// Configuração do Supabase
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_SERVICE_KEY;
+const supabase = createClient(supabaseUrl, supabaseKey);
+
+// Sistema de labels inteligente
+const LABEL_TYPES = {
+  TEST: 'teste',
+  REAL: 'real',
+  FEATURED: 'destaque',
+  DRAFT: 'rascunho'
+};
+
+// Função para gerar labels automaticamente
+function generateAutoLabels(caso, user) {
+  const labels = [];
+  
+  // Marcar como teste se for ambiente de desenvolvimento ou user específico
+  if (user && (user.email?.includes('test') || user.role === 'teste')) {
+    labels.push(LABEL_TYPES.TEST);
+  }
+  
+  // Auto-marcar como rascunho se não estiver aprovado
+  if (!caso.aprovado) {
+    labels.push(LABEL_TYPES.DRAFT);
+  }
+  
+  // Marcar como destaque se tiver critérios específicos
+  if (caso.beneficiarios > 1000 || caso.impacto_score > 8) {
+    labels.push(LABEL_TYPES.FEATURED);
+  }
+  
+  return labels;
+}
 
 exports.handler = async (event, context) => {
   const headers = {
@@ -41,13 +71,14 @@ exports.handler = async (event, context) => {
             body: JSON.stringify({ caso: data })
           };
         } else {
-          // Listar todos os casos com filtros
-          const { aprovado, categoria, regiao, search } = queryStringParameters || {};
+          // Listar todos os casos com filtros e labels
+          const { aprovado, categoria, regiao, search, labels, exclude_test } = queryStringParameters || {};
           
           let query = supabase
             .from('casos')
             .select(`
               *,
+              labels,
               users!casos_user_id_fkey(id, name, email, role, is_admin)
             `);
 
@@ -64,7 +95,18 @@ exports.handler = async (event, context) => {
           }
 
           if (search) {
-            query = query.or(`titulo.ilike.%${search}%,descricao_resumo.ilike.%${search}%`);
+            query = query.or(`titulo.ilike.%${search}%,descricao_resumo.ilike.%${search}%,organizacao.ilike.%${search}%`);
+          }
+
+          // Filtro por labels
+          if (labels) {
+            const labelArray = labels.split(',');
+            query = query.contains('labels', labelArray);
+          }
+          
+          // Excluir casos de teste se solicitado
+          if (exclude_test === 'true') {
+            query = query.not('labels', 'cs', `["${LABEL_TYPES.TEST}"]`);
           }
 
           query = query.order('created_at', { ascending: false });
@@ -82,10 +124,24 @@ exports.handler = async (event, context) => {
       case 'POST':
         const casoData = JSON.parse(event.body);
         
+        // Extrair informações do usuário se disponível
+        const authHeader = event.headers.authorization;
+        let user = null;
+        if (authHeader) {
+          // TODO: Decodificar token JWT para obter dados do usuário
+          // Por enquanto, aceitar dados do usuário no body se disponível
+          user = casoData.user || null;
+        }
+        
+        // Gerar labels automáticas
+        const autoLabels = generateAutoLabels(casoData, user);
+        const finalLabels = [...(casoData.labels || []), ...autoLabels];
+        
         const { data: newCaso, error: createError } = await supabase
           .from('casos')
           .insert({
             ...casoData,
+            labels: finalLabels,
             aprovado: false,
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString()
@@ -114,6 +170,13 @@ exports.handler = async (event, context) => {
         }
 
         const updateData = JSON.parse(event.body);
+        
+        // Se as labels não foram explicitamente fornecidas, regenerar automaticamente
+        if (!updateData.labels) {
+          const user = updateData.user || null;
+          const autoLabels = generateAutoLabels(updateData, user);
+          updateData.labels = autoLabels;
+        }
         
         const { data: updatedCaso, error: updateError } = await supabase
           .from('casos')

@@ -1,8 +1,22 @@
-// DataManager - Gerenciamento centralizado de dados
+// DataManager - Gerenciamento centralizado de dados com integração de banco
 class DataManager {
     constructor() {
         this.observers = new Set();
+        this.casosCache = null;
+        this.statsCache = null;
+        this.cacheExpiry = 5 * 60 * 1000; // 5 minutos
+        this.lastCacheUpdate = null;
+        this.useDatabase = this.isDatabaseAvailable();
         this.init();
+    }
+
+    // Verificar se estamos em produção (Netlify) para usar banco de dados
+    isDatabaseAvailable() {
+        return !(
+            window.location.hostname === 'localhost' || 
+            window.location.hostname === '127.0.0.1' || 
+            window.location.port === '8080'
+        );
     }
 
     static getInstance() {
@@ -13,19 +27,94 @@ class DataManager {
     }
 
     async init() {
+        console.log(`📊 DataManager inicializado - Modo: ${this.useDatabase ? 'Banco de Dados' : 'Local'}`);
+        
+        if (this.useDatabase) {
+            // Carregar dados do banco de dados
+            try {
+                await this.loadFromDatabase();
+            } catch (error) {
+                console.error('Erro ao carregar do banco, usando fallback local:', error);
+                this.useDatabase = false;
+                await this.loadFromLocal();
+            }
+        } else {
+            // Usar dados locais para desenvolvimento
+            await this.loadFromLocal();
+        }
+        
+        // Notificar observadores sobre dados carregados
+        this.notifyObservers('dataLoaded');
+    }
+
+    async loadFromDatabase() {
+        console.log('🌐 Carregando dados do banco de dados...');
+        
+        // Carregar casos e estatísticas em paralelo
+        const [casosResponse, statsResponse] = await Promise.all([
+            fetch('/.netlify/functions/casos-api?exclude_test=true'),
+            fetch('/.netlify/functions/casos-stats?exclude_test=true')
+        ]);
+        
+        if (casosResponse.ok && statsResponse.ok) {
+            const casosData = await casosResponse.json();
+            const statsData = await statsResponse.json();
+            
+            this.casosCache = casosData.casos;
+            this.statsCache = statsData;
+            this.lastCacheUpdate = Date.now();
+            
+            console.log('✅ Dados carregados do banco:', {
+                casos: casosData.casos.length,
+                stats: statsData.bigNumbers
+            });
+        } else {
+            throw new Error('Erro ao carregar dados do banco');
+        }
+    }
+
+    async loadFromLocal() {
+        console.log('💾 Carregando dados do localStorage/JSON...');
+        
         // Carregar dados iniciais se não existirem
         if (!localStorage.getItem('casos')) {
             console.log('LocalStorage vazio, carregando dados do arquivo JSON...');
             const defaultData = await this.loadDefaultData();
             localStorage.setItem('casos', JSON.stringify(defaultData));
             console.log('Dados salvos no localStorage:', defaultData.length, 'casos');
-        } else {
-            const casos = JSON.parse(localStorage.getItem('casos'));
-            console.log('Dados carregados do localStorage:', casos.length, 'casos');
         }
         
-        // Notificar observadores sobre dados carregados
-        this.notifyObservers('dataLoaded');
+        const casos = JSON.parse(localStorage.getItem('casos'));
+        this.casosCache = casos;
+        
+        // Gerar stats baseadas nos dados locais
+        this.statsCache = this.generateLocalStats(casos);
+        this.lastCacheUpdate = Date.now();
+        
+        console.log('✅ Dados carregados do local:', casos.length, 'casos');
+    }
+
+    generateLocalStats(casos) {
+        const casosAprovados = casos.filter(caso => caso.aprovado);
+        const totalBeneficiarios = casosAprovados.reduce((sum, caso) => sum + (caso.beneficiarios || 0), 0);
+        const categorias = [...new Set(casosAprovados.map(caso => caso.categoria))].length;
+        const regioes = [...new Set(casosAprovados.map(caso => caso.regiao))].length;
+        
+        return {
+            bigNumbers: {
+                totalCasos: casosAprovados.length,
+                totalBeneficiarios,
+                totalCategorias: categorias,
+                totalRegioes: regioes
+            },
+            casosRecentes: casosAprovados
+                .sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0))
+                .slice(0, 5),
+            metadata: {
+                lastUpdated: new Date().toISOString(),
+                dataSource: 'localStorage'
+            }
+        };
     }
 
     async loadDefaultData() {
@@ -36,7 +125,12 @@ class DataManager {
             if (response.ok) {
                 const data = await response.json();
                 console.log('Dados carregados do arquivo:', data.length, 'casos');
-                return data;
+                // Adicionar labels de teste para dados estáticos
+                return data.map(caso => ({
+                    ...caso,
+                    labels: ['real'], // Marcar dados do JSON como reais
+                    created_at: caso.created_at || new Date().toISOString()
+                }));
             }
         } catch (error) {
             console.warn('Não foi possível carregar dados do arquivo, usando dados padrão:', error);
@@ -109,11 +203,56 @@ class DataManager {
     // CRUD Operations para casos
     getCasos() {
         try {
-            return JSON.parse(localStorage.getItem('casos')) || [];
+            // Se tem cache válido, usar cache
+            if (this.casosCache && this.isCacheValid()) {
+                return this.casosCache;
+            }
+            
+            // Se modo local, usar localStorage
+            if (!this.useDatabase) {
+                return JSON.parse(localStorage.getItem('casos')) || [];
+            }
+            
+            // Se banco, cache pode estar desatualizado, mas retornar mesmo assim
+            return this.casosCache || [];
         } catch (error) {
             console.error('Erro ao carregar casos:', error);
             return this.getDefaultCasos();
         }
+    }
+    
+    // Método assíncrono para garantir dados atualizados do banco
+    async getCasosAsync(filters = {}) {
+        if (!this.useDatabase) {
+            return this.getCasos();
+        }
+        
+        try {
+            // Construir query string com filtros
+            const params = new URLSearchParams({
+                exclude_test: 'true',
+                ...filters
+            });
+            
+            const response = await fetch(`/.netlify/functions/casos-api?${params}`);
+            
+            if (response.ok) {
+                const data = await response.json();
+                this.casosCache = data.casos;
+                this.lastCacheUpdate = Date.now();
+                return data.casos;
+            }
+        } catch (error) {
+            console.error('Erro ao buscar casos da API:', error);
+        }
+        
+        // Fallback para cache existente
+        return this.casosCache || [];
+    }
+    
+    // Verificar se cache ainda é válido
+    isCacheValid() {
+        return this.lastCacheUpdate && (Date.now() - this.lastCacheUpdate < this.cacheExpiry);
     }
 
     getCasoById(id) {

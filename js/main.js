@@ -1074,7 +1074,7 @@ class ObservatorioApp {
             const basePath = window.location.pathname.includes('/pages/') ? '' : 'pages/';
             navActions.innerHTML = `
                 <a href="${basePath}login.html" class="btn-secondary-header">Entrar</a>
-                <a href="${basePath}contato.html" class="btn-header">Criar Conta</a>
+                <a href="${basePath}registro.html" class="btn-header">Criar Conta</a>
             `;
         }
     }

@@ -1,410 +1,343 @@
-// Registration Manager - Gerenciamento do fluxo de cadastro
+// New Registration Manager - Fluxo facilitado de criação de conta
 class RegistrationManager {
     constructor() {
         this.currentStep = 1;
-        this.totalSteps = 4;
         this.registrationData = {
-            method: 'email',       // 'social' ou 'email' (padr�o: email)
+            method: null,           // 'google' ou 'email'
             email: null,
-            userType: null,        // 'visitante', 'extensionista', 'pesquisador'
+            userType: null,         // 'visitante', 'extensionista', 'pesquisador'
             institutionalEmail: null,
-            auth0Data: null
+            password: null,
+            isUFRJEmail: false,
+            socialData: null
         };
 
         this.auth0Client = null;
+        this.authManager = null;
         this.init();
     }
 
     async init() {
-        console.log('🔐 RegistrationManager iniciado');
+        console.log('🔐 New RegistrationManager iniciado');
         
-        // Inicializar Auth0
-        this.auth0Client = Auth0Client.getInstance();
+        // Inicializar Auth0 e AuthManager
+        this.auth0Client = Auth0Client?.getInstance();
+        this.authManager = AuthManager?.getInstance();
         
         // Setup event listeners
         this.setupEventListeners();
         
         // Verificar se veio do Auth0 callback
-        this.checkAuth0Return();
+        this.checkSocialReturn();
     }
 
     setupEventListeners() {
-        // Etapa 1 - Seleção do método
-        document.querySelectorAll('.method-option').forEach(option => {
-            option.addEventListener('click', () => {
-                this.selectMethod(option.dataset.method);
-            });
-        });
+        // Etapa 1 - Google Signup
+        const googleBtn = document.getElementById('google-signup');
+        if (googleBtn) {
+            googleBtn.addEventListener('click', () => this.handleGoogleSignup());
+        }
 
-        // Etapa 2 - Input de email
-        const emailInput = document.getElementById('user-email');
-        if (emailInput) {
-            emailInput.addEventListener('input', () => {
-                this.validateEmail();
+        // Etapa 1 - Email form
+        const emailForm = document.getElementById('email-form');
+        if (emailForm) {
+            emailForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                this.handleEmailContinue();
             });
         }
 
-        // Etapa 3 - Seleção do tipo de usuário
-        document.querySelectorAll('.user-type-option').forEach(option => {
-            option.addEventListener('click', () => {
-                this.selectUserType(option.dataset.type);
+        // Email input validation
+        const emailInput = document.getElementById('user-email');
+        if (emailInput) {
+            emailInput.addEventListener('input', () => this.validateEmailInput());
+            emailInput.addEventListener('blur', () => this.validateEmailInput());
+        }
+
+        // Etapa 2 - Seleção de tipo de usuário
+        document.querySelectorAll('.user-type-card').forEach(card => {
+            card.addEventListener('click', () => {
+                const type = card.dataset.type;
+                this.selectUserType(type);
             });
         });
 
-        // Botões de navegação
-        document.getElementById('btn-next-1')?.addEventListener('click', () => this.nextStep());
-        document.getElementById('btn-next-2')?.addEventListener('click', () => this.nextStep());
-        document.getElementById('btn-next-3')?.addEventListener('click', () => this.nextStep());
-        
-        document.getElementById('btn-back-2')?.addEventListener('click', () => this.previousStep());
-        document.getElementById('btn-back-3')?.addEventListener('click', () => this.previousStep());
-        document.getElementById('btn-back-4')?.addEventListener('click', () => this.previousStep());
+        // Etapa 2 - Continue button
+        const continueTypeBtn = document.getElementById('btn-continue-type');
+        if (continueTypeBtn) {
+            continueTypeBtn.addEventListener('click', () => this.handleTypeContinue());
+        }
 
-        // Botão do Google Auth
-        document.getElementById('btn-google-auth')?.addEventListener('click', () => { this.registrationData.method = 'social'; this.initiateGoogleAuth(); });
+        // Etapa 3 - UFRJ form
+        const ufrjForm = document.getElementById('ufrj-form');
+        if (ufrjForm) {
+            ufrjForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                this.handleUFRJValidation();
+            });
+        }
 
-        // Botão de criar conta
-        document.getElementById('btn-create-account')?.addEventListener('click', () => {
-            this.createAccount();
-        });
+        // Etapa 4 - Password form
+        const passwordForm = document.getElementById('password-form');
+        if (passwordForm) {
+            passwordForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                this.handleAccountCreation();
+            });
+        }
+
+        // Password toggle
+        const passwordToggle = document.getElementById('password-toggle');
+        if (passwordToggle) {
+            passwordToggle.addEventListener('click', () => this.togglePassword());
+        }
+
+        // Password strength
+        const passwordInput = document.getElementById('password');
+        if (passwordInput) {
+            passwordInput.addEventListener('input', () => this.updatePasswordStrength());
+        }
+
+        // Back buttons
+        document.getElementById('btn-back-2')?.addEventListener('click', () => this.goToStep(1));
+        document.getElementById('btn-back-3')?.addEventListener('click', () => this.goToStep(2));
     }
 
-    selectMethod(method) {
-        this.registrationData.method = method;
+    async handleGoogleSignup() {
+        const btn = document.getElementById('google-signup');
+        const originalHTML = btn.innerHTML;
         
-        // Atualizar UI
-        document.querySelectorAll('.method-option').forEach(option => {
-            option.classList.remove('selected');
-        });
-        document.querySelector(`[data-method="${method}"]`).classList.add('selected');
-        
-        // Habilitar botão continuar
-        document.getElementById('btn-next-1').disabled = false;
+        try {
+            btn.disabled = true;
+            btn.innerHTML = '⏳ Conectando com Google...';
+            
+            this.registrationData.method = 'google';
+            
+            // Salvar estado do registro
+            sessionStorage.setItem('registration_flow', JSON.stringify({
+                flow: 'registration',
+                method: 'google'
+            }));
+            
+            // Iniciar Auth0 login
+            if (this.auth0Client) {
+                await this.auth0Client.login();
+            } else {
+                throw new Error('Auth0 não disponível');
+            }
+            
+        } catch (error) {
+            console.error('Google signup failed:', error);
+            this.showNotification('Erro ao conectar com Google. Tente novamente.', 'error');
+            
+            // Reset button
+            btn.disabled = false;
+            btn.innerHTML = originalHTML;
+        }
     }
 
-    validateEmail() {
+    handleEmailContinue() {
+        const email = document.getElementById('user-email').value.trim();
+        
+        if (!this.isValidEmail(email)) {
+            this.showFieldError('user-email', 'Por favor, insira um email válido');
+            return;
+        }
+
+        this.registrationData.method = 'email';
+        this.registrationData.email = email;
+        this.registrationData.isUFRJEmail = email.toLowerCase().includes('@ufrj.br');
+        
+        this.goToStep(2);
+    }
+
+    validateEmailInput() {
         const emailInput = document.getElementById('user-email');
+        const validation = document.getElementById('email-validation');
         const email = emailInput.value.trim();
-        const validationDiv = document.getElementById('email-validation');
         
         if (!email) {
-            validationDiv.style.display = 'none';
+            validation.className = 'email-validation';
+            return;
+        }
+
+        if (!this.isValidEmail(email)) {
+            validation.className = 'email-validation';
             return;
         }
 
         const isUFRJ = email.toLowerCase().includes('@ufrj.br');
         
-        validationDiv.style.display = 'block';
         if (isUFRJ) {
-            validationDiv.innerHTML = '<div style="color: var(--success-color);">✅ Email institucional UFRJ detectado</div>';
-            this.registrationData.suggestInstitutional = true;
+            validation.className = 'email-validation ufrj';
+            validation.innerHTML = '✅ Email institucional UFRJ detectado - Recomendamos perfil Extensionista ou Pesquisador';
         } else {
-            validationDiv.innerHTML = '<div style="color: var(--info-color);">ℹ️ Email válido para cadastro como visitante</div>';
-            this.registrationData.suggestInstitutional = false;
+            validation.className = 'email-validation regular';
+            validation.innerHTML = 'ℹ️ Email válido - Pode ser usado para qualquer tipo de perfil';
         }
-
-        this.registrationData.email = email;
-        const btn1 = document.getElementById('btn-next-1');
-        if (btn1) btn1.disabled = !this.isValidEmail(email);
     }
 
     selectUserType(type) {
         this.registrationData.userType = type;
         
         // Atualizar UI
-        document.querySelectorAll('.user-type-option').forEach(option => {
-            option.classList.remove('selected');
+        document.querySelectorAll('.user-type-card').forEach(card => {
+            card.classList.remove('selected');
         });
         document.querySelector(`[data-type="${type}"]`).classList.add('selected');
         
-        // Mostrar/esconder seção de email institucional
-        const institutionalSection = document.getElementById('institutional-email-section');
-        if (type === 'extensionista' || type === 'pesquisador') {
-            institutionalSection.style.display = 'block';
-        } else {
-            institutionalSection.style.display = 'none';
-        }
-        
         // Habilitar botão continuar
-        document.getElementById('btn-next-3').disabled = false;
-    }
-
-    async checkAuth0Return() {
-        // Verificar se há dados do Auth0 no sessionStorage
-        const auth0Return = sessionStorage.getItem('auth0_registration_return');
-        if (auth0Return) {
-            const data = JSON.parse(auth0Return);
-            this.registrationData.method = 'social';
-            this.registrationData.email = data.email;
-            this.registrationData.auth0Data = data;
-            
-            // Ir para etapa de seleção de tipo de usuário
-            this.goToStep(3);
-            
-            // Remover dados do sessionStorage
-            sessionStorage.removeItem('auth0_registration_return');
+        const continueBtn = document.getElementById('btn-continue-type');
+        if (continueBtn) {
+            continueBtn.disabled = false;
         }
     }
 
-    async initiateGoogleAuth() {
-        try {
-            // Salvar estado atual
-            sessionStorage.setItem('registration_flow', 'true');
-            
-            // Iniciar Auth0 login
-            this.auth0Client.login();
-        } catch (error) {
-            console.error('Erro ao iniciar Auth0:', error);
-            this.showError('Erro ao conectar com o Google. Tente novamente.');
-        }
-    }
-
-    nextStep() {
-        // Validações antes de avançar
-        if (this.currentStep === 1) {
-            const email = document.getElementById('user-email')?.value?.trim();
-            if (!email || !this.isValidEmail(email)) {
-                this.showError('Informe um email v�lido');
-                return;
-            }
-            this.registrationData.email = email;
-            this.registrationData.suggestInstitutional = email.toLowerCase().includes('@ufrj.br');
-            this.goToStep(3);
+    handleTypeContinue() {
+        if (!this.registrationData.userType) {
+            this.showNotification('Por favor, selecione um tipo de perfil', 'error');
             return;
         }
 
-        if (this.currentStep === 2) {
-            if (this.registrationData.method === 'email') {
-                const email = document.getElementById('user-email').value.trim();
-                if (!email || !this.isValidEmail(email)) {
-                    this.showError('Informe um email válido');
-                    return;
-                }
-                this.registrationData.email = email;
-        const btn1 = document.getElementById('btn-next-1');
-        if (btn1) btn1.disabled = !this.isValidEmail(email);
-    }
-        }
-
-        if (this.currentStep === 3 && !this.registrationData.userType) {
-            this.showError('Selecione um tipo de usuário');
-            return;
-        }
-
-        if (this.currentStep === 3) {\n            const userType = this.registrationData.userType;\n            if ((userType === 'extensionista' || userType === 'pesquisador')) {\n                const institutionalEmail = document.getElementById('institutional-email')?.value?.trim();\n                if (!institutionalEmail || !institutionalEmail.includes('@ufrj.br')) {\n                    this.showError('Email institucional da UFRJ � obrigat�rio para extensionistas e pesquisadores');\n                    return;\n                }\n                this.registrationData.institutionalEmail = institutionalEmail;\n            }\n            if (this.registrationData.userType === 'visitante') {\n                // Concluir cadastro imediatamente para visitante\n                this.createAccount();\n                return;\n            }\n        }\n\n        // Se chegou na etapa 4, mostrar dados para confirmação
-        if (this.currentStep === 3) {
-            this.showConfirmationData();
-        }
-
-        this.goToStep(this.currentStep + 1);
-    }
-
-    previousStep() {
-        this.goToStep(this.currentStep - 1);
-    }
-
-    goToStep(step) {
-        if (step < 1 || step > this.totalSteps) return;
-
-        // Esconder todas as etapas
-        document.querySelectorAll('.step-content').forEach(content => {
-            content.classList.remove('active');
-        });
-
-        // Mostrar etapa atual
-        document.getElementById(`step-${step}`).classList.add('active');
-
-        // Atualizar indicadores
-        this.updateStepIndicators(step);
-
-        // Configurar etapa específica
-        this.setupStep(step);
-
-        this.currentStep = step;
-    }
-
-    setupStep(step) {
-        switch (step) {
-            case 2:
-                if (this.registrationData.method === 'social') {
-                    document.getElementById('social-login-section').style.display = 'block';
-                    document.getElementById('email-section').style.display = 'none';
-                } else {
-                    document.getElementById('social-login-section').style.display = 'none';
-                    document.getElementById('email-section').style.display = 'block';
-                }
-                break;
-
-            case 3:
-                // Pre-selecionar tipo baseado no email se for UFRJ
-                if (this.registrationData.suggestInstitutional && !this.registrationData.userType) {
-                    // Mostrar sugestão para extensionista/pesquisador
-                    this.showInfo('Email UFRJ detectado. Recomendamos escolher Extensionista ou Pesquisador.');
-                }
-                break;
-        }
-    }
-
-    updateStepIndicators(currentStep) {
-        for (let i = 1; i <= this.totalSteps; i++) {
-            const indicator = document.getElementById(`step-indicator-${i}`);
-            if (i < currentStep) {
-                indicator.className = 'step completed';
-            } else if (i === currentStep) {
-                indicator.className = 'step active';
-            } else {
-                indicator.className = 'step';
+        const type = this.registrationData.userType;
+        
+        // Se for extensionista/pesquisador e não tem email UFRJ, pedir email institucional
+        if ((type === 'extensionista' || type === 'pesquisador') && !this.registrationData.isUFRJEmail) {
+            // Atualizar texto do perfil selecionado
+            const profileText = document.getElementById('selected-profile-text');
+            if (profileText) {
+                profileText.textContent = type;
             }
-        }
-    }
-
-    showConfirmationData() {
-        const confirmationDiv = document.getElementById('confirmation-data');
-        
-        let html = '<div class="confirmation-summary">';
-        html += `<h3>Resumo dos Dados</h3>`;
-        
-        if (this.registrationData.method === 'social') {
-            html += `<p><strong>Método:</strong> Login Social (Google)</p>`;
+            this.goToStep('3-ufrj');
         } else {
-            html += `<p><strong>Método:</strong> Email</p>`;
+            // Ir direto para criação de senha
+            this.goToStep('4-password');
         }
-        
-        html += `<p><strong>Email:</strong> ${this.registrationData.email}</p>`;
-        
-        const typeLabels = {
-            visitante: 'Visitante',
-            extensionista: 'Extensionista',
-            pesquisador: 'Pesquisador'
-        };
-        html += `<p><strong>Tipo de Usuário:</strong> ${typeLabels[this.registrationData.userType]}</p>`;
-        
-        if (this.registrationData.institutionalEmail) {
-            html += `<p><strong>Email Institucional:</strong> ${this.registrationData.institutionalEmail}</p>`;
-        }
-        
-        html += '</div>';
-        
-        confirmationDiv.innerHTML = html;
     }
 
-    async createAccount() {
-        const loadingSpinner = document.getElementById('loading-spinner');
-        const confirmationButtons = document.getElementById('confirmation-buttons');
+    handleUFRJValidation() {
+        const ufrjEmail = document.getElementById('ufrj-email').value.trim();
+        
+        if (!ufrjEmail || !ufrjEmail.toLowerCase().includes('@ufrj.br')) {
+            this.showFieldError('ufrj-email', 'Por favor, insira um email válido da UFRJ (@ufrj.br)');
+            return;
+        }
+
+        this.registrationData.institutionalEmail = ufrjEmail;
+        this.goToStep('4-password');
+    }
+
+    async handleAccountCreation() {
+        const password = document.getElementById('password').value;
+        const confirmPassword = document.getElementById('password-confirm').value;
+        
+        // Validações
+        if (password.length < 6) {
+            this.showFieldError('password', 'A senha deve ter pelo menos 6 caracteres');
+            return;
+        }
+
+        if (password !== confirmPassword) {
+            this.showFieldError('password-confirm', 'As senhas não coincidem');
+            return;
+        }
+
+        this.registrationData.password = password;
         
         // Mostrar loading
-        if (loadingSpinner) loadingSpinner.style.display = 'block';
-        if (confirmationButtons) confirmationButtons.style.display = 'none';
-
+        this.showLoading(true);
+        
         try {
-            let userData;
-
-            if (this.registrationData.method === 'social') {
-                // Dados do Auth0
-                userData = {
-                    auth0_id: this.registrationData.auth0Data.sub,
-                    email: this.registrationData.email,
-                    name: this.registrationData.auth0Data.name,
-                    user_type: this.registrationData.userType,
-                    institutional_email: this.registrationData.institutionalEmail,
-                    method: 'social'
-                };
-            } else {
-                // Cadastro por email (será implementado posteriormente com verificação)
-                userData = {
-                    email: this.registrationData.email,
-                    user_type: this.registrationData.userType,
-                    institutional_email: this.registrationData.institutionalEmail,
-                    method: 'email'
-                };
-            }
-
-            // Chamar função de criação de usuário
-            const response = await this.syncUserToDatabase(userData);
-            
-            if (response.success) {
-                // Salvar dados do usuário no localStorage
-                const finalUserData = {
-                    ...response.user,
-                    loginTime: new Date().toISOString(),
-                    remember: true
-                };
-                
-                localStorage.setItem('current_user', JSON.stringify(finalUserData));
-                
-                // Redirecionar baseado no tipo de usuário
-                const redirectUrl = finalUserData.is_admin ? 'admin.html' : '../index.html';
-                
-                this.showSuccess('Conta criada com sucesso! Redirecionando...');
-                
-                setTimeout(() => {
-                    window.location.href = redirectUrl;
-                }, 2000);
-                
-            } else {
-                throw new Error(response.message || 'Erro ao criar conta');
-            }
-
+            await this.createUserAccount();
         } catch (error) {
-            console.error('Erro ao criar conta:', error);
-            this.showError('Erro ao criar conta: ' + error.message);
-            
-            // Esconder loading e mostrar botões novamente
-            if (loadingSpinner) loadingSpinner.style.display = 'none';
-            if (confirmationButtons) confirmationButtons.style.display = 'flex';
+            console.error('Account creation failed:', error);
+            this.showNotification('Erro ao criar conta: ' + error.message, 'error');
+            this.showLoading(false);
         }
     }
 
-    async syncUserToDatabase(userData) {
+    async createUserAccount() {
+        const userData = {
+            email: this.registrationData.email,
+            password: this.registrationData.password,
+            user_type: this.registrationData.userType,
+            method: this.registrationData.method,
+            institutional_email: this.registrationData.institutionalEmail,
+            created_at: new Date().toISOString(),
+            email_verified: false // Para implementar verificação de email
+        };
+
+        // Se for método social, incluir dados do Auth0
+        if (this.registrationData.method === 'google' && this.registrationData.socialData) {
+            userData.auth0_id = this.registrationData.socialData.sub;
+            userData.name = this.registrationData.socialData.name;
+            userData.picture = this.registrationData.socialData.picture;
+            userData.email_verified = this.registrationData.socialData.email_verified;
+        }
+
+        // Tentar criar conta via API
+        const result = await this.callRegistrationAPI(userData);
+        
+        if (result.success) {
+            // Mostrar tela de sucesso
+            document.getElementById('confirmation-email').textContent = userData.email;
+            this.showLoading(false);
+            this.goToStep('success');
+            
+            // Se não precisar de verificação de email, fazer login automático
+            if (userData.email_verified) {
+                setTimeout(() => {
+                    this.performAutoLogin(userData);
+                }, 2000);
+            }
+        } else {
+            throw new Error(result.message || 'Erro desconhecido ao criar conta');
+        }
+    }
+
+    async callRegistrationAPI(userData) {
         try {
-            // Verificar se estamos em localhost (development)
+            // Verificar ambiente
             const isLocal = window.location.hostname === 'localhost' || 
                           window.location.hostname === '127.0.0.1' || 
                           window.location.port === '8080';
             
             if (isLocal) {
-                // Em desenvolvimento local, simular sucesso
-                console.log('🏠 Ambiente local detectado, simulando criação de usuário');
+                // Simular API em desenvolvimento local
+                console.log('🏠 Simulando criação de conta local:', userData);
+                
+                // Simular delay da API
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                
                 return {
                     success: true,
                     user: {
                         id: Date.now(),
-                        email: userData.email,
-                        name: userData.name || userData.email.split('@')[0],
-                        user_type: userData.user_type,
+                        ...userData,
                         role: userData.user_type,
-                        is_admin: false,
-                        created_at: new Date().toISOString(),
-                        updated_at: new Date().toISOString()
+                        is_admin: userData.user_type === 'coordenador'
                     }
                 };
             }
             
-            // Em produção, usar a function do Netlify
-            const response = await fetch('/.netlify/functions/user-sync', {
+            // API real para produção
+            const response = await fetch('/.netlify/functions/user-registration', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ 
-                    user: userData,
-                    registration: true 
-                })
+                body: JSON.stringify({ userData })
             });
 
             if (!response.ok) {
-                const errorText = await response.text();
-                throw new Error(`HTTP error! status: ${response.status} - ${errorText}`);
+                const errorData = await response.json();
+                throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
             }
 
-            const data = await response.json();
-            return {
-                success: true,
-                user: data.user
-            };
+            return await response.json();
 
         } catch (error) {
-            console.error('Erro ao sincronizar usuário:', error);
+            console.error('Registration API error:', error);
             return {
                 success: false,
                 message: error.message
@@ -412,32 +345,185 @@ class RegistrationManager {
         }
     }
 
+    async performAutoLogin(userData) {
+        try {
+            if (this.authManager) {
+                await this.authManager.login(userData.email, userData.password, true);
+                
+                // Redirecionar para home
+                setTimeout(() => {
+                    window.location.href = '../index.html';
+                }, 1000);
+            }
+        } catch (error) {
+            console.error('Auto login failed:', error);
+            // Usuário pode fazer login manualmente
+        }
+    }
+
+    async checkSocialReturn() {
+        const registrationFlow = sessionStorage.getItem('registration_flow');
+        
+        if (registrationFlow) {
+            try {
+                const flowData = JSON.parse(registrationFlow);
+                
+                if (flowData.flow === 'registration' && flowData.method === 'google') {
+                    // Verificar se há dados do usuário do Auth0
+                    const auth0User = await this.auth0Client?.getUser();
+                    
+                    if (auth0User) {
+                        this.registrationData.method = 'google';
+                        this.registrationData.email = auth0User.email;
+                        this.registrationData.socialData = auth0User;
+                        this.registrationData.isUFRJEmail = auth0User.email.toLowerCase().includes('@ufrj.br');
+                        
+                        // Ir para seleção de tipo de perfil
+                        this.goToStep(2);
+                        
+                        // Limpar dados da sessão
+                        sessionStorage.removeItem('registration_flow');
+                    }
+                }
+            } catch (error) {
+                console.error('Error checking social return:', error);
+            }
+        }
+    }
+
+    goToStep(step) {
+        // Esconder todas as etapas
+        document.querySelectorAll('.step-content').forEach(content => {
+            content.classList.remove('active');
+        });
+
+        // Mostrar etapa desejada
+        const stepElement = document.getElementById(`step-${step}`);
+        if (stepElement) {
+            stepElement.classList.add('active');
+            this.currentStep = step;
+        }
+    }
+
+    togglePassword() {
+        const passwordInput = document.getElementById('password');
+        const toggleBtn = document.getElementById('password-toggle');
+        
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            toggleBtn.innerHTML = `
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                    <line x1="1" y1="1" x2="23" y2="23"></line>
+                </svg>
+            `;
+        } else {
+            passwordInput.type = 'password';
+            toggleBtn.innerHTML = `
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                    <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+            `;
+        }
+    }
+
+    updatePasswordStrength() {
+        const password = document.getElementById('password').value;
+        const strengthBar = document.getElementById('strength-bar');
+        const strengthText = document.getElementById('strength-text');
+        
+        if (!password) {
+            strengthBar.style.width = '0%';
+            strengthText.textContent = '';
+            return;
+        }
+
+        let strength = 0;
+        let feedback = [];
+
+        // Critérios de força
+        if (password.length >= 6) strength += 20;
+        if (password.length >= 8) strength += 10;
+        if (/[a-z]/.test(password)) strength += 15;
+        if (/[A-Z]/.test(password)) strength += 15;
+        if (/[0-9]/.test(password)) strength += 15;
+        if (/[^\\w\\s]/.test(password)) strength += 25;
+
+        // Atualizar barra visual
+        strengthBar.style.width = strength + '%';
+        
+        if (strength < 40) {
+            strengthBar.style.backgroundColor = '#e74c3c';
+            strengthText.textContent = 'Senha fraca';
+            strengthText.style.color = '#e74c3c';
+        } else if (strength < 70) {
+            strengthBar.style.backgroundColor = '#f39c12';
+            strengthText.textContent = 'Senha média';
+            strengthText.style.color = '#f39c12';
+        } else {
+            strengthBar.style.backgroundColor = '#27ae60';
+            strengthText.textContent = 'Senha forte';
+            strengthText.style.color = '#27ae60';
+        }
+    }
+
+    showLoading(show) {
+        const loadingSpinner = document.getElementById('loading-spinner');
+        const currentStep = document.querySelector('.step-content.active');
+        
+        if (show) {
+            if (currentStep) currentStep.style.display = 'none';
+            if (loadingSpinner) loadingSpinner.style.display = 'block';
+        } else {
+            if (loadingSpinner) loadingSpinner.style.display = 'none';
+            if (currentStep) currentStep.style.display = 'block';
+        }
+    }
+
+    showFieldError(fieldId, message) {
+        const field = document.getElementById(fieldId);
+        if (field) {
+            field.classList.add('error');
+            
+            // Mostrar mensagem de erro
+            const errorMsg = field.parentNode.querySelector('.error-message');
+            if (errorMsg) {
+                errorMsg.textContent = message;
+                errorMsg.style.display = 'block';
+            }
+        }
+    }
+
+    clearFieldError(fieldId) {
+        const field = document.getElementById(fieldId);
+        if (field) {
+            field.classList.remove('error');
+            
+            const errorMsg = field.parentNode.querySelector('.error-message');
+            if (errorMsg) {
+                errorMsg.style.display = 'none';
+            }
+        }
+    }
+
+    showNotification(message, type = 'info') {
+        // Integrar com sistema de notificações do app se disponível
+        if (window.app && window.app.showNotification) {
+            window.app.showNotification(message, type);
+        } else {
+            // Fallback para alert
+            alert(message);
+        }
+    }
+
     isValidEmail(email) {
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        const emailRegex = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/;
         return emailRegex.test(email);
-    }
-
-    showError(message) {
-        // Implementar notificação de erro
-        alert('Erro: ' + message);
-    }
-
-    showSuccess(message) {
-        // Implementar notificação de sucesso
-        alert('Sucesso: ' + message);
-    }
-
-    showInfo(message) {
-        // Implementar notificação informativa
-        console.log('Info: ' + message);
     }
 }
 
-// Inicializar quando a página carregar
+// Inicializar quando DOM estiver pronto
 document.addEventListener('DOMContentLoaded', () => {
     window.registrationManager = new RegistrationManager();
 });
-
-
-
-

@@ -13,6 +13,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Development Commands
 
 ```bash
+# Prerequisites: Node 18+ required
+npm install              # Install dependencies
+
 # Start development server (recommended):
 npm run dev              # Uses http-server on port 8080
 # Alternative methods:
@@ -21,16 +24,18 @@ python -m http.server 8080
 php -S localhost:8080
 
 # Netlify local development:
-npm run netlify          # Test with Netlify functions locally
+npm run netlify          # Test with Netlify functions locally (requires .env file)
 
-# Git workflow for changes:
+# Build (no-op for static site):
+npm run build            # Returns "No build required for static site"
+
+# Git workflow for changes (use Conventional Commits):
 git add .
-git commit -m "describe changes"
+git commit -m "feat(js): describe changes"  # Use conventional format
 git push                 # Automatically deploys to Netlify
 
-# No build process required - direct file editing
 # No test suite - manual testing only  
-# No linting configured - follow existing code style
+# No linting configured - follow existing code style (4-space indentation, single quotes, semicolons)
 ```
 
 ## Architecture
@@ -45,6 +50,12 @@ git push                 # Automatically deploys to Netlify
 2. DataManager notifies observers of changes via Observer pattern
 3. UI components update reactively based on data changes
 4. All CRUD operations go through DataManager for consistency
+
+**CRITICAL**: The project underwent major refactoring to eliminate:
+- Memory leaks from uncleaned IntersectionObserver instances
+- Context binding issues with `this` in callbacks (now uses arrow functions)
+- Inconsistent data synchronization between localStorage and memory
+- Duplicated authentication logic across pages
 
 ### Authentication System
 - **Primary**: Auth0 integration with Google OAuth
@@ -138,10 +149,17 @@ ObservatorioApp.getInstance().updateHeaderForAuth();
 - Animations use Intersection Observer for performance
 
 ### JavaScript Patterns
-- ES6+ classes with singleton pattern
+- ES6+ classes with singleton pattern for stateful modules
 - Observer pattern for state management
 - Async/await for asynchronous operations
 - Event delegation for dynamic content
+- 4-space indentation, single quotes, semicolons, strict equality (`===`)
+- Keep DOM access and side-effects inside managers; prefer small, focused methods
+
+### File Naming Conventions
+- Class modules: PascalCase (e.g., `AuthManager.js`, `DataManager.js`)
+- Entry/utility files: lowercase (e.g., `main.js`, `map.js`)
+- HTML pages: lowercase with hyphens (e.g., `caso.html`, `test-auth.html`)
 
 ### Security Considerations
 - HTML escaping via `escapeHtml()` method for XSS prevention
@@ -168,12 +186,19 @@ Targets modern browsers with ES6+ support:
 
 ## Testing Approach
 
-Manual testing only - no automated test suite. Test critical paths:
+Manual testing only - no automated test suite configured yet. Test critical paths:
 1. Case CRUD operations
 2. Authentication flow
 3. Search and filtering
 4. Map interactions
 5. Responsive design breakpoints
+
+### Future Testing Setup
+When introducing automated tests:
+- Add Jest unit tests (`*.test.js`) near modules or under `tests/` directory
+- Add `"test": "jest"` script to package.json
+- Prioritize testing data transforms (e.g., `DataManager` CRUD) and pure helpers
+- Mock `localStorage` and network calls in tests
 
 ## Netlify Functions
 
@@ -200,6 +225,24 @@ SUPABASE_SERVICE_KEY=your-service-key
 ```
 
 For local development with Netlify functions, create `.env` file with these variables.
+
+## Development Best Practices
+
+### Commit Guidelines
+- Follow Conventional Commits format: `feat(js): add case filters`, `fix(netlify): handle CORS`
+- Keep commits focused and avoid unrelated refactors
+- Ensure no secrets are committed to repository
+
+### Pull Request Guidelines  
+- Include clear description and linked issues
+- Add before/after screenshots for UI changes
+- Provide manual test steps (test both dev server and Netlify Dev)
+- Keep PRs focused on single features or fixes
+
+### Security Best Practices
+- Move API keys to environment variables (never hardcode in `js/` files)
+- For external scripts, update `netlify.toml` `Content-Security-Policy` to whitelist domains
+- Set secrets in Netlify dashboard: `SUPABASE_URL`, `SUPABASE_SERVICE_KEY`, `AUTH0_*`
 
 ## Known Limitations
 
