@@ -464,6 +464,9 @@ class RioMap {
 
     // Utilitários
     escapeHtml(text) {
+        if (text == null || text === undefined) {
+            return '';
+        }
         const map = {
             '&': '&amp;',
             '<': '&lt;',
@@ -471,12 +474,16 @@ class RioMap {
             '"': '&quot;',
             "'": '&#039;'
         };
-        return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+        return String(text).replace(/[&<>"']/g, function(m) { return map[m]; });
     }
 
     truncateText(text, maxLength) {
-        if (text.length <= maxLength) return text;
-        return text.substring(0, maxLength).trim() + '...';
+        if (text == null || text === undefined) {
+            return '';
+        }
+        const str = String(text);
+        if (str.length <= maxLength) return str;
+        return str.substring(0, maxLength).trim() + '...';
     }
 }
 

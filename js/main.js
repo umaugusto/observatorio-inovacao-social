@@ -696,6 +696,9 @@ class ObservatorioApp {
 
     // Utilitários de segurança
     escapeHtml(text) {
+        if (text == null || text === undefined) {
+            return '';
+        }
         const map = {
             '&': '&amp;',
             '<': '&lt;',
@@ -703,7 +706,7 @@ class ObservatorioApp {
             '"': '&quot;',
             "'": '&#039;'
         };
-        return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+        return String(text).replace(/[&<>"']/g, function(m) { return map[m]; });
     }
     
     formatNumber(num) {
