@@ -256,6 +256,7 @@ class AuthManager {
     // Logout do usuário
     logout(showNotification = true, message = 'Logout realizado com sucesso!') {
         const wasLoggedIn = !!this.currentUser;
+        const wasSocialLogin = this.isSocialLogin();
         
         this.currentUser = null;
         
@@ -263,9 +264,10 @@ class AuthManager {
         localStorage.removeItem('currentUser');
         localStorage.removeItem('current_user');
         localStorage.removeItem('rememberLogin');
+        localStorage.removeItem('socialLogin');
         
-        // Se temos Auth0, fazer logout lá também
-        if (this.auth0Client) {
+        // Se temos Auth0 real, fazer logout lá também
+        if (this.auth0Client && this.auth0Client.isAuthenticated && this.auth0Client.isAuthenticated()) {
             this.auth0Client.logout(window.location.origin);
             return; // Auth0 vai redirecionar
         }
@@ -274,8 +276,11 @@ class AuthManager {
             this.notifyObservers('userLoggedOut', { showNotification, message });
         }
         
-        // Redirecionar se estiver em página restrita
-        this.checkRestrictedPage();
+        // Para login social mock ou login normal, não redirecionar automaticamente
+        // Deixar o main.js controlar o redirecionamento
+        if (!wasSocialLogin) {
+            this.checkRestrictedPage();
+        }
     }
 
     // Verificar se está em página que requer autenticação

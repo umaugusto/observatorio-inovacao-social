@@ -1106,10 +1106,20 @@ class ObservatorioApp {
     // Função de logout
     logout() {
         if (this.authManager) {
+            // Verificar se é social login antes de fazer logout
+            const isSocialLogin = this.authManager.isSocialLogin();
+            
             this.authManager.logout();
-            // Recarregar e redirecionar para home
-            window.location.href = window.location.pathname.includes('/pages/') ? '../index.html' : './';
-            window.location.reload();
+            
+            // Só redirecionar se não for Auth0 (que faz seu próprio redirect)
+            if (!this.authManager.auth0Client && !isSocialLogin) {
+                const homePath = window.location.pathname.includes('/pages/') ? '../index.html' : './index.html';
+                window.location.href = homePath;
+            } else if (isSocialLogin) {
+                // Para social login mock, redirecionar para home
+                const homePath = window.location.pathname.includes('/pages/') ? '../index.html' : './index.html';
+                window.location.href = homePath;
+            }
         }
     }
 }
