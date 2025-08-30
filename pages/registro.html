@@ -322,11 +322,21 @@
                     </div>
 
                     <!-- Etapa 1: Escolha do MÃ©todo -->
-                    <div class="step-content active" id="step-1">
-                        <h2>Como vocÃª gostaria de criar sua conta?</h2>
-                        <div class="method-options">
-                            <div class="method-option" data-method="social">
-                                <div class="method-icon">ðŸ”—</div>
+                                        <div class="step-content active" id="step-1">
+                        <h2>Qual email você vai usar?</h2>
+                        <p style="color: var(--text-light); margin: 6px 0 16px;">Você pode digitar seu email ou criar com o Google.</p>
+                        <form id="email-form">
+                            <div class="form-group">
+                                <label class="form-label" for="user-email">Email</label>
+                                <input type="email" class="form-input" id="user-email" required>
+                                <div id="email-validation" style="display: none; margin-top: 8px;"></div>
+                            </div>
+                        </form>
+                        <div class="btn-group" style="margin-top: 10px; gap: 10px; display: flex; flex-wrap: wrap;">
+                            <button class="btn btn-primary" id="btn-next-1">Continuar</button>
+                            <button class="btn btn-secondary" type="button" id="btn-google-auth">Entrar com Google</button>
+                        </div>
+                    </div>
                                 <div class="method-title">Login Social</div>
                                 <div class="method-description">Criar conta rapidamente com sua conta do Google</div>
                             </div>
