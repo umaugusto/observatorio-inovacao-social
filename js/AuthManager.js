@@ -58,7 +58,32 @@ class AuthManager {
             
             const auth0User = this.auth0Client.getUser();
             if (auth0User) {
-                // Sincronizar com Supabase
+                // Verificar se estamos em ambiente local
+                const isLocal = window.location.hostname === 'localhost' || 
+                              window.location.hostname === '127.0.0.1' || 
+                              window.location.port === '8080';
+                
+                if (isLocal) {
+                    // Em desenvolvimento local, criar usuário mock
+                    console.log('🏠 AuthManager: Ambiente local detectado, usando dados mock');
+                    this.currentUser = {
+                        id: Date.now(),
+                        auth0_id: auth0User.sub,
+                        email: auth0User.email,
+                        name: auth0User.name || auth0User.nickname || auth0User.email?.split('@')[0],
+                        role: 'visitante',
+                        is_admin: false,
+                        auth0_data: auth0User,
+                        access_token: this.auth0Client.getAccessToken(),
+                        created_at: new Date().toISOString(),
+                        updated_at: new Date().toISOString()
+                    };
+                    localStorage.setItem('current_user', JSON.stringify(this.currentUser));
+                    this.notifyObservers('userLoggedIn', this.currentUser);
+                    return;
+                }
+                
+                // Em produção, sincronizar com Supabase
                 const response = await fetch('/.netlify/functions/user-sync', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },

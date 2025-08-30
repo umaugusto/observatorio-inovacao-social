@@ -133,45 +133,27 @@
             }
 
             async init() {
-                console.log('🔄 Callback page initialized');
-                console.log('📍 Current URL:', window.location.href);
-                console.log('🔗 Hash:', window.location.hash);
-                console.log('🔗 Search:', window.location.search);
-                
                 try {
-                    console.log('⚡ Creating Auth0Client instance...');
                     this.auth0Client = Auth0Client.getInstance();
-                    
-                    console.log('🔍 Processing authentication...');
                     await this.processAuthentication();
                 } catch (error) {
-                    console.error('❌ Callback initialization error:', error);
-                    this.showError(`Erro ao inicializar sistema de autenticação: ${error.message}`);
+                    console.error('Callback error:', error);
+                    this.showError(`Erro ao processar login: ${error.message}`);
                 }
             }
 
             async processAuthentication() {
                 try {
-                    console.log('🔐 Starting authentication process...');
+                    console.log('🔐 Starting processAuthentication...');
+                    console.log('📍 Current URL:', window.location.href);
+                    console.log('🔗 Hash:', window.location.hash);
                     
-                    // Processar hash do Auth0
-                    console.log('📥 Handling Auth0 authentication...');
                     const authResult = await this.auth0Client.handleAuthentication();
-                    
-                    console.log('✅ Auth0 result received:', {
-                        hasAccessToken: !!authResult?.accessToken,
-                        hasIdToken: !!authResult?.idToken,
-                        hasPayload: !!authResult?.idTokenPayload
-                    });
+                    console.log('📥 Auth result received:', authResult);
                     
                     if (authResult && authResult.idTokenPayload) {
-                        console.log('👤 User payload:', authResult.idTokenPayload);
-                        
                         // Sincronizar usuário with Supabase
-                        console.log('🔄 Syncing user with Supabase...');
                         const user = await this.syncUser(authResult.idTokenPayload);
-                        
-                        console.log('✅ User synchronized:', user);
                         
                         // Salvar dados do usuário
                         const userData = {
@@ -182,58 +164,74 @@
                         };
                         
                         localStorage.setItem('current_user', JSON.stringify(userData));
-                        console.log('💾 User data saved to localStorage');
 
                         // Feedback visual
                         this.showSuccess();
                         
                         // Redirecionar baseado no papel do usuário
                         const redirectUrl = user.is_admin ? 'admin.html' : '../index.html';
-                        console.log(`🔀 Redirecting to: ${redirectUrl}`);
                         
                         setTimeout(() => {
                             window.location.href = redirectUrl;
                         }, 2000);
                     } else {
-                        throw new Error('Dados de autenticação inválidos - authResult vazio ou sem payload');
+                        throw new Error('Dados de autenticação inválidos');
                     }
                 } catch (error) {
-                    console.error('❌ Authentication error:', error);
-                    console.error('Stack trace:', error.stack);
-                    this.showError(error.message || 'Erro durante autenticação');
+                    console.error('Authentication error:', error);
+                    console.error('Error details:', JSON.stringify(error, null, 2));
+                    console.error('Error message:', error.message);
+                    console.error('Error description:', error.error_description);
+                    this.showError(error.message || error.error_description || 'Erro durante autenticação');
                 }
             }
 
             async syncUser(auth0User) {
                 try {
-                    console.log('📡 Syncing user with Supabase:', auth0User);
+                    // Verificar se estamos em localhost (development)
+                    const isLocal = window.location.hostname === 'localhost' || 
+                                  window.location.hostname === '127.0.0.1' || 
+                                  window.location.port === '8080';
                     
-                    const payload = { user: auth0User };
-                    console.log('📤 Request payload:', payload);
+                    console.log('🔍 Environment check:', {
+                        hostname: window.location.hostname,
+                        port: window.location.port,
+                        origin: window.location.origin,
+                        isLocal: isLocal
+                    });
                     
+                    if (isLocal) {
+                        // Em desenvolvimento local, criar usuário mock baseado no Auth0
+                        console.log('🏠 Ambiente local detectado, usando dados mock');
+                        return {
+                            id: Date.now(), // ID temporário
+                            auth0_id: auth0User.sub,
+                            email: auth0User.email,
+                            name: auth0User.name || auth0User.nickname || auth0User.email?.split('@')[0],
+                            role: 'visitante',
+                            is_admin: false,
+                            created_at: new Date().toISOString(),
+                            updated_at: new Date().toISOString()
+                        };
+                    }
+                    
+                    // Em produção, usar a function do Netlify
                     const response = await fetch('/.netlify/functions/user-sync', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
                         },
-                        body: JSON.stringify(payload)
+                        body: JSON.stringify({ user: auth0User })
                     });
-
-                    console.log('📨 Response status:', response.status);
-                    console.log('📨 Response ok:', response.ok);
 
                     if (!response.ok) {
                         const errorText = await response.text();
-                        console.error('❌ HTTP error response:', errorText);
                         throw new Error(`HTTP error! status: ${response.status} - ${errorText}`);
                     }
 
                     const data = await response.json();
-                    console.log('✅ User sync response:', data);
-                    
                     return data.user;
                 } catch (error) {
-                    console.error('❌ User sync error:', error);
                     throw new Error(`Erro ao sincronizar dados do usuário: ${error.message}`);
                 }
             }
