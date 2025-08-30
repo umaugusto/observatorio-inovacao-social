@@ -1,9 +1,16 @@
 [build]
   # Não há processo de build - servir arquivos estáticos
   publish = "."
+  functions = "netlify/functions"
   
 [build.environment]
   NODE_VERSION = "18"
+
+# API redirects
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
+  status = 200
 
 # Configurações de redirecionamento para SPA
 [[redirects]]

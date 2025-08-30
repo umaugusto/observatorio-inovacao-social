@@ -1,9 +1,10 @@
-// AuthManager - Sistema centralizado de autenticação
+// AuthManager - Sistema centralizado de autenticação (integrado com Auth0)
 class AuthManager {
     constructor() {
         this.currentUser = null;
         this.observers = new Set();
         this.sessionTimeout = 24 * 60 * 60 * 1000; // 24 horas
+        this.auth0Client = null;
         this.init();
     }
 
@@ -14,7 +15,12 @@ class AuthManager {
         return AuthManager.instance;
     }
 
-    init() {
+    async init() {
+        // Inicializar Auth0 Client se disponível
+        if (typeof Auth0Client !== 'undefined') {
+            this.auth0Client = Auth0Client.getInstance();
+        }
+        
         this.loadCurrentUser();
         this.setupSessionCheck();
     }
@@ -22,7 +28,9 @@ class AuthManager {
     // Carregar usuário atual do localStorage
     loadCurrentUser() {
         try {
-            const userData = localStorage.getItem('currentUser');
+            // Tentar carregar de currentUser (mock) ou current_user (Auth0)
+            let userData = localStorage.getItem('current_user') || localStorage.getItem('currentUser');
+            
             if (userData) {
                 const user = JSON.parse(userData);
                 
@@ -33,10 +41,43 @@ class AuthManager {
                 } else {
                     this.logout(false); // Logout silencioso
                 }
+            } else if (this.auth0Client && this.auth0Client.isAuthenticated()) {
+                // Se temos Auth0 mas não temos usuário local, tentar recuperar
+                this.loadUserFromAuth0();
             }
         } catch (error) {
             console.error('Erro ao carregar dados do usuário:', error);
             this.logout(false);
+        }
+    }
+
+    // Carregar usuário do Auth0 se autenticado
+    async loadUserFromAuth0() {
+        try {
+            if (!this.auth0Client) return;
+            
+            const auth0User = this.auth0Client.getUser();
+            if (auth0User) {
+                // Sincronizar com Supabase
+                const response = await fetch('/.netlify/functions/user-sync', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ user: auth0User })
+                });
+
+                if (response.ok) {
+                    const { user } = await response.json();
+                    this.currentUser = {
+                        ...user,
+                        auth0_data: auth0User,
+                        access_token: this.auth0Client.getAccessToken()
+                    };
+                    localStorage.setItem('current_user', JSON.stringify(this.currentUser));
+                    this.notifyObservers('userLoggedIn', this.currentUser);
+                }
+            }
+        } catch (error) {
+            console.error('Erro ao carregar usuário do Auth0:', error);
         }
     }
 
@@ -155,8 +196,17 @@ class AuthManager {
         const wasLoggedIn = !!this.currentUser;
         
         this.currentUser = null;
+        
+        // Limpar localStorage (ambos os formatos)
         localStorage.removeItem('currentUser');
+        localStorage.removeItem('current_user');
         localStorage.removeItem('rememberLogin');
+        
+        // Se temos Auth0, fazer logout lá também
+        if (this.auth0Client) {
+            this.auth0Client.logout();
+            return; // Auth0 vai redirecionar
+        }
         
         if (wasLoggedIn) {
             this.notifyObservers('userLoggedOut', { showNotification, message });

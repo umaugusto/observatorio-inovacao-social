@@ -410,6 +410,8 @@
     </section>
 
     <!-- Scripts -->
+    <script src="https://cdn.auth0.com/js/auth0/9.23.0/auth0.min.js"></script>
+    <script src="../js/auth0-client.js"></script>
     <script src="../js/DataManager.js"></script>
     <script src="../js/AuthManager.js"></script>
     <script src="../js/main.js"></script>
@@ -600,22 +602,20 @@
                 btn.innerHTML = '<span style="animation: spin 1s linear infinite; display: inline-block;">⏳</span> Conectando...';
                 
                 try {
-                    const user = await this.authManager.loginWithProvider(provider);
+                    // Usar Auth0 real para login social
+                    const auth0Client = Auth0Client.getInstance();
+                    await auth0Client.loginWithSocial(provider);
                     
-                    if (window.app) {
-                        window.app.showNotification(`Bem-vindo, ${user.name}!`, 'success');
-                    }
-                    
-                    // Redirect to home
-                    setTimeout(() => {
-                        window.location.href = '../index.html';
-                    }, 1000);
+                    // O Auth0 vai redirecionar automaticamente
+                    // Não chegamos aqui normalmente
                     
                 } catch (error) {
                     console.error('Social login failed:', error);
                     
                     if (window.app) {
                         window.app.showNotification('Erro ao fazer login social', 'error');
+                    } else {
+                        alert('Erro ao fazer login social');
                     }
                     
                     // Reset button

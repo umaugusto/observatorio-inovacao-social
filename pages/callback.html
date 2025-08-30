@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Processando Login | Observatório Social RJ</title>
+    <link rel="stylesheet" href="../css/main.css">
+    <style>
+        .callback-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .callback-box {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 400px;
+            width: 100%;
+        }
+
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 30px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .callback-title {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .callback-message {
+            font-size: 16px;
+            opacity: 0.9;
+            line-height: 1.5;
+        }
+
+        .error-container {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .error-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+
+        .error-title {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #ff6b6b;
+        }
+
+        .error-message {
+            font-size: 16px;
+            opacity: 0.9;
+            margin-bottom: 30px;
+            line-height: 1.5;
+        }
+
+        .retry-btn {
+            background: white;
+            color: var(--primary-color);
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .retry-btn:hover {
+            background: rgba(255, 255, 255, 0.9);
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <div class="callback-container">
+        <div class="callback-box">
+            <!-- Estado de loading -->
+            <div id="loading-state">
+                <div class="spinner"></div>
+                <h1 class="callback-title">Processando Login</h1>
+                <p class="callback-message">Aguarde enquanto configuramos sua conta...</p>
+            </div>
+
+            <!-- Estado de erro -->
+            <div id="error-state" class="error-container">
+                <div class="error-icon">❌</div>
+                <h1 class="error-title">Erro no Login</h1>
+                <p class="error-message" id="error-message">
+                    Ocorreu um erro durante o processo de login. Tente novamente.
+                </p>
+                <button class="retry-btn" onclick="redirectToLogin()">
+                    Tentar Novamente
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.auth0.com/js/auth0/9.23.0/auth0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0/dist/umd/supabase.min.js"></script>
+    <script src="../js/auth0-client.js"></script>
+    <script>
+        class CallbackHandler {
+            constructor() {
+                this.auth0Client = null;
+                this.init();
+            }
+
+            async init() {
+                try {
+                    this.auth0Client = Auth0Client.getInstance();
+                    await this.processAuthentication();
+                } catch (error) {
+                    console.error('Callback initialization error:', error);
+                    this.showError('Erro ao inicializar sistema de autenticação');
+                }
+            }
+
+            async processAuthentication() {
+                try {
+                    // Processar hash do Auth0
+                    const authResult = await this.auth0Client.handleAuthentication();
+                    
+                    if (authResult && authResult.idTokenPayload) {
+                        // Sincronizar usuário com Supabase
+                        const user = await this.syncUser(authResult.idTokenPayload);
+                        
+                        // Salvar dados do usuário
+                        localStorage.setItem('current_user', JSON.stringify({
+                            ...user,
+                            auth0_data: authResult.idTokenPayload,
+                            access_token: authResult.accessToken,
+                            id_token: authResult.idToken
+                        }));
+
+                        // Feedback visual
+                        this.showSuccess();
+                        
+                        // Redirecionar baseado no papel do usuário
+                        setTimeout(() => {
+                            if (user.is_admin) {
+                                window.location.href = 'admin.html';
+                            } else {
+                                window.location.href = '../index.html';
+                            }
+                        }, 2000);
+                    } else {
+                        throw new Error('Dados de autenticação inválidos');
+                    }
+                } catch (error) {
+                    console.error('Authentication error:', error);
+                    this.showError(error.message || 'Erro durante autenticação');
+                }
+            }
+
+            async syncUser(auth0User) {
+                try {
+                    const response = await fetch('/.netlify/functions/user-sync', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ user: auth0User })
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+
+                    const data = await response.json();
+                    return data.user;
+                } catch (error) {
+                    console.error('User sync error:', error);
+                    throw new Error('Erro ao sincronizar dados do usuário');
+                }
+            }
+
+            showSuccess() {
+                const loadingState = document.getElementById('loading-state');
+                
+                // Atualizar conteúdo de loading para sucesso
+                loadingState.innerHTML = `
+                    <div style="font-size: 48px; margin-bottom: 20px;">✅</div>
+                    <h1 class="callback-title">Login Realizado!</h1>
+                    <p class="callback-message">Redirecionando você para a plataforma...</p>
+                `;
+            }
+
+            showError(message) {
+                const loadingState = document.getElementById('loading-state');
+                const errorState = document.getElementById('error-state');
+                const errorMessage = document.getElementById('error-message');
+
+                loadingState.style.display = 'none';
+                errorMessage.textContent = message;
+                errorState.style.display = 'flex';
+            }
+        }
+
+        function redirectToLogin() {
+            window.location.href = 'login.html';
+        }
+
+        // Inicializar quando página carrega
+        document.addEventListener('DOMContentLoaded', () => {
+            new CallbackHandler();
+        });
+    </script>
+</body>
+</html>

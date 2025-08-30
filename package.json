@@ -1,0 +1,31 @@
+{
+  "name": "observatorio-inovacao-social",
+  "version": "2.0.0",
+  "description": "Observatório de Inovação Social do Rio de Janeiro",
+  "scripts": {
+    "dev": "npx http-server -p 8080 -o",
+    "build": "echo 'No build required for static site'",
+    "netlify": "netlify dev"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.39.0",
+    "auth0-js": "^9.23.0",
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {
+    "@netlify/functions": "^2.4.0",
+    "netlify-cli": "^17.10.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/umaugusto/observatorio-inovacao-social.git"
+  },
+  "keywords": [
+    "social-innovation",
+    "rio-de-janeiro",
+    "ufrj",
+    "extension"
+  ],
+  "author": "UFRJ",
+  "license": "MIT"
+}
