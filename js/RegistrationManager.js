@@ -61,9 +61,7 @@ class RegistrationManager {
         document.getElementById('btn-back-4')?.addEventListener('click', () => this.previousStep());
 
         // Botão do Google Auth
-        document.getElementById('btn-google-auth')?.addEventListener('click', () => {
-            this.initiateGoogleAuth();
-        });
+        document.getElementById('btn-google-auth')?.addEventListener('click', () => { this.registrationData.method = 'social'; this.initiateGoogleAuth(); });
 
         // Botão de criar conta
         document.getElementById('btn-create-account')?.addEventListener('click', () => {
