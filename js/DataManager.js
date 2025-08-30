@@ -293,6 +293,120 @@ class DataManager {
         return casos;
     }
 
+    // Sistema de Comentários
+    getComentarios(casoId) {
+        const comentarios = JSON.parse(localStorage.getItem('comentarios') || '[]');
+        return comentarios.filter(c => c.casoId === casoId).sort((a, b) => new Date(b.data) - new Date(a.data));
+    }
+    
+    addComentario(casoId, comentario, userId, userName) {
+        const comentarios = JSON.parse(localStorage.getItem('comentarios') || '[]');
+        const novoComentario = {
+            id: Date.now(),
+            casoId: casoId,
+            userId: userId,
+            userName: userName,
+            texto: comentario,
+            data: new Date().toISOString(),
+            aprovado: false // Comentários precisam de aprovação
+        };
+        
+        comentarios.push(novoComentario);
+        localStorage.setItem('comentarios', JSON.stringify(comentarios));
+        
+        this.notifyObservers('comentarioAdded', novoComentario);
+        return novoComentario;
+    }
+    
+    aprovarComentario(comentarioId) {
+        const comentarios = JSON.parse(localStorage.getItem('comentarios') || '[]');
+        const comentario = comentarios.find(c => c.id === comentarioId);
+        
+        if (comentario) {
+            comentario.aprovado = true;
+            localStorage.setItem('comentarios', JSON.stringify(comentarios));
+            this.notifyObservers('comentarioApproved', comentario);
+        }
+        
+        return comentario;
+    }
+    
+    deleteComentario(comentarioId) {
+        let comentarios = JSON.parse(localStorage.getItem('comentarios') || '[]');
+        comentarios = comentarios.filter(c => c.id !== comentarioId);
+        localStorage.setItem('comentarios', JSON.stringify(comentarios));
+        
+        this.notifyObservers('comentarioDeleted', comentarioId);
+    }
+    
+    // Sistema de Sugestões
+    getSugestoes() {
+        return JSON.parse(localStorage.getItem('sugestoes') || '[]');
+    }
+    
+    addSugestao(sugestao) {
+        const sugestoes = JSON.parse(localStorage.getItem('sugestoes') || '[]');
+        const novaSugestao = {
+            id: Date.now(),
+            ...sugestao,
+            dataSugestao: new Date().toISOString(),
+            status: 'pendente' // pendente, aprovada, rejeitada
+        };
+        
+        sugestoes.push(novaSugestao);
+        localStorage.setItem('sugestoes', JSON.stringify(sugestoes));
+        
+        this.notifyObservers('sugestaoAdded', novaSugestao);
+        return novaSugestao;
+    }
+    
+    aprovarSugestao(sugestaoId) {
+        const sugestoes = JSON.parse(localStorage.getItem('sugestoes') || '[]');
+        const sugestao = sugestoes.find(s => s.id === sugestaoId);
+        
+        if (sugestao) {
+            // Converter sugestão em caso
+            const novoCaso = {
+                ...sugestao,
+                id: Date.now(),
+                dataCadastro: new Date().toISOString(),
+                aprovado: true,
+                responsavelCadastro: 'Sistema - Sugestão Aprovada'
+            };
+            
+            // Remover campos específicos de sugestão
+            delete novoCaso.status;
+            delete novoCaso.dataSugestao;
+            
+            // Adicionar como caso
+            this.addCaso(novoCaso);
+            
+            // Atualizar status da sugestão
+            sugestao.status = 'aprovada';
+            sugestao.casoId = novoCaso.id;
+            localStorage.setItem('sugestoes', JSON.stringify(sugestoes));
+            
+            this.notifyObservers('sugestaoApproved', sugestao);
+        }
+        
+        return sugestao;
+    }
+    
+    rejeitarSugestao(sugestaoId, motivo) {
+        const sugestoes = JSON.parse(localStorage.getItem('sugestoes') || '[]');
+        const sugestao = sugestoes.find(s => s.id === sugestaoId);
+        
+        if (sugestao) {
+            sugestao.status = 'rejeitada';
+            sugestao.motivoRejeicao = motivo;
+            localStorage.setItem('sugestoes', JSON.stringify(sugestoes));
+            
+            this.notifyObservers('sugestaoRejected', sugestao);
+        }
+        
+        return sugestao;
+    }
+    
     // Limpeza de recursos
     destroy() {
         this.observers.clear();

@@ -6,6 +6,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **Observatório de Inovação Social - Rio de Janeiro** is a frontend-only web platform for mapping and showcasing social innovation initiatives in Rio de Janeiro. Built with vanilla HTML, CSS, and JavaScript without external frameworks (except Leaflet for maps).
 
+**Live Site**: https://observatorioisrj.netlify.app/  
+**Repository**: https://github.com/umaugusto/observatorio-inovacao-social  
+**Deployment**: Netlify (automatic deployment from main/master branch)
+
 ## Development Commands
 
 ```bash
@@ -14,8 +18,13 @@ npx http-server -p 8080 -o
 python -m http.server 8080
 php -S localhost:8080
 
+# Git workflow for changes
+git add .
+git commit -m "describe changes"
+git push  # Automatically deploys to Netlify
+
 # No build process required - direct file editing
-# No test suite - manual testing only
+# No test suite - manual testing only  
 # No linting configured - follow existing code style
 ```
 

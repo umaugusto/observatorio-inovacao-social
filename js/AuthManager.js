@@ -105,22 +105,42 @@ class AuthManager {
                 id: 1,
                 name: 'João Silva',
                 email: 'aluno@ufrj.br',
-                role: 'extensionista',
-                department: 'Ciências Sociais'
+                role: 'aluno_extensao',
+                department: 'Ciências Sociais',
+                isAdmin: false
             },
             {
                 id: 2,
                 name: 'Prof. Ana Costa',
                 email: 'admin@ufrj.br',
-                role: 'admin',
-                department: 'Extensão UFRJ'
+                role: 'pesquisador',
+                department: 'Extensão UFRJ',
+                isAdmin: true
+            },
+            {
+                id: 3,
+                name: 'Dr. Carlos Mendes',
+                email: 'pesquisador@ufrj.br',
+                role: 'pesquisador',
+                department: 'Instituto de Pesquisa Social',
+                isAdmin: false
+            },
+            {
+                id: 4,
+                name: 'Maria Santos',
+                email: 'coordenador@ufrj.br',
+                role: 'pesquisador',
+                department: 'Coordenação de Extensão',
+                isAdmin: true
             }
         ];
 
         // Validação simples para demo
         const validPasswords = {
             'aluno@ufrj.br': '123456',
-            'admin@ufrj.br': 'admin123'
+            'admin@ufrj.br': 'admin123',
+            'pesquisador@ufrj.br': 'pesq123',
+            'coordenador@ufrj.br': 'coord123'
         };
 
         if (validPasswords[email] === password) {
@@ -164,40 +184,63 @@ class AuthManager {
     hasPermission(permission) {
         if (!this.currentUser) return false;
         
+        // Se o usuário tem flag de admin, tem todas as permissões
+        if (this.currentUser.isAdmin) return true;
+        
         const permissions = {
-            'administrador': ['all'], // Acesso total
-            'pesquisador': ['view_all', 'export_data', 'create_reports', 'analytics', 'view_dashboard'],
-            'extensionista': ['create_case', 'edit_own_case', 'view_approved', 'upload_media'],
-            'comunidade': ['view_approved', 'suggest_case', 'contact', 'view_public']
+            'pesquisador': [
+                'view_all', 'export_data', 'create_reports', 'analytics', 
+                'view_dashboard', 'create_case', 'edit_own_case', 'view_approved', 
+                'upload_media', 'comment', 'suggest_improvement'
+            ],
+            'aluno_extensao': [
+                'create_case', 'edit_own_case', 'view_approved', 'upload_media',
+                'view_dashboard', 'comment', 'suggest_improvement'
+            ],
+            'visitante': [
+                'view_approved', 'suggest_case', 'comment', 'view_public'
+            ]
         };
         
         const userPermissions = permissions[this.currentUser.role] || [];
         
-        // Administrador tem todas as permissões
-        if (userPermissions.includes('all')) return true;
-        
         return userPermissions.includes(permission);
+    }
+    
+    // Verificar se usuário é administrador
+    isAdmin() {
+        return this.currentUser?.isAdmin === true;
     }
     
     // Obter nome do perfil em português
     getRoleName(role) {
         const roleNames = {
-            'administrador': 'Administrador',
             'pesquisador': 'Pesquisador',
-            'extensionista': 'Extensionista',
-            'comunidade': 'Comunidade'
+            'aluno_extensao': 'Aluno de Extensão',
+            'visitante': 'Visitante'
         };
+        
+        // Se for admin, adicionar sufixo
+        if (this.currentUser?.isAdmin && this.currentUser?.role === role) {
+            return roleNames[role] + ' (Admin)';
+        }
+        
         return roleNames[role] || 'Visitante';
     }
     
     // Obter cor do perfil
     getRoleColor(role) {
         const roleColors = {
-            'administrador': '#E85D3B',  // Laranja
             'pesquisador': '#1B3A4B',     // Azul escuro
-            'extensionista': '#4CAF50',   // Verde
-            'comunidade': '#9C27B0'        // Roxo
+            'aluno_extensao': '#4CAF50',   // Verde
+            'visitante': '#9C27B0'        // Roxo
         };
+        
+        // Se for admin, usar cor especial
+        if (this.currentUser?.isAdmin) {
+            return '#E85D3B'; // Laranja para admin
+        }
+        
         return roleColors[role] || '#666';
     }
 
@@ -221,6 +264,70 @@ class AuthManager {
             return false;
         }
         return true;
+    }
+    
+    // Login social (mock implementation)
+    async loginWithProvider(provider) {
+        return new Promise((resolve, reject) => {
+            // Simular delay de OAuth
+            setTimeout(() => {
+                // Mock de dados do provedor
+                const mockSocialUsers = {
+                    'google': {
+                        id: 'google_' + Date.now(),
+                        name: 'Usuário Google',
+                        email: 'usuario@gmail.com',
+                        role: 'visitante',
+                        provider: 'google',
+                        isAdmin: false,
+                        avatar: 'https://ui-avatars.com/api/?name=Usuario+Google'
+                    },
+                    'facebook': {
+                        id: 'fb_' + Date.now(),
+                        name: 'Usuário Facebook',
+                        email: 'usuario@facebook.com',
+                        role: 'visitante',
+                        provider: 'facebook',
+                        isAdmin: false,
+                        avatar: 'https://ui-avatars.com/api/?name=Usuario+Facebook'
+                    },
+                    'apple': {
+                        id: 'apple_' + Date.now(),
+                        name: 'Usuário Apple',
+                        email: 'usuario@icloud.com',
+                        role: 'visitante',
+                        provider: 'apple',
+                        isAdmin: false,
+                        avatar: 'https://ui-avatars.com/api/?name=Usuario+Apple'
+                    }
+                };
+                
+                const user = mockSocialUsers[provider];
+                
+                if (user) {
+                    const sessionData = {
+                        ...user,
+                        loginTime: new Date().toISOString(),
+                        remember: true,
+                        sessionId: this.generateSessionId()
+                    };
+                    
+                    this.currentUser = sessionData;
+                    localStorage.setItem('currentUser', JSON.stringify(sessionData));
+                    localStorage.setItem('socialLogin', provider);
+                    
+                    this.notifyObservers('userLoggedIn', sessionData);
+                    resolve(sessionData);
+                } else {
+                    reject(new Error('Provedor não suportado'));
+                }
+            }, 1000);
+        });
+    }
+    
+    // Verificar se é login social
+    isSocialLogin() {
+        return this.currentUser?.provider && ['google', 'facebook', 'apple'].includes(this.currentUser.provider);
     }
 
     // Getters
@@ -308,13 +415,13 @@ class AuthManager {
             userMenu.className = 'user-menu';
             userMenu.style.cssText = 'display: flex; align-items: center; gap: 15px;';
             
-            // Link para admin se for admin
-            if (user.role === 'admin') {
+            // Link para admin se tiver flag de admin
+            if (user.isAdmin) {
                 const adminLink = document.createElement('a');
                 adminLink.id = 'admin-link';
                 adminLink.href = this.getAdminUrl();
-                adminLink.textContent = 'Admin';
-                adminLink.style.cssText = 'color: var(--text-light); text-decoration: none;';
+                adminLink.textContent = 'Painel Admin';
+                adminLink.style.cssText = 'color: var(--text-light); text-decoration: none; background: rgba(232, 93, 59, 0.2); padding: 5px 10px; border-radius: 4px;';
                 userMenu.appendChild(adminLink);
             }
 
