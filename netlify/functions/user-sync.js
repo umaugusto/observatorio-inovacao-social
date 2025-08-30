@@ -6,6 +6,8 @@ const supabase = createClient(
 );
 
 exports.handler = async (event, context) => {
+  console.log('🚀 Function user-sync started');
+  
   // Headers CORS
   const headers = {
     'Access-Control-Allow-Origin': '*',
@@ -19,6 +21,8 @@ exports.handler = async (event, context) => {
   }
 
   try {
+    console.log('📥 Event:', { method: event.httpMethod, body: event.body });
+    
     // Verificar se é POST
     if (event.httpMethod !== 'POST') {
       return {
@@ -29,8 +33,10 @@ exports.handler = async (event, context) => {
     }
 
     const { user } = JSON.parse(event.body);
+    console.log('👤 User data received:', { sub: user?.sub, email: user?.email, name: user?.name });
 
     if (!user || !user.sub) {
+      console.error('❌ Invalid user data:', user);
       return {
         statusCode: 400,
         headers,
@@ -38,7 +44,15 @@ exports.handler = async (event, context) => {
       };
     }
 
+    // Verificar variáveis de ambiente
+    console.log('🔧 Environment check:', {
+      hasUrl: !!process.env.SUPABASE_URL,
+      hasKey: !!process.env.SUPABASE_SERVICE_KEY,
+      url: process.env.SUPABASE_URL
+    });
+
     // Criar ou atualizar usuário no Supabase
+    console.log('💾 Attempting Supabase upsert...');
     const { data, error } = await supabase
       .from('users')
       .upsert({
@@ -55,13 +69,20 @@ exports.handler = async (event, context) => {
       .single();
 
     if (error) {
-      console.error('Supabase error:', error);
+      console.error('❌ Supabase error:', error);
+      console.error('Error details:', JSON.stringify(error, null, 2));
       return {
         statusCode: 500,
         headers,
-        body: JSON.stringify({ error: 'Database error' })
+        body: JSON.stringify({ 
+          error: 'Database error', 
+          details: error.message,
+          code: error.code 
+        })
       };
     }
+
+    console.log('✅ User upserted successfully:', data);
 
     return {
       statusCode: 200,
