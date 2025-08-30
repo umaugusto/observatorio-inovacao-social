@@ -239,21 +239,35 @@
                     }
                     
                     // Em produção, usar a function do Netlify
-                    const response = await fetch('/.netlify/functions/user-sync', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({ user: auth0User })
-                    });
+                    try {
+                        const response = await fetch('/.netlify/functions/user-sync', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({ user: auth0User })
+                        });
 
-                    if (!response.ok) {
-                        const errorText = await response.text();
-                        throw new Error(`HTTP error! status: ${response.status} - ${errorText}`);
+                        if (!response.ok) {
+                            const errorText = await response.text();
+                            throw new Error(`HTTP ${response.status}: ${errorText}`);
+                        }
+
+                        const data = await response.json();
+                        return data.user;
+                    } catch (syncError) {
+                        console.warn('User sync failed, continuing with Auth0 profile only:', syncError);
+                        return {
+                            id: Date.now(),
+                            auth0_id: auth0User.sub,
+                            email: auth0User.email,
+                            name: auth0User.name || auth0User.nickname || (auth0User.email ? auth0User.email.split('@')[0] : 'Usuario'),
+                            role: 'visitante',
+                            is_admin: false,
+                            created_at: new Date().toISOString(),
+                            updated_at: new Date().toISOString()
+                        };
                     }
-
-                    const data = await response.json();
-                    return data.user;
                 } catch (error) {
                     throw new Error(`Erro ao sincronizar dados do usuário: ${error.message}`);
                 }
