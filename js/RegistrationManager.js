@@ -191,19 +191,7 @@ class RegistrationManager {
             return;
         }
 
-        if (this.currentStep === 3) {
-            const userType = this.registrationData.userType;
-            if ((userType === 'extensionista' || userType === 'pesquisador')) {
-                const institutionalEmail = document.getElementById('institutional-email')?.value?.trim();
-                if (!institutionalEmail || !institutionalEmail.includes('@ufrj.br')) {
-                    this.showError('Email institucional da UFRJ é obrigatório para extensionistas e pesquisadores');
-                    return;
-                }
-                this.registrationData.institutionalEmail = institutionalEmail;
-            }
-        }
-
-        // Se chegou na etapa 4, mostrar dados para confirmação
+        if (this.currentStep === 3) {\n            const userType = this.registrationData.userType;\n            if ((userType === 'extensionista' || userType === 'pesquisador')) {\n                const institutionalEmail = document.getElementById('institutional-email')?.value?.trim();\n                if (!institutionalEmail || !institutionalEmail.includes('@ufrj.br')) {\n                    this.showError('Email institucional da UFRJ � obrigat�rio para extensionistas e pesquisadores');\n                    return;\n                }\n                this.registrationData.institutionalEmail = institutionalEmail;\n            }\n            if (this.registrationData.userType === 'visitante') {\n                // Concluir cadastro imediatamente para visitante\n                this.createAccount();\n                return;\n            }\n        }\n\n        // Se chegou na etapa 4, mostrar dados para confirmação
         if (this.currentStep === 3) {
             this.showConfirmationData();
         }
@@ -305,8 +293,8 @@ class RegistrationManager {
         const confirmationButtons = document.getElementById('confirmation-buttons');
         
         // Mostrar loading
-        loadingSpinner.style.display = 'block';
-        confirmationButtons.style.display = 'none';
+        if (loadingSpinner) loadingSpinner.style.display = 'block';
+        if (confirmationButtons) confirmationButtons.style.display = 'none';
 
         try {
             let userData;
@@ -362,8 +350,8 @@ class RegistrationManager {
             this.showError('Erro ao criar conta: ' + error.message);
             
             // Esconder loading e mostrar botões novamente
-            loadingSpinner.style.display = 'none';
-            confirmationButtons.style.display = 'flex';
+            if (loadingSpinner) loadingSpinner.style.display = 'none';
+            if (confirmationButtons) confirmationButtons.style.display = 'flex';
         }
     }
 
@@ -449,6 +437,7 @@ class RegistrationManager {
 document.addEventListener('DOMContentLoaded', () => {
     window.registrationManager = new RegistrationManager();
 });
+
 
 
 
