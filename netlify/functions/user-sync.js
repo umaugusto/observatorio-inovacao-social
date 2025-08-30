@@ -57,7 +57,9 @@ exports.handler = async (event, context) => {
     // Dados do usuário para inserção/atualização
     const userData = {
       email: user.email,
-      name: user.name || user.nickname || user.email?.split('@')[0],
+      name: user.name || user.nickname || (user.email ? user.email.split('@')[0] : 'usuario'),
+      role: 'visitante',
+      is_admin: false,
       updated_at: new Date().toISOString()
     };
 
@@ -67,21 +69,10 @@ exports.handler = async (event, context) => {
     }
 
     // Configurar tipo de usuário
-    if (user.user_type) {
-      userData.user_type = user.user_type;
+    if (user.user_type && typeof user.user_type === 'string') {
       userData.role = user.user_type;
-    } else {
-      userData.user_type = 'visitante';
-      userData.role = 'visitante';
+      userData.is_admin = (user.user_type === 'pesquisador');
     }
-
-    // Email institucional para extensionistas e pesquisadores
-    if (user.institutional_email) {
-      userData.institutional_email = user.institutional_email;
-    }
-
-    // Configurar admin baseado no tipo
-    userData.is_admin = (userData.user_type === 'pesquisador');
 
     const { data, error } = await supabase
       .from('users')
