@@ -331,8 +331,8 @@
 
     <!-- Scripts -->
     <script src="https://cdn.auth0.com/js/auth0/9.23.0/auth0.min.js"></script>
-    <script src="../js/auth0-client.js"></script>
     <script src="../js/supabase-client.js"></script>
+    <script src="../js/auth0-client.js"></script>
     <script src="../js/AuthManager.js"></script>
     <script src="../js/HeaderManager.js"></script>
 
@@ -744,17 +744,36 @@
             }
         }
 
+        // Função para aguardar carregamento de todos os managers
+        function waitForManagers() {
+            return new Promise((resolve) => {
+                const checkManagers = () => {
+                    if (window.AuthManager && window.HeaderManager && window.Auth0Client) {
+                        resolve();
+                    } else {
+                        setTimeout(checkManagers, 100);
+                    }
+                };
+                checkManagers();
+            });
+        }
+
         // Inicializar quando o DOM estiver carregado
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Aguardar todos os managers estarem disponíveis
+            await waitForManagers();
+            
+            // Debug: Verificar se nav-actions existe
+            const navActions = document.querySelector('.nav-actions');
+            console.log('Nav actions element found:', navActions);
+            
+            // Inicializar LoginPage
             new LoginPage();
             
-            // Inicializar HeaderManager se não estiver inicializado
+            // Inicializar HeaderManager
             if (!window.headerManager) {
-                setTimeout(() => {
-                    if (window.HeaderManager) {
-                        window.headerManager = HeaderManager.getInstance();
-                    }
-                }, 500);
+                window.headerManager = HeaderManager.getInstance();
+                console.log('HeaderManager initialized:', window.headerManager);
             }
         });
     </script>
