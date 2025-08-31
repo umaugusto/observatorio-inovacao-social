@@ -423,6 +423,252 @@
             opacity: 0.8;
         }
 
+        .contact-section {
+            padding: 80px 0;
+            background: var(--background-light);
+        }
+
+        .contact-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .contact-info {
+            background: white;
+            padding: 50px;
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow-md);
+            height: fit-content;
+        }
+
+        .contact-info h3 {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 25px;
+        }
+
+        .contact-info p {
+            color: var(--text-light);
+            line-height: 1.7;
+            margin-bottom: 30px;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 25px;
+            padding: 20px;
+            background: var(--background-light);
+            border-radius: var(--border-radius);
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .info-icon {
+            font-size: 24px;
+            margin-top: 2px;
+        }
+
+        .info-content h4 {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 5px;
+        }
+
+        .info-content p {
+            color: var(--text-light);
+            font-size: 14px;
+            margin-bottom: 0;
+        }
+
+        .info-content a {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        .info-content a:hover {
+            text-decoration: underline;
+        }
+
+        .contact-form-container {
+            background: white;
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow-md);
+            overflow: hidden;
+        }
+
+        .form-header {
+            background: var(--primary-color);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .form-header h3 {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .form-header p {
+            opacity: 0.9;
+            font-size: 16px;
+        }
+
+        .form-body {
+            padding: 40px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 8px;
+            font-size: 15px;
+        }
+
+        .form-label.required::after {
+            content: ' *';
+            color: #e74c3c;
+        }
+
+        .form-input,
+        .form-textarea {
+            width: 100%;
+            padding: 16px;
+            border: 2px solid var(--border-light);
+            border-radius: var(--border-radius);
+            font-size: 15px;
+            transition: var(--transition);
+            background: white;
+            font-family: inherit;
+            box-sizing: border-box;
+        }
+
+        .form-input:focus,
+        .form-textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(45, 122, 95, 0.1);
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 120px;
+            line-height: 1.6;
+        }
+
+        .form-error {
+            color: #e74c3c;
+            font-size: 13px;
+            margin-top: 6px;
+            display: none;
+        }
+
+        .form-group.error .form-input,
+        .form-group.error .form-textarea {
+            border-color: #e74c3c;
+            box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.1);
+        }
+
+        .form-group.error .form-error {
+            display: block;
+        }
+
+        .btn-submit {
+            background: var(--primary-color);
+            color: white;
+            padding: 16px 32px;
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            width: 100%;
+            position: relative;
+        }
+
+        .btn-submit:hover:not(:disabled) {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-submit:disabled {
+            background: var(--border-light);
+            color: var(--text-light);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn-submit.loading::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 20px;
+            height: 20px;
+            margin: -10px 0 0 -10px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top: 2px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        .btn-submit.loading {
+            color: transparent;
+        }
+
+        .success-message {
+            text-align: center;
+            padding: 40px;
+            display: none;
+        }
+
+        .success-message.show {
+            display: block;
+        }
+
+        .success-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+
+        .success-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--accent-color);
+            margin-bottom: 15px;
+        }
+
+        .success-description {
+            color: var(--text-light);
+            margin-bottom: 30px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 1024px) {
+            .contact-container {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
+        }
+
         @media (max-width: 768px) {
             .about-grid {
                 grid-template-columns: 1fr;
@@ -487,6 +733,19 @@
             .emude-cycle {
                 padding: 20px;
             }
+
+            .contact-info,
+            .form-body {
+                padding: 30px 25px;
+            }
+
+            .form-header {
+                padding: 25px;
+            }
+
+            .contact-section {
+                padding: 60px 20px;
+            }
         }
     </style>
 </head>
@@ -506,7 +765,6 @@
                 <li><a href="mapa.html">Mapa</a></li>
                 <li><a href="metodologia.html">Metodologia</a></li>
                 <li><a href="sobre.html" class="active">Sobre</a></li>
-                <li><a href="contato.html">Contato</a></li>
             </ul>
 
             <div class="nav-actions">
@@ -791,6 +1049,103 @@
         </div>
     </section>
 
+    <!-- Contact Section -->
+    <section class="contact-section" id="contato">
+        <div class="container">
+            <h2 class="section-title">Entre em Contato</h2>
+            <p style="text-align: center; color: var(--text-light); font-size: 18px; max-width: 600px; margin: 0 auto 60px;">
+                Tem uma dúvida, sugestão ou quer saber mais sobre o projeto? Fale conosco!
+            </p>
+
+            <div class="contact-container">
+                <!-- Contact Information -->
+                <div class="contact-info">
+                    <h3>Informações de Contato</h3>
+                    <p>
+                        O Observatório de Inovação Social é um projeto acadêmico da UFRJ. Entre em contato conosco para dúvidas, sugestões ou propostas de colaboração.
+                    </p>
+
+                    <div class="info-item">
+                        <div class="info-icon">📧</div>
+                        <div class="info-content">
+                            <h4>E-mail</h4>
+                            <p><a href="mailto:observatorio@ufrj.br">observatorio@ufrj.br</a></p>
+                        </div>
+                    </div>
+
+                    <div class="info-item">
+                        <div class="info-icon">📍</div>
+                        <div class="info-content">
+                            <h4>Localização</h4>
+                            <p>Cidade Universitária<br>Ilha do Fundão, Rio de Janeiro - RJ</p>
+                        </div>
+                    </div>
+
+                    <div class="info-item">
+                        <div class="info-icon">⏰</div>
+                        <div class="info-content">
+                            <h4>Tempo de Resposta</h4>
+                            <p>Respondemos em até 3 dias úteis</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contact Form -->
+                <div class="contact-form-container">
+                    <div class="form-header">
+                        <h3>Enviar Mensagem</h3>
+                        <p>Preencha o formulário abaixo e entraremos em contato</p>
+                    </div>
+
+                    <div class="form-body">
+                        <form id="contact-form" class="contact-form">
+                            <div class="form-group">
+                                <label class="form-label required" for="nome">Nome</label>
+                                <input type="text" id="nome" name="nome" class="form-input" 
+                                       placeholder="Seu nome completo" required>
+                                <div class="form-error">Este campo é obrigatório</div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label required" for="email">E-mail</label>
+                                <input type="email" id="email" name="email" class="form-input" 
+                                       placeholder="seu.email@exemplo.com" required>
+                                <div class="form-error">Insira um e-mail válido</div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label required" for="assunto">Assunto</label>
+                                <input type="text" id="assunto" name="assunto" class="form-input" 
+                                       placeholder="Assunto da sua mensagem" required>
+                                <div class="form-error">Este campo é obrigatório</div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label required" for="mensagem">Mensagem</label>
+                                <textarea id="mensagem" name="mensagem" class="form-textarea" 
+                                          placeholder="Escreva sua mensagem..." required></textarea>
+                                <div class="form-error">Este campo é obrigatório</div>
+                            </div>
+
+                            <button type="submit" class="btn-submit" id="submit-btn">
+                                Enviar Mensagem
+                            </button>
+                        </form>
+
+                        <!-- Success Message -->
+                        <div class="success-message" id="success-message">
+                            <div class="success-icon">📬</div>
+                            <h4 class="success-title">Mensagem Enviada!</h4>
+                            <p class="success-description">
+                                Recebemos sua mensagem. Nossa equipe entrará em contato em até 3 dias úteis.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- Footer -->
     <footer class="footer">
         <div class="container">
@@ -800,7 +1155,7 @@
                     <ul>
                         <li><a href="sobre.html">Sobre o Projeto</a></li>
                         <li><a href="#metodologia">Metodologia</a></li>
-                        <li><a href="contato.html">Nossa Equipe</a></li>
+                        <li><a href="#contato">Contato</a></li>
                         <li><a href="#parceiros">Parceiros</a></li>
                     </ul>
                 </div>
@@ -828,7 +1183,7 @@
                         <li><a href="https://ufrj.br" target="_blank" rel="noopener">Site Oficial</a></li>
                         <li><a href="https://extensao.ufrj.br" target="_blank" rel="noopener">Extensão UFRJ</a></li>
                         <li><a href="#pesquisa">Pesquisa</a></li>
-                        <li><a href="contato.html">Contato</a></li>
+                        <li><a href="#contato">Contato</a></li>
                     </ul>
                 </div>
             </div>
@@ -915,6 +1270,147 @@
                     element.textContent = Math.floor(current);
                 }
             }, 30);
+        }
+
+        // Contact form functionality
+        class ContactForm {
+            constructor() {
+                this.form = document.getElementById('contact-form');
+                this.setupEventListeners();
+            }
+
+            setupEventListeners() {
+                if (!this.form) return;
+
+                this.form.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.handleSubmit();
+                });
+
+                // Real-time validation
+                const requiredFields = this.form.querySelectorAll('[required]');
+                requiredFields.forEach(field => {
+                    field.addEventListener('blur', () => this.validateField(field));
+                    field.addEventListener('input', () => this.clearError(field));
+                });
+            }
+
+            validateField(field) {
+                const formGroup = field.closest('.form-group');
+                let isValid = true;
+
+                formGroup.classList.remove('error');
+
+                if (field.hasAttribute('required') && !field.value.trim()) {
+                    isValid = false;
+                }
+
+                if (field.type === 'email' && field.value && !this.isValidEmail(field.value)) {
+                    isValid = false;
+                }
+
+                if (!isValid) {
+                    formGroup.classList.add('error');
+                }
+
+                return isValid;
+            }
+
+            clearError(field) {
+                const formGroup = field.closest('.form-group');
+                formGroup.classList.remove('error');
+            }
+
+            isValidEmail(email) {
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                return emailRegex.test(email);
+            }
+
+            validateForm() {
+                const requiredFields = this.form.querySelectorAll('[required]');
+                let isValid = true;
+
+                requiredFields.forEach(field => {
+                    if (!this.validateField(field)) {
+                        isValid = false;
+                    }
+                });
+
+                return isValid;
+            }
+
+            async handleSubmit() {
+                if (!this.validateForm()) {
+                    const app = window.app || window.ObservatorioApp?.getInstance();
+                    if (app && app.showNotification) {
+                        app.showNotification('Por favor, corrija os erros no formulário', 'error');
+                    }
+                    return;
+                }
+
+                const submitBtn = document.getElementById('submit-btn');
+                const formData = new FormData(this.form);
+
+                submitBtn.classList.add('loading');
+                submitBtn.disabled = true;
+
+                try {
+                    await new Promise(resolve => setTimeout(resolve, 1500));
+
+                    const mensagem = {
+                        nome: formData.get('nome'),
+                        email: formData.get('email'),
+                        assunto: formData.get('assunto'),
+                        mensagem: formData.get('mensagem'),
+                        data: new Date().toISOString(),
+                        status: 'nova'
+                    };
+
+                    const dataManager = DataManager.getInstance();
+                    dataManager.addMensagemContato(mensagem);
+
+                    this.showSuccess();
+
+                } catch (error) {
+                    console.error('Erro ao enviar mensagem:', error);
+                    const app = window.app || window.ObservatorioApp?.getInstance();
+                    if (app && app.showNotification) {
+                        app.showNotification('Erro ao enviar mensagem. Tente novamente.', 'error');
+                    }
+                } finally {
+                    submitBtn.classList.remove('loading');
+                    submitBtn.disabled = false;
+                }
+            }
+
+            showSuccess() {
+                const form = document.getElementById('contact-form');
+                const successMessage = document.getElementById('success-message');
+                
+                form.style.display = 'none';
+                successMessage.classList.add('show');
+                
+                document.querySelector('.contact-form-container').scrollIntoView({ 
+                    behavior: 'smooth', 
+                    block: 'start' 
+                });
+
+                // Reset form after 5 seconds
+                setTimeout(() => {
+                    form.reset();
+                    form.style.display = 'block';
+                    successMessage.classList.remove('show');
+                }, 5000);
+            }
+        }
+
+        // Initialize contact form when DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => {
+                new ContactForm();
+            });
+        } else {
+            new ContactForm();
         }
     </script>
 </body>

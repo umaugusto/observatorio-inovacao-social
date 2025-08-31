@@ -381,7 +381,7 @@ class RegistrationManager {
             method: this.registrationData.method,
             institutional_email: this.registrationData.institutionalEmail,
             created_at: new Date().toISOString(),
-            email_verified: false // Para implementar verificação de email
+            email_verified: false
         };
 
         // Se for método social, incluir dados do Auth0
@@ -390,36 +390,71 @@ class RegistrationManager {
             userData.name = this.registrationData.socialData.name;
             userData.picture = this.registrationData.socialData.picture;
             userData.email_verified = this.registrationData.socialData.email_verified;
-        }
-
-        // Se for método email, criar credenciais no Auth0 (DB connection)
-        if (this.registrationData.method === 'email') {
-            try {
-                const metadata = { user_type: this.registrationData.userType };
-                await this.auth0Client.signup(userData.email, userData.password, metadata);
-                // Não temos verificação de email automática aqui; mantém email_verified false
-            } catch (e) {
-                throw new Error(e?.description || e?.message || 'Falha ao criar credenciais no Auth0');
-            }
-        }
-
-        // Tentar criar conta via API
-        const result = await this.callRegistrationAPI(userData);
-        
-        if (result.success) {
-            // Mostrar tela de sucesso
-            document.getElementById('confirmation-email').textContent = userData.email;
-            this.showLoading(false);
-            this.goToStep('success');
             
-            // Se não precisar de verificação de email, fazer login automático
-            if (userData.email_verified) {
+            // Para contas sociais, criar direto no banco
+            const result = await this.callRegistrationAPI(userData);
+            
+            if (result.success) {
+                this.showLoading(false);
+                this.showSocialSuccess();
+                
                 setTimeout(() => {
                     this.performAutoLogin(userData);
                 }, 2000);
+            } else {
+                throw new Error(result.message || 'Erro ao criar conta');
             }
-        } else {
-            throw new Error(result.message || 'Erro desconhecido ao criar conta');
+            return;
+        }
+
+        // Para método email, criar credenciais no Auth0 primeiro
+        if (this.registrationData.method === 'email') {
+            try {
+                console.log('🔐 Criando credenciais no Auth0...');
+                const metadata = { user_type: this.registrationData.userType };
+                
+                const signupResult = await this.auth0Client.signup(userData.email, userData.password, metadata);
+                console.log('✅ Credenciais criadas no Auth0:', signupResult);
+                
+                // Aguardar um pouco antes de criar no banco
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                // Criar registro no banco
+                const result = await this.callRegistrationAPI(userData);
+                
+                if (result.success) {
+                    console.log('✅ Usuário criado no banco de dados');
+                    
+                    // Mostrar tela de sucesso com instruções de verificação
+                    document.getElementById('confirmation-email').textContent = userData.email;
+                    this.setupEmailQuickAccess(userData.email);
+                    this.setupResendButton();
+                    this.showLoading(false);
+                    this.showEmailVerificationSuccess();
+                } else {
+                    throw new Error(result.message || 'Erro ao criar registro no banco');
+                }
+                
+            } catch (e) {
+                console.error('❌ Erro na criação da conta:', e);
+                
+                let errorMessage = 'Erro ao criar conta.';
+                
+                if (e.description) {
+                    // Erros específicos do Auth0
+                    if (e.description.includes('user already exists')) {
+                        errorMessage = 'Já existe uma conta com este email. Tente fazer login.';
+                    } else if (e.description.includes('password')) {
+                        errorMessage = 'Senha muito fraca. Use pelo menos 8 caracteres.';
+                    } else {
+                        errorMessage = e.description;
+                    }
+                } else if (e.message) {
+                    errorMessage = e.message;
+                }
+                
+                throw new Error(errorMessage);
+            }
         }
     }
 
@@ -656,6 +691,104 @@ class RegistrationManager {
             // Fallback para alert
             alert(message);
         }
+    }
+
+    setupEmailQuickAccess(email) {
+        const emailDomain = email.split('@')[1];
+        const quickMailLink = document.getElementById('open-mail-link');
+        
+        if (quickMailLink) {
+            // URLs populares de webmail
+            const mailUrls = {
+                'gmail.com': 'https://mail.google.com',
+                'outlook.com': 'https://outlook.live.com',
+                'hotmail.com': 'https://outlook.live.com',
+                'yahoo.com': 'https://mail.yahoo.com',
+                'ufrj.br': 'https://webmail.ufrj.br'
+            };
+            
+            const mailUrl = mailUrls[emailDomain] || 'https://mail.google.com';
+            quickMailLink.href = mailUrl;
+            quickMailLink.textContent = `Abrir ${emailDomain}`;
+        }
+    }
+    
+    setupResendButton() {
+        const resendBtn = document.getElementById('btn-resend-email');
+        const resendFeedback = document.getElementById('resend-feedback');
+        
+        if (resendBtn) {
+            resendBtn.addEventListener('click', async () => {
+                try {
+                    resendBtn.disabled = true;
+                    resendBtn.textContent = 'Enviando...';
+                    resendFeedback.textContent = '';
+                    
+                    const response = await fetch('/.netlify/functions/auth0-resend-verification', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ email: this.registrationData.email })
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        resendFeedback.textContent = '✅ Email reenviado com sucesso!';
+                        resendFeedback.style.color = '#27ae60';
+                    } else {
+                        resendFeedback.textContent = '❌ Erro ao reenviar: ' + result.message;
+                        resendFeedback.style.color = '#e74c3c';
+                    }
+                    
+                } catch (error) {
+                    console.error('Erro ao reenviar email:', error);
+                    resendFeedback.textContent = '❌ Erro de conexão. Tente novamente.';
+                    resendFeedback.style.color = '#e74c3c';
+                } finally {
+                    resendBtn.disabled = false;
+                    resendBtn.textContent = 'Reenviar email de confirmação';
+                    
+                    // Limpar feedback após 5 segundos
+                    setTimeout(() => {
+                        resendFeedback.textContent = '';
+                    }, 5000);
+                }
+            });
+        }
+        
+        // Setup "usar outro email" link
+        const useOtherEmailLink = document.getElementById('use-other-email');
+        if (useOtherEmailLink) {
+            useOtherEmailLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.goToStep(1);
+                // Limpar dados para permitir novo email
+                this.registrationData.email = null;
+                document.getElementById('user-email').value = '';
+            });
+        }
+    }
+    
+    showEmailVerificationSuccess() {
+        const successEmailPending = document.getElementById('success-email-pending');
+        const successSocial = document.getElementById('success-social');
+        
+        if (successEmailPending) successEmailPending.style.display = 'block';
+        if (successSocial) successSocial.style.display = 'none';
+        
+        this.goToStep('success');
+    }
+    
+    showSocialSuccess() {
+        const successEmailPending = document.getElementById('success-email-pending');
+        const successSocial = document.getElementById('success-social');
+        
+        if (successEmailPending) successEmailPending.style.display = 'none';
+        if (successSocial) successSocial.style.display = 'block';
+        
+        this.goToStep('success');
     }
 
     isValidEmail(email) {

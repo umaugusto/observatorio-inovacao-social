@@ -13,9 +13,6 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Development Commands
 
 ```bash
-# Prerequisites: Node 18+ required
-npm install              # Install dependencies
-
 # Start development server (recommended):
 npm run dev              # Uses http-server on port 8080
 # Alternative methods:
@@ -24,53 +21,72 @@ python -m http.server 8080
 php -S localhost:8080
 
 # Netlify local development:
-npm run netlify          # Test with Netlify functions locally (requires .env file)
+npm run netlify          # Test with Netlify functions locally
+npm run dev:netlify      # Alternative netlify dev command
 
-# Build (no-op for static site):
-npm run build            # Returns "No build required for static site"
-
-# Git workflow for changes (use Conventional Commits):
+# Git workflow for changes:
 git add .
-git commit -m "feat(js): describe changes"  # Use conventional format
+git commit -m "describe changes"
 git push                 # Automatically deploys to Netlify
 
+# No build process required - direct file editing
 # No test suite - manual testing only  
-# No linting configured - follow existing code style (4-space indentation, single quotes, semicolons)
+# No linting configured - follow existing code style
 ```
 
 ## Architecture
 
 ### Core Singleton Managers
-- **DataManager** (`js/DataManager.js`): Handles all data operations, localStorage persistence, and observer notifications
-- **AuthManager** (`js/AuthManager.js`): Manages authentication, sessions, and role-based permissions
+- **DataManager** (`js/DataManager.js`): Handles all data operations, localStorage persistence, observer notifications, and contact message management
+- **AuthManager** (`js/AuthManager.js`): Manages authentication, sessions, role-based permissions, and demo mode protection
+- **HeaderManager** (`js/HeaderManager.js`): Centralized header management with dynamic navigation and authentication state updates
+- **RegistrationManager** (`js/RegistrationManager.js`): Handles multi-step user registration flow with Auth0 integration
 - **ObservatorioApp** (`js/main.js`): Main application controller that orchestrates all functionality
 
 ### Data Flow
-1. Data loads from localStorage (persistent) or falls back to `data/casos.json`
-2. DataManager notifies observers of changes via Observer pattern
-3. UI components update reactively based on data changes
-4. All CRUD operations go through DataManager for consistency
+1. **Database Mode**: Attempts to load from Supabase via `/casos-api` function first
+2. **Fallback Mode**: Falls back to localStorage or `data/casos.json` for local development
+3. DataManager automatically detects environment (production vs localhost)
+4. DataManager notifies observers of changes via Observer pattern
+5. UI components update reactively based on data changes
+6. All CRUD operations go through DataManager for consistency
 
-**CRITICAL**: The project underwent major refactoring to eliminate:
-- Memory leaks from uncleaned IntersectionObserver instances
-- Context binding issues with `this` in callbacks (now uses arrow functions)
-- Inconsistent data synchronization between localStorage and memory
-- Duplicated authentication logic across pages
+### Hybrid Architecture
+The system uses a **hybrid client-server approach**:
+- **Production**: Database-backed via Netlify functions + Supabase
+- **Development**: localStorage + JSON files for offline work
+- **Intelligent Fallback**: Gracefully handles API failures by using local data
 
 ### Authentication System
-- **Primary**: Auth0 integration with Google OAuth
-- **User Storage**: Supabase database with user sync via Netlify functions
+- **Primary**: Auth0 integration with Google OAuth and email/password authentication
+- **Registration Flow**: Multi-step process via RegistrationManager with department/role selection
+- **User Storage**: Supabase database with automatic user sync via Netlify functions
+- **Callback Handling**: Auth0 callback processing with error handling and user creation
+- **Session Management**: 24-hour timeout with "remember me" option for persistent sessions
+- **Role-based Access**: Dynamic UI visibility and permissions controlled by AuthManager
+- **User Roles**: `visitante` (default), `aluno_extensao`, `pesquisador`, `admin`, `coordenador`
 - **Fallback**: Mock authentication for local development
-- Session management with automatic timeout (30 minutes) or persistent sessions
-- Role-based UI visibility controlled by AuthManager
-- Roles: `visitante` (default), `extensionista`, `admin`
+
+### Demo Account Security System
+- **Demo Mode Protection**: All demo accounts (`isDemo: true`) are prevented from making permanent changes
+- **Visual Notifications**: Demo users see orange banner warnings and operation-blocked notifications
+- **Safe Operations**: Demo users can browse, search, and view all data but cannot create/edit/delete
+- **Memory-only Changes**: Demo account operations use in-memory cache instead of localStorage persistence
+- **Built-in Demo Accounts**: 
+  - `aluno@ufrj.br` / `123456` (Student)
+  - `admin@ufrj.br` / `admin123` (Admin)
+  - `pesquisador@ufrj.br` / `pesq123` (Researcher)  
+  - `coordenador@ufrj.br` / `coord123` (Coordinator)
 
 ## Key Implementation Details
 
 ### Data Persistence
-- Primary: Browser localStorage
-- Fallback: JSON files in `/data` directory
-- Reset data: `DataManager.getInstance().resetData()` in browser console
+- **Primary**: Browser localStorage
+- **Demo Mode**: Memory-only cache (no persistence)
+- **Fallback**: JSON files in `/data` directory
+- **Production**: Supabase database via Netlify functions
+- **Reset data**: `DataManager.getInstance().resetData()` in browser console
+- **Safe operations**: Use `DataManager.safeSetItem()` which respects demo mode
 
 ### Dynamic Path Resolution
 - Use relative paths that adjust based on current page location:
@@ -81,7 +97,7 @@ const basePath = window.location.pathname.includes('/pages/') ? '../' : './';
 ### Case Study Model Structure
 ```javascript
 {
-  id: number,
+  id: string | number,  // UUID from database or numeric for local development
   titulo: string,
   categoria: string,  // Must match predefined categories
   regiao: string,
@@ -91,6 +107,11 @@ const basePath = window.location.pathname.includes('/pages/') ? '../' : './';
   beneficiarios: number,
   status: "Em andamento" | "Concluído" | "Pausado",
   aprovado: boolean,  // Controls public visibility
+  imagemUrl: string,  // Optional image URL
+  tags: string[],     // Keywords for search
+  impactos: string[], // List of impact statements
+  metodologia: string,
+  desafios: string,
   // ... other fields
 }
 ```
@@ -128,11 +149,18 @@ await DataManager.getInstance().resetData();
 console.log(AuthManager.getInstance().getCurrentUser());
 console.log(AuthManager.getInstance().isAuthenticated());
 
+// Check if user is in demo mode
+console.log(AuthManager.getInstance().isDemoMode());
+
 // Check session validity
 console.log(AuthManager.getInstance().isSessionValid(AuthManager.getInstance().getCurrentUser()));
 
+// Test demo notifications
+AuthManager.getInstance().showDemoNotification('Test demo notification');
+AuthManager.getInstance().showDemoBanner();
+
 // Test header update
-ObservatorioApp.getInstance().updateHeaderForAuth();
+HeaderManager.getInstance().updateHeader();
 ```
 
 ## Important Conventions
@@ -162,11 +190,13 @@ ObservatorioApp.getInstance().updateHeaderForAuth();
 - HTML pages: lowercase with hyphens (e.g., `caso.html`, `test-auth.html`)
 
 ### Security Considerations
-- HTML escaping via `escapeHtml()` method for XSS prevention
-- Content Security Policy (CSP) configured in netlify.toml
-- Auth0 handles secure authentication flow
-- Supabase Row Level Security (RLS) policies protect user data
-- Environment variables for sensitive configuration
+- **XSS Prevention**: HTML escaping via `escapeHtml()` method
+- **CSP**: Content Security Policy configured in netlify.toml
+- **Authentication**: Auth0 handles secure OAuth flow
+- **Database Security**: Supabase Row Level Security (RLS) policies
+- **Demo Account Protection**: All demo accounts blocked from data modifications
+- **Environment Variables**: Sensitive configuration stored securely
+- **CRUD Validation**: All operations check `isDemoMode()` before execution
 
 ## Map Integration
 
@@ -204,9 +234,11 @@ When introducing automated tests:
 
 The project uses serverless functions for backend operations:
 
-- **`user-sync.js`**: Syncs Auth0 users with Supabase database
-- **`casos-api.js`**: Handles CRUD operations for case studies
-- **`comments-api.js`**: Manages user comments and interactions
+- **`user-sync.js`**: Syncs Auth0 users with Supabase database during authentication
+- **`user-registration.js`**: Handles new user registration with role assignment 
+- **`casos-api.js`**: Handles CRUD operations for case studies with proper camelCase/snake_case mapping
+- **`auth0-resend-verification.js`**: Resends email verification for Auth0 users
+- **`comments-api.js`**: Manages user comments and interactions (if implemented)
 
 Functions are accessible at `/.netlify/functions/{function-name}` and automatically deployed with the site.
 

@@ -720,6 +720,149 @@ class DataManager {
         return sugestao;
     }
     
+    // Sistema de Mensagens de Contato
+    getMensagensContato() {
+        return JSON.parse(localStorage.getItem('mensagensContato') || '[]');
+    }
+    
+    addMensagemContato(mensagem) {
+        // Bloquear operações para usuários demo
+        if (this.isDemoMode()) {
+            console.warn('🎭 Modo demo: adição de mensagem de contato bloqueada para preservar dados');
+            this.showDemoBlockedNotification('Envio de mensagem');
+            throw new Error('Operação não permitida para usuários demo. Esta é uma demonstração do sistema.');
+        }
+        
+        const mensagens = this.getMensagensContato();
+        const novaMensagem = {
+            id: Date.now(),
+            ...mensagem,
+            data: new Date().toISOString(),
+            status: 'nova', // nova, lida, respondida
+            dataLeitura: null
+        };
+        
+        mensagens.push(novaMensagem);
+        this.safeSetItem('mensagensContato', mensagens);
+        
+        // Notificar administradores sobre nova mensagem
+        this.notifyAdminsNewMessage(novaMensagem);
+        this.notifyObservers('mensagemContatoAdded', novaMensagem);
+        
+        return novaMensagem;
+    }
+    
+    marcarMensagemComoLida(mensagemId) {
+        // Bloquear operações para usuários demo
+        if (this.isDemoMode()) {
+            console.warn('🎭 Modo demo: marcação de mensagem como lida bloqueada para preservar dados');
+            this.showDemoBlockedNotification('Marcar mensagem como lida');
+            throw new Error('Operação não permitida para usuários demo. Esta é uma demonstração do sistema.');
+        }
+        
+        const mensagens = this.getMensagensContato();
+        const mensagem = mensagens.find(m => m.id === mensagemId);
+        
+        if (mensagem && mensagem.status === 'nova') {
+            mensagem.status = 'lida';
+            mensagem.dataLeitura = new Date().toISOString();
+            this.safeSetItem('mensagensContato', mensagens);
+            this.notifyObservers('mensagemContatoUpdated', mensagem);
+        }
+        
+        return mensagem;
+    }
+    
+    marcarMensagemComoRespondida(mensagemId) {
+        // Bloquear operações para usuários demo
+        if (this.isDemoMode()) {
+            console.warn('🎭 Modo demo: marcação de mensagem como respondida bloqueada para preservar dados');
+            this.showDemoBlockedNotification('Marcar mensagem como respondida');
+            throw new Error('Operação não permitida para usuários demo. Esta é uma demonstração do sistema.');
+        }
+        
+        const mensagens = this.getMensagensContato();
+        const mensagem = mensagens.find(m => m.id === mensagemId);
+        
+        if (mensagem) {
+            mensagem.status = 'respondida';
+            if (!mensagem.dataLeitura) {
+                mensagem.dataLeitura = new Date().toISOString();
+            }
+            this.safeSetItem('mensagensContato', mensagens);
+            this.notifyObservers('mensagemContatoUpdated', mensagem);
+        }
+        
+        return mensagem;
+    }
+    
+    deleteMensagemContato(mensagemId) {
+        // Bloquear operações para usuários demo
+        if (this.isDemoMode()) {
+            console.warn('🎭 Modo demo: exclusão de mensagem de contato bloqueada para preservar dados');
+            this.showDemoBlockedNotification('Exclusão de mensagem');
+            throw new Error('Operação não permitida para usuários demo. Esta é uma demonstração do sistema.');
+        }
+        
+        let mensagens = this.getMensagensContato();
+        const index = mensagens.findIndex(m => m.id === mensagemId);
+        
+        if (index !== -1) {
+            const mensagemDeletada = mensagens.splice(index, 1)[0];
+            this.safeSetItem('mensagensContato', mensagens);
+            this.notifyObservers('mensagemContatoDeleted', mensagemDeletada);
+            return mensagemDeletada;
+        }
+        
+        return null;
+    }
+    
+    // Notificar administradores sobre nova mensagem
+    notifyAdminsNewMessage(mensagem) {
+        const authManager = window.AuthManager?.getInstance();
+        if (authManager && authManager.isAuthenticated()) {
+            const currentUser = authManager.getCurrentUser();
+            
+            // Verificar se há administradores online e notificar
+            if (currentUser && ['admin', 'coordenador'].includes(currentUser.role)) {
+                setTimeout(() => {
+                    const app = window.app || window.ObservatorioApp?.getInstance();
+                    if (app && app.showNotification) {
+                        app.showNotification(
+                            `Nova mensagem de contato de ${mensagem.nome}`, 
+                            'info'
+                        );
+                    }
+                }, 100);
+            }
+        }
+        
+        // Log para debug
+        console.log('📧 Nova mensagem de contato recebida:', {
+            de: mensagem.nome,
+            email: mensagem.email,
+            assunto: mensagem.assunto,
+            data: mensagem.data
+        });
+    }
+    
+    // Obter estatísticas das mensagens de contato para administradores
+    getContactStats() {
+        const mensagens = this.getMensagensContato();
+        return {
+            total: mensagens.length,
+            novas: mensagens.filter(m => m.status === 'nova').length,
+            lidas: mensagens.filter(m => m.status === 'lida').length,
+            respondidas: mensagens.filter(m => m.status === 'respondida').length,
+            ultimaSemana: mensagens.filter(m => {
+                const dataMsg = new Date(m.data);
+                const umaSemanaAtras = new Date();
+                umaSemanaAtras.setDate(umaSemanaAtras.getDate() - 7);
+                return dataMsg >= umaSemanaAtras;
+            }).length
+        };
+    }
+    
     // Limpeza de recursos
     destroy() {
         this.observers.clear();

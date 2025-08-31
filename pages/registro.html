@@ -495,7 +495,6 @@
                 <li><a href="mapa.html">Mapa</a></li>
                 <li><a href="metodologia.html">Metodologia</a></li>
                 <li><a href="sobre.html">Sobre</a></li>
-                <li><a href="contato.html">Contato</a></li>
             </ul>
 
             <div class="nav-actions">
@@ -679,21 +678,44 @@
                             <h2 id="success-title" style="font-size: 24px; margin-bottom: 12px;">Conta criada com sucesso!</h2>
 
                             <div id="success-email-pending" style="display:none;">
-                                <p style="color: var(--text-light); margin-bottom: 12px;">
-                                    Para finalizar, confirme seu email: <strong id="confirmation-email"></strong>
-                                </p>
-                                <p style="color: var(--text-light); font-size: 14px; margin-bottom: 16px;">
-                                    Se não receber em alguns minutos, verifique o spam ou reenvie abaixo.
-                                </p>
-                                <div id="resend-area">
-                                    <button id="btn-resend-email" class="btn-primary" style="margin-bottom: 10px;">Reenviar email de confirmação</button>
-                                    <div id="resend-feedback" style="font-size: 13px; color: var(--text-light);"></div>
+                                <div class="alert alert-info" style="margin-bottom: 20px;">
+                                    <strong>📧 Verifique seu email!</strong><br>
+                                    Enviamos um link de confirmação para: <strong id="confirmation-email"></strong>
                                 </div>
-                                <div id="quick-mail" style="margin-top: 14px;">
-                                    <a id="open-mail-link" href="#" target="_blank" rel="noopener" style="font-size: 14px;">Abrir seu e-mail</a>
+                                
+                                <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                                    <h3 style="font-size: 16px; margin-bottom: 12px; color: var(--text-dark);">Como proceder:</h3>
+                                    <ol style="margin: 0; padding-left: 20px; color: var(--text-light);">
+                                        <li style="margin-bottom: 8px;">Verifique sua caixa de entrada</li>
+                                        <li style="margin-bottom: 8px;">Procure por email do <strong>Observatório UFRJ</strong></li>
+                                        <li style="margin-bottom: 8px;">Clique no link de confirmação</li>
+                                        <li>Retorne aqui para fazer login</li>
+                                    </ol>
                                 </div>
-                                <div style="margin-top: 14px;">
-                                    <a id="use-other-email" href="#" style="font-size: 13px;">Usar outro email</a>
+                                
+                                <div class="alert alert-warning" style="margin-bottom: 20px;">
+                                    <strong>⚠️ Não recebeu o email?</strong><br>
+                                    Verifique sua pasta de spam/lixo eletrônico. Alguns provedores podem filtrar emails automáticos.
+                                </div>
+                                
+                                <div id="resend-area" style="margin-bottom: 20px;">
+                                    <button id="btn-resend-email" class="btn-primary" style="margin-bottom: 10px; background: var(--accent-color); padding: 12px 24px; font-size: 14px;">
+                                        📤 Reenviar email de confirmação
+                                    </button>
+                                    <div id="resend-feedback" style="font-size: 13px; font-weight: 600; text-align: center;"></div>
+                                </div>
+                                
+                                <div style="text-align: center; margin-bottom: 20px;">
+                                    <a id="open-mail-link" href="#" target="_blank" rel="noopener" 
+                                       style="display: inline-block; padding: 10px 20px; background: #e3f2fd; color: #1976d2; text-decoration: none; border-radius: 6px; font-size: 14px; font-weight: 600;">
+                                        📬 Abrir seu e-mail
+                                    </a>
+                                </div>
+                                
+                                <div style="text-align: center; border-top: 1px solid var(--border-light); padding-top: 15px;">
+                                    <a id="use-other-email" href="#" style="font-size: 13px; color: var(--text-light); text-decoration: underline;">
+                                        Usar outro email
+                                    </a>
                                 </div>
                             </div>
 

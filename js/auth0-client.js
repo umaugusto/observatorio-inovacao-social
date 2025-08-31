@@ -110,6 +110,8 @@ class Auth0Client {
         if (!this.auth0) await this.loadAuth0SDK();
         
         return new Promise((resolve, reject) => {
+            console.log('🔐 Iniciando signup no Auth0 para:', email);
+            
             this.auth0.signup({
                 connection: 'Username-Password-Authentication',
                 email: email,
@@ -117,8 +119,23 @@ class Auth0Client {
                 user_metadata: metadata
             }, (err, result) => {
                 if (err) {
+                    console.error('❌ Erro no signup Auth0:', err);
+                    
+                    // Melhor tratamento de erros específicos
+                    if (err.code === 'user_exists') {
+                        err.description = 'Já existe uma conta com este email. Tente fazer login.';
+                    } else if (err.code === 'password_strength_error') {
+                        err.description = 'Senha muito fraca. Use pelo menos 8 caracteres com maiúsculas, números e símbolos.';
+                    } else if (err.description && err.description.includes('Password')) {
+                        err.description = 'Senha não atende aos requisitos de segurança. Use pelo menos 8 caracteres.';
+                    }
+                    
                     reject(err);
                 } else {
+                    console.log('✅ Signup Auth0 concluído:', result);
+                    
+                    // Resultado do signup é diferente do login
+                    // Normalmente é algo como: { _id: "...", email_verified: false }
                     resolve(result);
                 }
             });
