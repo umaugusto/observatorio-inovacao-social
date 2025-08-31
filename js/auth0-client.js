@@ -11,14 +11,14 @@ class Auth0Client {
         
         this.config = {
             domain: auth0Config.AUTH0_DOMAIN || 'dev-cvjwhtcjyx8zmows.us.auth0.com',
-            clientId: auth0Config.AUTH0_CLIENT_ID || 'pIcBfUTnGTh7Du1trOtnYKJU4pH5zMUW',
+            clientID: auth0Config.AUTH0_CLIENT_ID || 'pIcBfUTnGTh7Du1trOtnYKJU4pH5zMUW', // Auth0 usa clientID (D maiúsculo)
             redirectUri: window.location.origin + '/pages/callback.html',
             scope: 'openid profile email'
         };
         
         console.log('🔐 Auth0Client Constructor - Initial Config:', { 
             domain: this.config.domain, 
-            clientId: this.config.clientId, 
+            clientID: this.config.clientID, 
             isDevelopment,
             hasConfig: !!window.AUTH0_CONFIG
         });
@@ -46,7 +46,7 @@ class Auth0Client {
         // Atualizar config com valores carregados
         if (window.AUTH0_CONFIG) {
             this.config.domain = window.AUTH0_CONFIG.AUTH0_DOMAIN || this.config.domain;
-            this.config.clientId = window.AUTH0_CONFIG.AUTH0_CLIENT_ID || this.config.clientId;
+            this.config.clientID = window.AUTH0_CONFIG.AUTH0_CLIENT_ID || this.config.clientID;
             console.log('🔐 Auth0Client using config:', this.config);
         }
         
@@ -161,7 +161,7 @@ class Auth0Client {
 
         this.auth0.logout({
             returnTo: window.location.origin,
-            clientID: this.config.clientId
+            clientID: this.config.clientID
         });
     }
 

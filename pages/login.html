@@ -426,16 +426,24 @@
                 }
 
                 // Forgot password
-                document.getElementById('forgot-password-link').addEventListener('click', (e) => {
-                    e.preventDefault();
-                    this.showForgotPassword();
-                });
+                const forgotPasswordLink = document.getElementById('forgot-password-link');
+                if (forgotPasswordLink) {
+                    forgotPasswordLink.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        this.showForgotPassword();
+                    });
+                } else {
+                    console.warn('Forgot password link not found');
+                }
 
-                // Request access link
-                document.getElementById('request-access-link').addEventListener('click', (e) => {
-                    e.preventDefault();
-                    this.showRequestAccessModal();
-                });
+                // Request access link (opcional, pode não existir)
+                const requestAccessLink = document.getElementById('request-access-link');
+                if (requestAccessLink) {
+                    requestAccessLink.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        this.showRequestAccessModal();
+                    });
+                }
 
                 // Input validation
                 const emailInput = document.getElementById('email');
