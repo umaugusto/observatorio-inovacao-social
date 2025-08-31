@@ -65,6 +65,15 @@ class RegistrationManager {
             });
         }
 
+        // Botão continuar email (fallback direto)
+        const btnContinueEmail = document.getElementById('btn-continue-email');
+        if (btnContinueEmail) {
+            btnContinueEmail.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.handleEmailContinue();
+            });
+        }
+
         // Etapa 2 - Details form
         const detailsForm = document.getElementById('details-form');
         if (detailsForm) {
@@ -104,11 +113,7 @@ class RegistrationManager {
         document.getElementById('btn-back-2')?.addEventListener('click', () => this.goToStep(1));
         document.getElementById('btn-back-3')?.addEventListener('click', () => this.goToStep(2));
 
-        // Email input validation
-        const emailInput = document.getElementById('user-email');
-        if (emailInput) {
-            emailInput.addEventListener('input', () => this.validateEmailInput());
-        }
+        // Email input - sem validação em tempo real
     }
 
     async handleGoogleSignup() {
@@ -166,9 +171,14 @@ class RegistrationManager {
     }
 
     handleEmailContinue() {
-        const email = document.getElementById('user-email').value.trim();
+        console.log('🔄 handleEmailContinue() chamado');
+        const emailInput = document.getElementById('user-email');
+        const email = emailInput ? emailInput.value.trim() : '';
+        
+        console.log('📧 Email digitado:', email);
         
         if (!this.isValidEmail(email)) {
+            console.log('❌ Email inválido');
             this.showFieldError('user-email', 'Por favor, insira um email válido');
             return;
         }
@@ -177,8 +187,13 @@ class RegistrationManager {
         this.registrationData.email = email;
         this.registrationData.isUFRJEmail = email.toLowerCase().includes('@ufrj.br');
         
+        console.log('✅ Email válido, indo para etapa 2');
+        
         // Ir para etapa 2 e mostrar o email selecionado
-        document.getElementById('selected-email').textContent = email;
+        const displayEmail = document.getElementById('display-email');
+        if (displayEmail) {
+            displayEmail.value = email;
+        }
         this.goToStep(2);
         
         // Aplicar lógica baseada no tipo de email
@@ -303,31 +318,7 @@ class RegistrationManager {
 
     // Função removida - não é mais necessária com o fluxo simplificado
 
-    validateEmailInput() {
-        const emailInput = document.getElementById('user-email');
-        const validation = document.getElementById('email-validation');
-        const email = emailInput.value.trim();
-        
-        if (!email) {
-            validation.className = 'email-validation';
-            return;
-        }
-
-        if (!this.isValidEmail(email)) {
-            validation.className = 'email-validation';
-            return;
-        }
-
-        const isUFRJ = email.toLowerCase().includes('@ufrj.br');
-        
-        if (isUFRJ) {
-            validation.className = 'email-validation ufrj';
-            validation.innerHTML = '✅ Email institucional UFRJ detectado - Acesso a perfis avançados';
-        } else {
-            validation.className = 'email-validation regular';
-            validation.innerHTML = 'ℹ️ Email válido - Perfil visitante será criado';
-        }
-    }
+    // Função removida - validação de email em tempo real não é mais necessária
 
     setupRealTimeValidations() {
         // Password validation

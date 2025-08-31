@@ -426,6 +426,13 @@
             margin: 25px 0;
         }
 
+        .user-type-grid-horizontal {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 15px;
+            margin: 15px 0;
+        }
+
         .user-type-card {
             border: 2px solid var(--border-light);
             border-radius: var(--border-radius);
@@ -692,6 +699,23 @@
             .registro-body {
                 padding: 30px 20px;
             }
+
+            .user-type-grid-horizontal {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+
+            .user-type-card {
+                padding: 15px;
+            }
+
+            .user-type-title {
+                font-size: 16px;
+            }
+
+            .user-type-description {
+                font-size: 13px;
+            }
         }
     </style>
 </head>
@@ -765,7 +789,6 @@
                                 <label class="form-label" for="user-email">Email</label>
                                 <input type="email" class="form-input" id="user-email" 
                                        placeholder="seu.email@exemplo.com" required>
-                                <div class="email-validation" id="email-validation"></div>
                                 <div class="error-message">Por favor, insira um email válido</div>
                             </div>
 
@@ -778,11 +801,17 @@
                     <!-- Etapa 2: Dados Pessoais -->
                     <div class="step-content" id="step-2">
                         <h2 style="font-size: 20px; margin-bottom: 8px;">Complete seus dados</h2>
-                        <p style="color: var(--text-light); font-size: 14px; margin-bottom: 25px;">
-                            Email: <strong id="selected-email"></strong>
-                        </p>
+                        
+                        <!-- Alerta de detecção de email -->
+                        <div id="email-based-message" class="alert" style="display: none; margin-bottom: 20px;"></div>
 
                         <form id="details-form">
+                            <!-- Campo de Email (apenas exibição) -->
+                            <div class="form-group">
+                                <label class="form-label" for="display-email">Email</label>
+                                <input type="email" class="form-input" id="display-email" readonly 
+                                       style="background: var(--background-light); cursor: default;">
+                            </div>
                             <div class="form-group">
                                 <label class="form-label" for="user-name">Nome Completo *</label>
                                 <input type="text" class="form-input" id="user-name" 
@@ -793,8 +822,7 @@
                             <!-- Seleção de Perfil -->
                             <div class="form-group">
                                 <label class="form-label">Tipo de Perfil *</label>
-                                <div id="email-based-message" class="alert" style="display: none; margin-bottom: 15px;"></div>
-                                <div class="user-type-grid" id="user-type-selection">
+                                <div class="user-type-grid-horizontal" id="user-type-selection">
                                     <div class="user-type-card" data-type="visitante" id="card-visitante">
                                         <div class="user-type-icon">👁️</div>
                                         <div class="user-type-title">Visitante</div>
@@ -875,7 +903,7 @@
                                 <label class="checkbox-container">
                                     <input type="checkbox" id="terms-checkbox" required>
                                     <span class="checkbox-checkmark"></span>
-                                    Li e concordo com os <a href="#" target="_blank">Termos de Uso</a> e a <a href="#" target="_blank">Política de Privacidade</a>
+                                    Li e estou de acordo com os <a href="#" target="_blank">Termos de Uso</a> e a <a href="#" target="_blank">Política de Privacidade</a>
                                 </label>
                                 <div class="error-message">Você deve aceitar os termos para continuar</div>
                             </div>
