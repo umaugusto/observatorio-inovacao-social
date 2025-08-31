@@ -1,5 +1,6 @@
 const { createClient } = require('@supabase/supabase-js');
-const bcrypt = require('bcrypt');
+// Use bcryptjs (pure JS) to avoid native build issues on Netlify
+const bcrypt = require('bcryptjs');
 
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY;
