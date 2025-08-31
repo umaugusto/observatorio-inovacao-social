@@ -345,5 +345,15 @@
     <script src="js/HeaderManager.js"></script>
     <script src="js/map.js"></script>
     <script src="js/main.js"></script>
+    <script>
+      window.addEventListener('DOMContentLoaded', function(){
+        try {
+          if (window.HeaderManager) {
+            var hm = HeaderManager.getInstance();
+            if (hm && hm.updateHeader) hm.updateHeader();
+          }
+        } catch(e) { /* no-op */ }
+      });
+    </script>
 </body>
 </html>
