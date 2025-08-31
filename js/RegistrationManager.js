@@ -259,9 +259,11 @@ class RegistrationManager {
                 if (type === 'visitante') {
                     card.classList.add('disabled');
                     card.classList.remove('available');
+                    card.setAttribute('data-tooltip', 'Perfil não disponível para emails institucionais');
                 } else {
                     card.classList.add('available');
                     card.classList.remove('disabled');
+                    card.removeAttribute('data-tooltip');
                 }
             });
             
@@ -282,9 +284,11 @@ class RegistrationManager {
                 if (type === 'visitante') {
                     card.classList.add('available');
                     card.classList.remove('disabled');
+                    card.removeAttribute('data-tooltip');
                 } else {
                     card.classList.add('disabled');
                     card.classList.remove('available');
+                    card.setAttribute('data-tooltip', 'Requer email institucional da UFRJ (@ufrj.br)');
                 }
             });
             

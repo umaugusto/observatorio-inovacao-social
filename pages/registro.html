@@ -314,40 +314,21 @@
             cursor: pointer;
             line-height: 1.5;
             font-size: 14px;
+            padding: 15px 0;
+            margin: 10px 0;
         }
 
         .checkbox-container input[type="checkbox"] {
-            display: none;
+            width: 18px;
+            height: 18px;
+            margin: 0;
+            margin-top: 2px;
+            cursor: pointer;
+            flex-shrink: 0;
         }
 
         .checkbox-checkmark {
-            width: 20px;
-            height: 20px;
-            border: 2px solid var(--border-light);
-            border-radius: 4px;
-            background: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-            margin-top: 2px;
-            transition: all 0.3s;
-        }
-
-        .checkbox-container input[type="checkbox"]:checked + .checkbox-checkmark {
-            background: var(--primary-color);
-            border-color: var(--primary-color);
-        }
-
-        .checkbox-container input[type="checkbox"]:checked + .checkbox-checkmark::after {
-            content: '✓';
-            color: white;
-            font-size: 12px;
-            font-weight: bold;
-        }
-
-        .checkbox-container:hover .checkbox-checkmark {
-            border-color: var(--primary-color);
+            display: none;
         }
 
         .profile-card-large {
@@ -476,12 +457,42 @@
             background: #f8f9fa;
             cursor: not-allowed;
             border-color: #e9ecef;
+            position: relative;
         }
 
         .user-type-card.disabled:hover {
             border-color: #e9ecef;
             box-shadow: none;
             transform: none;
+        }
+
+        /* Tooltip para cards desabilitados */
+        .user-type-card.disabled[data-tooltip]:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #333;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            white-space: nowrap;
+            z-index: 1000;
+            margin-bottom: 5px;
+        }
+
+        .user-type-card.disabled[data-tooltip]:hover::before {
+            content: '';
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 5px solid transparent;
+            border-top-color: #333;
+            margin-bottom: -5px;
+            z-index: 1000;
         }
 
         .user-type-card.disabled .user-type-title,
@@ -826,19 +837,14 @@
                                     <div class="user-type-card" data-type="visitante" id="card-visitante">
                                         <div class="user-type-icon">👁️</div>
                                         <div class="user-type-title">Visitante</div>
-                                        <div class="user-type-description">Explorar iniciativas e conhecer projetos</div>
                                     </div>
-                                    <div class="user-type-card" data-type="extensionista" id="card-extensionista">
+                                    <div class="user-type-card" data-type="extensionista" id="card-extensionista" title="">
                                         <div class="user-type-icon">🎓</div>
                                         <div class="user-type-title">Extensionista</div>
-                                        <div class="user-type-description">Cadastrar projetos de extensão universitária</div>
-                                        <div class="user-type-badge">Requer email UFRJ</div>
                                     </div>
-                                    <div class="user-type-card" data-type="pesquisador" id="card-pesquisador">
+                                    <div class="user-type-card" data-type="pesquisador" id="card-pesquisador" title="">
                                         <div class="user-type-icon">🔬</div>
                                         <div class="user-type-title">Pesquisador</div>
-                                        <div class="user-type-description">Cadastrar pesquisas sobre inovação social</div>
-                                        <div class="user-type-badge">Requer email UFRJ</div>
                                     </div>
                                 </div>
                                 <div class="error-message" id="profile-type-error" style="display: none;">Selecione um tipo de perfil</div>
@@ -899,11 +905,10 @@
                             </div>
 
                             <!-- Termos e LGPD -->
-                            <div class="form-group">
+                            <div class="form-group" style="margin-top: 25px;">
                                 <label class="checkbox-container">
                                     <input type="checkbox" id="terms-checkbox" required>
-                                    <span class="checkbox-checkmark"></span>
-                                    Li e estou de acordo com os <a href="#" target="_blank">Termos de Uso</a> e a <a href="#" target="_blank">Política de Privacidade</a>
+                                    Li e estou de acordo com os <a href="#" target="_blank" style="color: var(--primary-color); text-decoration: underline;">Termos de Uso</a> e a <a href="#" target="_blank" style="color: var(--primary-color); text-decoration: underline;">Política de Privacidade</a>
                                 </label>
                                 <div class="error-message">Você deve aceitar os termos para continuar</div>
                             </div>
