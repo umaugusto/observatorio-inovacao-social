@@ -50,36 +50,53 @@ class RegistrationManager {
     }
 
     setupEventListeners() {
-        // Google Signup
+        // Etapa 1 - Google Signup
         const googleBtn = document.getElementById('google-signup');
         if (googleBtn) {
             googleBtn.addEventListener('click', () => this.handleGoogleSignup());
         }
 
-        // Complete Registration Form
-        const completeForm = document.getElementById('complete-registration-form');
-        if (completeForm) {
-            completeForm.addEventListener('submit', (e) => {
+        // Etapa 1 - Email form
+        const emailForm = document.getElementById('email-form');
+        if (emailForm) {
+            emailForm.addEventListener('submit', (e) => {
                 e.preventDefault();
-                this.handleCompleteRegistration();
+                this.handleEmailContinue();
             });
+        }
+
+        // Etapa 2 - Details form
+        const detailsForm = document.getElementById('details-form');
+        if (detailsForm) {
+            detailsForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                this.handleDetailsSubmit();
+            });
+        }
+
+        // Create account button (Step 3)
+        const createBtn = document.getElementById('btn-create-account');
+        if (createBtn) {
+            createBtn.addEventListener('click', () => this.handleAccountCreation());
         }
 
         // Real-time validations
         this.setupRealTimeValidations();
 
-        // User type selection
-        document.querySelectorAll('.user-type-card').forEach(card => {
-            card.addEventListener('click', () => {
-                const type = card.dataset.type;
-                this.selectUserType(type);
-            });
-        });
-
         // Password toggle
         const passwordToggle = document.getElementById('password-toggle');
         if (passwordToggle) {
             passwordToggle.addEventListener('click', () => this.togglePassword());
+        }
+
+        // Back buttons
+        document.getElementById('btn-back-2')?.addEventListener('click', () => this.goToStep(1));
+        document.getElementById('btn-back-3')?.addEventListener('click', () => this.goToStep(2));
+
+        // Email input validation
+        const emailInput = document.getElementById('user-email');
+        if (emailInput) {
+            emailInput.addEventListener('input', () => this.validateEmailInput());
         }
     }
 
@@ -137,37 +154,61 @@ class RegistrationManager {
         }
     }
 
-    setupRealTimeValidations() {
-        // Email validation
-        const emailInput = document.getElementById('user-email');
-        if (emailInput) {
-            emailInput.addEventListener('input', () => this.validateEmailInput());
-            emailInput.addEventListener('blur', () => this.validateEmailInput());
+    handleEmailContinue() {
+        const email = document.getElementById('user-email').value.trim();
+        
+        if (!this.isValidEmail(email)) {
+            this.showFieldError('user-email', 'Por favor, insira um email válido');
+            return;
         }
 
-        // Name validation
-        const nameInput = document.getElementById('user-name');
-        if (nameInput) {
-            nameInput.addEventListener('blur', () => this.validateNameInput());
+        this.registrationData.method = 'email';
+        this.registrationData.email = email;
+        this.registrationData.isUFRJEmail = email.toLowerCase().includes('@ufrj.br');
+        
+        // Ir para etapa 2 e mostrar o email selecionado
+        document.getElementById('selected-email').textContent = email;
+        this.goToStep(2);
+    }
+    
+    handleDetailsSubmit() {
+        const name = document.getElementById('user-name').value.trim();
+        const password = document.getElementById('password').value;
+        const passwordConfirm = document.getElementById('password-confirm').value;
+        const termsAccepted = document.getElementById('terms-checkbox').checked;
+        
+        // Validações
+        let isValid = true;
+        
+        if (!name || name.length < 2) {
+            this.showFieldError('user-name', 'Nome deve ter pelo menos 2 caracteres');
+            isValid = false;
         }
-
-        // Password validation
-        const passwordInput = document.getElementById('password');
-        if (passwordInput) {
-            passwordInput.addEventListener('input', () => this.validatePasswordStrength());
+        
+        if (!this.isPasswordValid(password)) {
+            this.showFieldError('password', 'A senha não atende aos requisitos');
+            isValid = false;
         }
-
-        // Password confirmation
-        const passwordConfirm = document.getElementById('password-confirm');
-        if (passwordConfirm) {
-            passwordConfirm.addEventListener('input', () => this.validatePasswordConfirmation());
+        
+        if (password !== passwordConfirm) {
+            this.showFieldError('password-confirm', 'As senhas não coincidem');
+            isValid = false;
         }
-
-        // Institutional email validation
-        const institutionalEmail = document.getElementById('institutional-email');
-        if (institutionalEmail) {
-            institutionalEmail.addEventListener('blur', () => this.validateInstitutionalEmail());
+        
+        if (!termsAccepted) {
+            this.showFieldError('terms-checkbox', 'Você deve aceitar os termos para continuar');
+            isValid = false;
         }
+        
+        if (!isValid) return;
+        
+        // Salvar dados
+        this.registrationData.name = name;
+        this.registrationData.password = password;
+        
+        // Ir para confirmação de perfil
+        this.showProfileConfirmation();
+        this.goToStep(3);
     }
 
     applyEmailBasedLogic() {
@@ -251,37 +292,132 @@ class RegistrationManager {
         
         if (isUFRJ) {
             validation.className = 'email-validation ufrj';
-            validation.innerHTML = '✅ Email institucional UFRJ detectado - Recomendamos perfil Extensionista ou Pesquisador';
+            validation.innerHTML = '✅ Email institucional UFRJ detectado - Acesso a perfis avançados';
         } else {
             validation.className = 'email-validation regular';
-            validation.innerHTML = 'ℹ️ Email válido - Pode ser usado para qualquer tipo de perfil';
+            validation.innerHTML = 'ℹ️ Email válido - Perfil visitante será criado';
         }
     }
 
-    selectUserType(type) {
-        const targetCard = document.querySelector(`[data-type="${type}"]`);
+    setupRealTimeValidations() {
+        // Password validation
+        const passwordInput = document.getElementById('password');
+        if (passwordInput) {
+            passwordInput.addEventListener('input', () => this.validatePasswordStrength());
+        }
+
+        // Password confirmation
+        const passwordConfirm = document.getElementById('password-confirm');
+        if (passwordConfirm) {
+            passwordConfirm.addEventListener('input', () => this.validatePasswordConfirmation());
+        }
+
+        // Name validation
+        const nameInput = document.getElementById('user-name');
+        if (nameInput) {
+            nameInput.addEventListener('blur', () => this.validateNameInput());
+        }
+    }
+
+    isPasswordValid(password) {
+        const requirements = this.checkPasswordRequirements(password);
+        return requirements.length && requirements.lowercase && requirements.uppercase && requirements.number;
+    }
+
+    async handleAccountCreation() {
+        try {
+            this.showLoading(true);
+            await this.createUserAccount();
+        } catch (error) {
+            console.error('Account creation failed:', error);
+            this.showNotification('Erro ao criar conta: ' + error.message, 'error');
+            this.showLoading(false);
+        }
+    }
+
+    showProfileConfirmation() {
+        const email = this.registrationData.email;
+        const isUFRJ = this.registrationData.isUFRJEmail;
+        const container = document.getElementById('profile-confirmation');
         
-        this.registrationData.userType = type;
+        let profileType, profileIcon, profileDescription;
         
-        // Atualizar UI
-        document.querySelectorAll('.user-type-card').forEach(card => {
-            card.classList.remove('selected');
-        });
-        if (targetCard) {
-            targetCard.classList.add('selected');
+        if (isUFRJ) {
+            // Para emails UFRJ, mostrar opções entre extensionista e pesquisador
+            profileType = 'Extensionista';
+            profileIcon = '🎓';
+            profileDescription = 'Cadastrar e gerenciar projetos de extensão universitária.';
+            this.registrationData.userType = 'extensionista';
+            
+            container.innerHTML = `
+                <div class="profile-card-large">
+                    <div class="profile-icon">${profileIcon}</div>
+                    <div class="profile-title">${profileType}</div>
+                    <div class="profile-description">${profileDescription}</div>
+                    <div style="margin-top: 15px; font-size: 14px; color: var(--text-light);">
+                        Seu email UFRJ (${email}) permite acesso a funcionalidades avançadas.
+                    </div>
+                </div>
+                
+                <div style="margin-top: 20px;">
+                    <p style="font-size: 14px; color: var(--text-light); margin-bottom: 10px;">
+                        Prefere ser cadastrado como Pesquisador?
+                    </p>
+                    <button type="button" class="btn-secondary" id="switch-to-researcher" style="font-size: 14px; padding: 8px 16px;">
+                        🔬 Alterar para Pesquisador
+                    </button>
+                </div>
+            `;
+            
+            // Event listener para trocar perfil
+            document.getElementById('switch-to-researcher')?.addEventListener('click', () => {
+                this.registrationData.userType = 'pesquisador';
+                this.showProfileConfirmation(); // Re-render
+            });
+            
+        } else {
+            // Para emails comuns, perfil visitante
+            profileType = 'Visitante';
+            profileIcon = '👁️';
+            profileDescription = 'Explorar iniciativas e conhecer projetos de inovação social.';
+            this.registrationData.userType = 'visitante';
+            
+            container.innerHTML = `
+                <div class="profile-card-large">
+                    <div class="profile-icon">${profileIcon}</div>
+                    <div class="profile-title">${profileType}</div>
+                    <div class="profile-description">${profileDescription}</div>
+                    <div style="margin-top: 15px; font-size: 14px; color: var(--text-light);">
+                        Para perfis de Extensionista ou Pesquisador, é necessário email institucional da UFRJ.
+                    </div>
+                </div>
+            `;
         }
         
-        // Mostrar/esconder seção UFRJ
-        const ufrjSection = document.getElementById('ufrj-section');
-        const email = document.getElementById('user-email').value.toLowerCase();
-        const needsUfrjEmail = (type === 'extensionista' || type === 'pesquisador') && !email.includes('@ufrj.br');
-        
-        if (ufrjSection) {
-            ufrjSection.style.display = needsUfrjEmail ? 'block' : 'none';
+        // Se mudou para pesquisador, atualizar
+        if (this.registrationData.userType === 'pesquisador') {
+            container.innerHTML = `
+                <div class="profile-card-large">
+                    <div class="profile-icon">🔬</div>
+                    <div class="profile-title">Pesquisador</div>
+                    <div class="profile-description">Cadastrar pesquisas e estudos sobre inovação social.</div>
+                    <div style="margin-top: 15px; font-size: 14px; color: var(--text-light);">
+                        Seu email UFRJ (${email}) permite acesso a funcionalidades de pesquisa.
+                    </div>
+                </div>
+                
+                <div style="margin-top: 20px;">
+                    <button type="button" class="btn-secondary" id="switch-to-extensionist" style="font-size: 14px; padding: 8px 16px;">
+                        🎓 Alterar para Extensionista
+                    </button>
+                </div>
+            `;
+            
+            document.getElementById('switch-to-extensionist')?.addEventListener('click', () => {
+                this.registrationData.userType = 'extensionista';
+                this.showProfileConfirmation();
+            });
         }
-        
-        // Limpar erro de tipo de perfil
-        this.clearFieldError('profile-type-error');
     }
 
     handleTypeContinue() {
@@ -845,6 +981,17 @@ class RegistrationManager {
         
         if (successEmailPending) successEmailPending.style.display = 'block';
         if (successSocial) successSocial.style.display = 'none';
+        
+        // Store pending verification data for callback processing
+        const pendingData = {
+            email: this.registrationData.email,
+            name: this.registrationData.name,
+            userType: this.registrationData.userType,
+            timestamp: new Date().toISOString()
+        };
+        
+        sessionStorage.setItem('pendingEmailVerification', JSON.stringify(pendingData));
+        console.log('📧 Stored pending verification for:', this.registrationData.email);
         
         this.goToStep('success');
     }

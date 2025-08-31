@@ -32,6 +32,8 @@ git push                 # Automatically deploys to Netlify
 # No build process required - direct file editing
 # No test suite - manual testing only  
 # No linting configured - follow existing code style
+
+# Note: VS Code Live Preview can be used on any port (e.g., 3001)
 ```
 
 ## Architecture
@@ -133,9 +135,10 @@ Fixed categories: "Educação", "Saúde", "Meio Ambiente", "Inclusão Social", "
 
 ### Add New Page
 1. Create HTML file in `/pages`
-2. Include standard header/footer structure
+2. Include standard header/footer structure with responsive navigation
 3. Link required JS managers and CSS files
-4. Add navigation link in header template
+4. Add navigation link in header template across all pages
+5. Update HeaderManager.js `detectCurrentPage()` method for proper active states
 
 ### Debug Data Issues
 ```javascript
@@ -169,12 +172,15 @@ HeaderManager.getInstance().updateHeader();
 - Semantic HTML5 with proper heading hierarchy
 - ARIA labels for accessibility
 - Data attributes for JavaScript hooks (prefer over classes)
+- Consistent header navigation structure across all pages
+- Contact tab visible in navigation on all pages
 
 ### CSS Methodology
 - BEM-like naming for components
 - CSS custom properties for design tokens
 - Mobile-first responsive design
 - Animations use Intersection Observer for performance
+- Horizontal scroll layouts use CSS transforms for smooth movement
 
 ### JavaScript Patterns
 - ES6+ classes with singleton pattern for stateful modules
@@ -183,6 +189,7 @@ HeaderManager.getInstance().updateHeader();
 - Event delegation for dynamic content
 - 4-space indentation, single quotes, semicolons, strict equality (`===`)
 - Keep DOM access and side-effects inside managers; prefer small, focused methods
+- Use `data-target` attributes for navigation elements requiring active state updates
 
 ### File Naming Conventions
 - Class modules: PascalCase (e.g., `AuthManager.js`, `DataManager.js`)
@@ -282,3 +289,22 @@ For local development with Netlify functions, create `.env` file with these vari
 - **Data size limits**: localStorage has ~5-10MB limit for client-side data
 - **No SEO**: Client-side rendering only
 - **No offline support**: Requires active internet for map tiles and authentication
+
+## Page-Specific Features
+
+### About Page (sobre.html)
+- **Horizontal Scroll Navigation**: Uses `HorizontalNavigation` class for lateral content sliding
+- **Compact Layout**: Methodology displayed as compact list with numbered steps
+- **Team Section**: Grid layout with avatar initials and essential contact info only
+- **Subtle Navigation**: Text-based navigation links after Vision/Purpose sections
+- **Touch Support**: Swipe gestures and keyboard navigation (arrow keys) supported
+
+### Contact Page (contato.html)
+- **Simple Form**: 4-field contact form (name, email, subject, message)
+- **Admin Notifications**: Messages stored via `DataManager.addMensagemContato()`
+- **Responsive Design**: Mobile-optimized form layout
+
+### Map Page (mapa.html)  
+- **Interactive Map**: Leaflet.js with marker clustering and category filtering
+- **Floating Filter**: Category-based filtering without redundant static legend
+- **Performance**: Marker clustering for large datasets

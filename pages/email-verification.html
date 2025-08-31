@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verificação de Email Necessária - Observatório de Inovação Social</title>
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet" href="../css/components.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+        
+        .verification-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 2rem;
+            text-align: center;
+        }
+        
+        .verification-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            padding: 3rem;
+            max-width: 500px;
+            width: 100%;
+        }
+        
+        .verification-icon {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+            color: #f39c12;
+        }
+        
+        .verification-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 1rem;
+        }
+        
+        .verification-message {
+            font-size: 1.1rem;
+            color: #7f8c8d;
+            line-height: 1.6;
+            margin-bottom: 2rem;
+        }
+        
+        .user-email {
+            background: #ecf0f1;
+            padding: 0.75rem 1rem;
+            border-radius: 6px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin: 1rem 0;
+            border: 2px dashed #bdc3c7;
+        }
+        
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        
+        .btn-resend {
+            background: #3498db;
+            color: white;
+            padding: 0.875rem 1.5rem;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1rem;
+        }
+        
+        .btn-resend:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+        
+        .btn-resend:disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .btn-secondary {
+            background: transparent;
+            color: #7f8c8d;
+            padding: 0.875rem 1.5rem;
+            border: 2px solid #bdc3c7;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .btn-secondary:hover {
+            border-color: #95a5a6;
+            color: #2c3e50;
+        }
+        
+        .resend-feedback {
+            margin-top: 1rem;
+            padding: 0.75rem;
+            border-radius: 6px;
+            font-weight: 600;
+            display: none;
+        }
+        
+        .resend-feedback.success {
+            background: #d5f4e6;
+            color: #27ae60;
+            border: 1px solid #27ae60;
+        }
+        
+        .resend-feedback.error {
+            background: #fadbd8;
+            color: #e74c3c;
+            border: 1px solid #e74c3c;
+        }
+        
+        .email-providers {
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #ecf0f1;
+        }
+        
+        .email-providers h4 {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .provider-links {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .provider-link {
+            background: #34495e;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            text-decoration: none;
+            font-size: 0.85rem;
+            transition: all 0.3s;
+        }
+        
+        .provider-link:hover {
+            background: #2c3e50;
+            transform: translateY(-2px);
+        }
+        
+        .countdown {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+        
+        @media (max-width: 768px) {
+            .verification-card {
+                padding: 2rem;
+                margin: 1rem;
+            }
+            
+            .verification-title {
+                font-size: 1.5rem;
+            }
+            
+            .provider-links {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="verification-container">
+        <div class="verification-card">
+            <div class="verification-icon">📧</div>
+            
+            <h1 class="verification-title">Verificação de Email Necessária</h1>
+            
+            <p class="verification-message">
+                Para acessar sua conta, você precisa verificar seu endereço de email.
+                Enviamos um link de verificação para:
+            </p>
+            
+            <div class="user-email" id="user-email">
+                Carregando...
+            </div>
+            
+            <p class="verification-message">
+                Verifique sua caixa de entrada (e a pasta de spam) e clique no link de verificação.
+            </p>
+            
+            <div class="action-buttons">
+                <button class="btn-resend" id="resend-btn">
+                    Reenviar Email de Verificação
+                </button>
+                
+                <div class="resend-feedback" id="resend-feedback"></div>
+                
+                <a href="login.html" class="btn-secondary">
+                    Voltar ao Login
+                </a>
+                
+                <a href="registro.html" class="btn-secondary">
+                    Criar Nova Conta
+                </a>
+            </div>
+            
+            <div class="email-providers">
+                <h4>Acesso Rápido ao Email</h4>
+                <div class="provider-links">
+                    <a href="https://gmail.com" target="_blank" class="provider-link">Gmail</a>
+                    <a href="https://outlook.live.com" target="_blank" class="provider-link">Outlook</a>
+                    <a href="https://mail.yahoo.com" target="_blank" class="provider-link">Yahoo</a>
+                    <a href="https://mail.google.com" target="_blank" class="provider-link">Google Mail</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/AuthManager.js"></script>
+    <script>
+        class EmailVerificationHandler {
+            constructor() {
+                this.authManager = null;
+                this.unverifiedUser = null;
+                this.resendCooldown = 0;
+                this.init();
+            }
+            
+            async init() {
+                try {
+                    // Wait for AuthManager
+                    await this.waitForAuthManager();
+                    
+                    // Load unverified user data
+                    this.loadUnverifiedUser();
+                    
+                    // Setup UI
+                    this.setupUI();
+                    
+                    // Setup event listeners
+                    this.setupEventListeners();
+                    
+                } catch (error) {
+                    console.error('Email verification handler error:', error);
+                    this.showError('Erro ao carregar informações de verificação.');
+                }
+            }
+            
+            async waitForAuthManager() {
+                return new Promise((resolve) => {
+                    const checkAuthManager = () => {
+                        if (window.AuthManager) {
+                            this.authManager = AuthManager.getInstance();
+                            resolve();
+                        } else {
+                            setTimeout(checkAuthManager, 100);
+                        }
+                    };
+                    checkAuthManager();
+                });
+            }
+            
+            loadUnverifiedUser() {
+                const userData = sessionStorage.getItem('unverified_user');
+                if (userData) {
+                    this.unverifiedUser = JSON.parse(userData);
+                } else {
+                    // Fallback - redirect to login if no user data
+                    console.warn('No unverified user data found, redirecting to login');
+                    window.location.href = 'login.html';
+                }
+            }
+            
+            setupUI() {
+                const emailDisplay = document.getElementById('user-email');
+                if (this.unverifiedUser && this.unverifiedUser.email) {
+                    emailDisplay.textContent = this.unverifiedUser.email;
+                } else {
+                    emailDisplay.textContent = 'Email não encontrado';
+                }
+            }
+            
+            setupEventListeners() {
+                const resendBtn = document.getElementById('resend-btn');
+                resendBtn.addEventListener('click', () => this.handleResendVerification());
+                
+                // Check for email verification periodically
+                this.startVerificationCheck();
+            }
+            
+            async handleResendVerification() {
+                if (this.resendCooldown > 0) {
+                    return;
+                }
+                
+                const resendBtn = document.getElementById('resend-btn');
+                const feedback = document.getElementById('resend-feedback');
+                
+                // Show loading state
+                resendBtn.disabled = true;
+                resendBtn.textContent = 'Enviando...';
+                
+                try {
+                    // Call resend verification endpoint
+                    const response = await fetch('/.netlify/functions/auth0-resend-verification', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            user_id: this.unverifiedUser.auth0_id || this.unverifiedUser.sub,
+                            email: this.unverifiedUser.email
+                        })
+                    });
+                    
+                    if (response.ok) {
+                        this.showSuccess('Email de verificação reenviado com sucesso!');
+                        this.startResendCooldown(60); // 60 second cooldown
+                    } else {
+                        const error = await response.text();
+                        throw new Error(error || 'Erro ao reenviar email');
+                    }
+                    
+                } catch (error) {
+                    console.error('Resend verification error:', error);
+                    this.showError('Erro ao reenviar email de verificação. Tente novamente.');
+                } finally {
+                    resendBtn.textContent = 'Reenviar Email de Verificação';
+                    resendBtn.disabled = false;
+                }
+            }
+            
+            startResendCooldown(seconds) {
+                this.resendCooldown = seconds;
+                const resendBtn = document.getElementById('resend-btn');
+                
+                const updateButton = () => {
+                    if (this.resendCooldown > 0) {
+                        resendBtn.disabled = true;
+                        resendBtn.innerHTML = `Aguarde ${this.resendCooldown}s <span class="countdown">(${this.resendCooldown})</span>`;
+                        this.resendCooldown--;
+                        setTimeout(updateButton, 1000);
+                    } else {
+                        resendBtn.disabled = false;
+                        resendBtn.textContent = 'Reenviar Email de Verificação';
+                    }
+                };
+                
+                updateButton();
+            }
+            
+            startVerificationCheck() {
+                // Check every 10 seconds if email has been verified
+                setInterval(async () => {
+                    if (this.unverifiedUser && this.authManager) {
+                        try {
+                            // This would need to call a backend endpoint to check verification status
+                            const isVerified = await this.checkVerificationStatus();
+                            if (isVerified) {
+                                this.handleVerificationComplete();
+                            }
+                        } catch (error) {
+                            console.log('Verification check error:', error);
+                        }
+                    }
+                }, 10000);
+            }
+            
+            async checkVerificationStatus() {
+                // This would need implementation - for now just return false
+                return false;
+            }
+            
+            handleVerificationComplete() {
+                // Clear unverified user data
+                sessionStorage.removeItem('unverified_user');
+                
+                // Show success message and redirect
+                this.showSuccess('Email verificado com sucesso! Redirecionando...');
+                
+                setTimeout(() => {
+                    window.location.href = '../index.html';
+                }, 2000);
+            }
+            
+            showSuccess(message) {
+                const feedback = document.getElementById('resend-feedback');
+                feedback.textContent = message;
+                feedback.className = 'resend-feedback success';
+                feedback.style.display = 'block';
+                
+                setTimeout(() => {
+                    feedback.style.display = 'none';
+                }, 5000);
+            }
+            
+            showError(message) {
+                const feedback = document.getElementById('resend-feedback');
+                feedback.textContent = message;
+                feedback.className = 'resend-feedback error';
+                feedback.style.display = 'block';
+                
+                setTimeout(() => {
+                    feedback.style.display = 'none';
+                }, 5000);
+            }
+        }
+        
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            new EmailVerificationHandler();
+        });
+    </script>
+</body>
+</html>

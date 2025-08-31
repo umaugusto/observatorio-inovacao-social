@@ -78,7 +78,7 @@ class AuthManager {
                 if (isLocal && !forceFunctions) {
                     // Em desenvolvimento local, criar usuário mock
                     console.log('🏠 AuthManager: Ambiente local detectado, usando dados mock');
-                    this.currentUser = {
+                    const userData = {
                         id: Date.now(),
                         auth0_id: auth0User.sub,
                         email: auth0User.email,
@@ -87,9 +87,19 @@ class AuthManager {
                         is_admin: false,
                         auth0_data: auth0User,
                         access_token: this.auth0Client.getAccessToken(),
+                        email_verified: auth0User.email_verified,
                         created_at: new Date().toISOString(),
                         updated_at: new Date().toISOString()
                     };
+                    
+                    // Check if email verification is required (even in local environment)
+                    if (this.requiresEmailVerification(userData)) {
+                        console.warn('⚠️ Email não verificado, redirecionando...');
+                        this.handleUnverifiedEmail(userData);
+                        return;
+                    }
+                    
+                    this.currentUser = userData;
                     localStorage.setItem('current_user', JSON.stringify(this.currentUser));
                     this.notifyObservers('userLoggedIn', this.currentUser);
                     // Atualizar header
@@ -112,11 +122,21 @@ class AuthManager {
 
                 if (response.ok) {
                     const { user } = await response.json();
-                    this.currentUser = {
+                    const userData = {
                         ...user,
                         auth0_data: auth0User,
-                        access_token: this.auth0Client.getAccessToken()
+                        access_token: this.auth0Client.getAccessToken(),
+                        email_verified: auth0User.email_verified
                     };
+                    
+                    // Check if email verification is required
+                    if (this.requiresEmailVerification(userData)) {
+                        console.warn('⚠️ Email não verificado, redirecionando...');
+                        this.handleUnverifiedEmail(userData);
+                        return;
+                    }
+                    
+                    this.currentUser = userData;
                     localStorage.setItem('current_user', JSON.stringify(this.currentUser));
                     this.notifyObservers('userLoggedIn', this.currentUser);
                 }

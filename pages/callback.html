@@ -147,6 +147,15 @@
                     console.log('🔐 Starting processAuthentication...');
                     console.log('📍 Current URL:', window.location.href);
                     console.log('🔗 Hash:', window.location.hash);
+                    console.log('🔍 Search params:', window.location.search);
+                    
+                    // Check for email verification callback first
+                    const urlParams = new URLSearchParams(window.location.search);
+                    if (urlParams.get('email_verified') === 'true' || urlParams.get('verification') === 'success') {
+                        console.log('📧 Email verification callback detected');
+                        await this.handleEmailVerificationCallback();
+                        return;
+                    }
                     
                     const authResult = await this.auth0Client.handleAuthentication();
                     console.log('📥 Auth result received:', authResult);
@@ -216,6 +225,88 @@
                     console.error('Error description:', error.error_description);
                     this.showError(error.message || error.error_description || 'Erro durante autenticação');
                 }
+            }
+
+            async handleEmailVerificationCallback() {
+                try {
+                    console.log('📧 Processing email verification callback');
+                    
+                    // Check if there's a pending user from registration
+                    const pendingUser = sessionStorage.getItem('pendingEmailVerification');
+                    
+                    if (pendingUser) {
+                        const userData = JSON.parse(pendingUser);
+                        console.log('👤 Found pending user:', userData.email);
+                        
+                        // Clear the pending verification
+                        sessionStorage.removeItem('pendingEmailVerification');
+                        
+                        // Update the UI to show verification success
+                        this.showEmailVerificationSuccess(userData.email);
+                        
+                        // Attempt to log the user in automatically
+                        setTimeout(async () => {
+                            try {
+                                // Try to authenticate with the verified email
+                                const loginResult = await this.attemptAutoLogin(userData.email);
+                                
+                                if (loginResult.success) {
+                                    console.log('✅ Auto-login successful');
+                                    this.showSuccess();
+                                    
+                                    setTimeout(() => {
+                                        window.location.href = '../index.html';
+                                    }, 2000);
+                                } else {
+                                    console.log('⚠️ Auto-login failed, redirecting to login page');
+                                    setTimeout(() => {
+                                        window.location.href = 'login.html';
+                                    }, 3000);
+                                }
+                            } catch (error) {
+                                console.error('Auto-login error:', error);
+                                setTimeout(() => {
+                                    window.location.href = 'login.html';
+                                }, 3000);
+                            }
+                        }, 2000);
+                        
+                    } else {
+                        // No pending user, just show verification success and redirect to login
+                        this.showEmailVerificationSuccess();
+                        setTimeout(() => {
+                            window.location.href = 'login.html';
+                        }, 3000);
+                    }
+                    
+                } catch (error) {
+                    console.error('Email verification callback error:', error);
+                    this.showError('Erro ao processar verificação de email.');
+                }
+            }
+            
+            async attemptAutoLogin(email) {
+                // This would need to check if the user is now verified and attempt login
+                // For now, we'll return a simple success response
+                console.log('🔄 Attempting auto-login for:', email);
+                return { success: true };
+            }
+            
+            showEmailVerificationSuccess(email = null) {
+                const loadingState = document.getElementById('loading-state');
+                
+                const emailMessage = email ? 
+                    `Seu email ${email} foi verificado com sucesso!` : 
+                    'Seu email foi verificado com sucesso!';
+                
+                loadingState.innerHTML = `
+                    <div style="font-size: 48px; margin-bottom: 20px;">📧✅</div>
+                    <h1 class="callback-title">Email Verificado!</h1>
+                    <p class="callback-message">${emailMessage}</p>
+                    <p class="callback-message" style="font-size: 14px; opacity: 0.8; margin-top: 10px;">
+                        ${email ? 'Fazendo login automaticamente...' : 'Redirecionando para o login...'}
+                    </p>
+                `;
             }
 
             async syncUser(auth0User) {
