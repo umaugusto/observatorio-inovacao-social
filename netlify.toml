@@ -37,7 +37,8 @@
 [[headers]]
   for = "/js/*"
   [headers.values]
-    Cache-Control = "public, max-age=31536000"
+    # Reduced to avoid stale JS after deploys (no fingerprinting in this project)
+    Cache-Control = "public, max-age=0, must-revalidate"
 
 [[headers]]
   for = "/data/*"
