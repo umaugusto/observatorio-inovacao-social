@@ -310,3 +310,4 @@ For local development with Netlify functions, create `.env` file with these vari
 - **Performance**: Marker clustering for large datasets
 - sempre coloque na porta 3001
 - sempre coloque na porta 3000 e nao 3001
+- as variaveis do Auth0 já estão configuradas no Netlif

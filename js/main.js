@@ -1094,11 +1094,10 @@ class ObservatorioApp {
                 <a href="${cadastroPath}" class="btn-header">Cadastrar Caso</a>
             `;
         } else {
-            // Usuário não logado - mostrar login e criar conta
+            // Usuário não logado - mostrar apenas login
             const basePath = window.location.pathname.includes('/pages/') ? '' : 'pages/';
             navActions.innerHTML = `
                 <a href="${basePath}login.html" class="btn-secondary-header">Entrar</a>
-                <a href="${basePath}registro.html" class="btn-header">Criar Conta</a>
             `;
         }
     }
