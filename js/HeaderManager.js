@@ -409,16 +409,5 @@ class HeaderManager {
     }
 }
 
-// Auto-initialize when script loads
-document.addEventListener('DOMContentLoaded', () => {
-    window.headerManager = new HeaderManager();
-});
-
-// Also initialize immediately if DOM is already ready
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => {
-        window.headerManager = new HeaderManager();
-    });
-} else {
-    window.headerManager = new HeaderManager();
-}
+// HeaderManager will be initialized by each page as needed
+// Auto-initialization removed to prevent conflicts

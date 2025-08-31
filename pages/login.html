@@ -259,7 +259,7 @@
                         <span>Rio de Janeiro</span>
                     </a>
                 </div>
-                <div class="nav-menu" id="nav-menu">
+                <div class="nav-links">
                     <a href="../index.html">Início</a>
                     <a href="../pages/casos.html">Casos</a>
                     <a href="../pages/mapa.html">Mapa</a>
@@ -269,11 +269,11 @@
                 <div class="nav-actions">
                     <!-- Dynamic content managed by HeaderManager -->
                 </div>
-                <div class="nav-toggle" id="nav-toggle">
+                <button class="mobile-menu-btn" aria-label="Menu">
                     <span></span>
                     <span></span>
                     <span></span>
-                </div>
+                </button>
             </div>
         </nav>
     </header>
@@ -774,6 +774,27 @@
             });
         }
 
+        // Função para configurar menu mobile
+        function setupMobileMenu() {
+            const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+            const navLinks = document.querySelector('.nav-links');
+
+            if (mobileMenuBtn && navLinks) {
+                mobileMenuBtn.addEventListener('click', () => {
+                    navLinks.classList.toggle('active');
+                    mobileMenuBtn.classList.toggle('active');
+                });
+
+                // Fechar menu ao clicar em link
+                navLinks.querySelectorAll('a').forEach(link => {
+                    link.addEventListener('click', () => {
+                        navLinks.classList.remove('active');
+                        mobileMenuBtn.classList.remove('active');
+                    });
+                });
+            }
+        }
+
         // Inicializar quando o DOM estiver carregado
         document.addEventListener('DOMContentLoaded', async () => {
             // Aguardar todos os managers estarem disponíveis
@@ -783,10 +804,13 @@
             const navActions = document.querySelector('.nav-actions');
             console.log('Nav actions element found:', navActions);
             
+            // Configurar menu mobile
+            setupMobileMenu();
+            
             // Inicializar LoginPage
             new LoginPage();
             
-            // Inicializar HeaderManager
+            // Inicializar HeaderManager explicitamente
             if (!window.headerManager) {
                 window.headerManager = HeaderManager.getInstance();
                 console.log('HeaderManager initialized:', window.headerManager);
