@@ -17,10 +17,6 @@ class AuthManager {
     }
 
     async init() {
-        // Inicializar clientes
-        this.auth0Client = Auth0Client.getInstance();
-        this.supabaseClient = SupabaseClient.getInstance();
-        
         // Carregar usuário atual
         this.loadCurrentUser();
         this.setupSessionCheck();
@@ -86,24 +82,7 @@ class AuthManager {
     async loginWithCredentials(email, password) {
         console.log('🔐 Attempting login for:', email);
         
-        // Usar Auth0 para autenticação em produção
-        if (this.auth0Client && this.auth0Client.config.clientId !== 'dev-placeholder-client-id' && this.auth0Client.config.clientId !== 'alphzilla-client-id') {
-            return new Promise((resolve, reject) => {
-                this.auth0Client.loginWithCredentials(email, password, (err, result) => {
-                    if (err) {
-                        console.error('Auth0 login error:', err);
-                        reject(new Error(err.description || err.error || 'Erro de login'));
-                        return;
-                    }
-
-                    // Auth0 redirects automatically after successful login
-                    console.log('✅ Auth0 login initiated, redirecting...');
-                    resolve();
-                });
-            });
-        }
-        
-        // Fallback local para desenvolvimento: Verificar se é o usuário root hardcoded
+        // Verificar se é o usuário root
         if (email === 'antonio.aas@ufrj.br' && password === '@chk.4uGU570;123') {
             const userData = {
                 id: 'root-001',
@@ -118,30 +97,13 @@ class AuthManager {
             
             // Salvar no localStorage
             localStorage.setItem('current_user', JSON.stringify(userData));
-            localStorage.setItem('access_token', 'mock-token-' + Date.now());
+            localStorage.setItem('access_token', 'root-token-' + Date.now());
             
             this.currentUser = userData;
             this.notifyObservers('userLoggedIn', userData);
             
-            console.log('✅ Development root user login successful');
+            console.log('✅ Root user login successful');
             return userData;
-        }
-        
-        // Fallback: Auth0 (se configurado)
-        if (this.auth0Client && this.auth0Client.config.clientId !== 'dev-placeholder-client-id') {
-            return new Promise((resolve, reject) => {
-                this.auth0Client.loginWithCredentials(email, password, (err, result) => {
-                    if (err) {
-                        console.error('Auth0 login error:', err);
-                        reject(new Error(err.description || err.error || 'Erro de login'));
-                        return;
-                    }
-
-                    // Redirecionar para callback que processará o token
-                    window.location.href = result.callbackUrl || '/pages/callback.html';
-                    resolve();
-                });
-            });
         }
         
         throw new Error('Credenciais inválidas');
