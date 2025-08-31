@@ -21,8 +21,8 @@
           return await this.auth0Client.login({ login_hint: loginHint });
         } catch (e) {
           // Fallback to WebAuth Universal Login
-          if (window.auth0 && window.AUTH0_CONFIG) {
-            const web = new auth0.WebAuth({
+          if (window.Auth0WebAuthCtor && window.AUTH0_CONFIG) {
+            const web = new window.Auth0WebAuthCtor({
               domain: window.AUTH0_CONFIG.AUTH0_DOMAIN,
               clientID: window.AUTH0_CONFIG.AUTH0_CLIENT_ID,
               redirectUri: window.location.origin + '/pages/callback.html',
@@ -35,8 +35,8 @@
         }
       }
       // If no client, but WebAuth available
-      if (window.auth0 && window.AUTH0_CONFIG) {
-        const web = new auth0.WebAuth({
+      if (window.Auth0WebAuthCtor && window.AUTH0_CONFIG) {
+        const web = new window.Auth0WebAuthCtor({
           domain: window.AUTH0_CONFIG.AUTH0_DOMAIN,
           clientID: window.AUTH0_CONFIG.AUTH0_CLIENT_ID,
           redirectUri: window.location.origin + '/pages/callback.html',
