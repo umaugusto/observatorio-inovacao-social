@@ -86,7 +86,37 @@ class AuthManager {
     async loginWithCredentials(email, password) {
         console.log('🔐 Attempting login for:', email);
         
-        // Verificar se é o usuário root
+        // Tentar validar no banco de dados primeiro
+        try {
+            const response = await fetch('/.netlify/functions/validate-login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ email, password })
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                if (result.success && result.user) {
+                    const userData = result.user;
+                    
+                    // Salvar no localStorage
+                    localStorage.setItem('current_user', JSON.stringify(userData));
+                    localStorage.setItem('access_token', 'auth-token-' + Date.now());
+                    
+                    this.currentUser = userData;
+                    this.notifyObservers('userLoggedIn', userData);
+                    
+                    console.log('✅ Database login successful');
+                    return userData;
+                }
+            }
+        } catch (error) {
+            console.warn('Database login failed, trying fallback:', error);
+        }
+        
+        // Fallback: Verificar se é o usuário root hardcoded (para desenvolvimento)
         if (email === 'antonio.aas@ufrj.br' && password === '@chk.4uGU570;123') {
             const userData = {
                 id: 'root-001',
@@ -106,34 +136,8 @@ class AuthManager {
             this.currentUser = userData;
             this.notifyObservers('userLoggedIn', userData);
             
-            console.log('✅ Root user login successful');
+            console.log('✅ Fallback root user login successful');
             return userData;
-        }
-        
-        // Para outros usuários, tentar buscar no sistema local
-        try {
-            const response = await fetch('/.netlify/functions/user-management/users');
-            const users = await response.json();
-            
-            const user = users.find(u => u.email === email && u.approved);
-            if (user) {
-                // Aqui você adicionaria validação de senha
-                const userData = {
-                    ...user,
-                    loginTime: new Date().toISOString()
-                };
-                
-                localStorage.setItem('current_user', JSON.stringify(userData));
-                localStorage.setItem('access_token', 'mock-token-' + Date.now());
-                
-                this.currentUser = userData;
-                this.notifyObservers('userLoggedIn', userData);
-                
-                console.log('✅ User login successful');
-                return userData;
-            }
-        } catch (error) {
-            console.warn('Could not check users database:', error);
         }
         
         // Fallback: Auth0 (se configurado)

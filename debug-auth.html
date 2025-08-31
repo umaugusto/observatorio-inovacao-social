@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug - Autenticação</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .debug-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; }
+        button { padding: 10px 15px; margin: 5px; cursor: pointer; }
+        .error { color: red; }
+        .success { color: green; }
+        .info { color: blue; }
+        #output { background: #f5f5f5; padding: 10px; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <h1>Debug - Sistema de Autenticação</h1>
+    
+    <div class="debug-section">
+        <h3>Teste de Login Root</h3>
+        <input type="email" id="debug-email" value="antonio.aas@ufrj.br" placeholder="Email">
+        <input type="password" id="debug-password" value="@chk.4uGU570;123" placeholder="Senha">
+        <button onclick="testRootLogin()">Testar Login Root</button>
+    </div>
+    
+    <div class="debug-section">
+        <h3>Estado Atual</h3>
+        <button onclick="checkAuthState()">Verificar Estado</button>
+        <button onclick="clearStorage()">Limpar Storage</button>
+        <button onclick="testAuthManager()">Testar AuthManager</button>
+    </div>
+    
+    <div id="output"></div>
+
+    <!-- Scripts -->
+    <script src="js/supabase-client.js"></script>
+    <script src="js/auth0-client.js"></script>
+    <script src="js/AuthManager.js"></script>
+
+    <script>
+        let authManager;
+        
+        function log(message, type = 'info') {
+            const output = document.getElementById('output');
+            const timestamp = new Date().toLocaleTimeString();
+            const className = type === 'error' ? 'error' : type === 'success' ? 'success' : 'info';
+            output.innerHTML += `<div class="${className}">[${timestamp}] ${message}</div>`;
+            console.log(`[${timestamp}] ${message}`);
+        }
+        
+        async function testRootLogin() {
+            const email = document.getElementById('debug-email').value;
+            const password = document.getElementById('debug-password').value;
+            
+            log('=== INICIANDO TESTE DE LOGIN ROOT ===');
+            log(`Email: ${email}`);
+            log(`Password: ${password.replace(/./g, '*')}`);
+            
+            try {
+                if (!authManager) {
+                    log('AuthManager não inicializado, criando instância...');
+                    authManager = AuthManager.getInstance();
+                    await new Promise(resolve => setTimeout(resolve, 1000)); // Aguardar inicialização
+                }
+                
+                log('Chamando loginWithCredentials...');
+                const result = await authManager.loginWithCredentials(email, password);
+                
+                if (result) {
+                    log('✅ LOGIN SUCESSO!', 'success');
+                    log(`Usuário: ${JSON.stringify(result, null, 2)}`, 'success');
+                    
+                    // Verificar localStorage
+                    const storedUser = localStorage.getItem('current_user');
+                    const storedToken = localStorage.getItem('access_token');
+                    log(`LocalStorage - User: ${storedUser}`, 'success');
+                    log(`LocalStorage - Token: ${storedToken}`, 'success');
+                } else {
+                    log('❌ Login falhou - resultado nulo', 'error');
+                }
+                
+            } catch (error) {
+                log(`❌ ERRO NO LOGIN: ${error.message}`, 'error');
+                log(`Stack: ${error.stack}`, 'error');
+            }
+        }
+        
+        async function checkAuthState() {
+            log('=== VERIFICANDO ESTADO DE AUTENTICAÇÃO ===');
+            
+            try {
+                if (!authManager) {
+                    authManager = AuthManager.getInstance();
+                }
+                
+                const isAuthenticated = authManager.isAuthenticated();
+                const currentUser = authManager.getCurrentUser();
+                const storedUser = localStorage.getItem('current_user');
+                const storedToken = localStorage.getItem('access_token');
+                
+                log(`Autenticado: ${isAuthenticated}`, isAuthenticated ? 'success' : 'error');
+                log(`Usuário atual: ${JSON.stringify(currentUser, null, 2)}`);
+                log(`localStorage user: ${storedUser}`);
+                log(`localStorage token: ${storedToken}`);
+                
+            } catch (error) {
+                log(`Erro ao verificar estado: ${error.message}`, 'error');
+            }
+        }
+        
+        function clearStorage() {
+            localStorage.removeItem('current_user');
+            localStorage.removeItem('access_token');
+            localStorage.removeItem('id_token');
+            log('✅ Storage limpo', 'success');
+        }
+        
+        async function testAuthManager() {
+            log('=== TESTANDO AUTHMANAGER ===');
+            
+            try {
+                log('Criando instância do AuthManager...');
+                authManager = AuthManager.getInstance();
+                
+                log('AuthManager criado:', 'success');
+                log(`Tipo: ${typeof authManager}`);
+                log(`Métodos disponíveis: ${Object.getOwnPropertyNames(Object.getPrototypeOf(authManager)).join(', ')}`);
+                
+                // Testar função específica
+                log('Testando função loginWithCredentials diretamente...');
+                const testResult = await authManager.loginWithCredentials('antonio.aas@ufrj.br', '@chk.4uGU570;123');
+                log(`Resultado direto: ${JSON.stringify(testResult, null, 2)}`, 'success');
+                
+            } catch (error) {
+                log(`Erro no teste: ${error.message}`, 'error');
+            }
+        }
+        
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', () => {
+            log('Página de debug carregada');
+            log('Aguardando scripts...');
+            
+            setTimeout(() => {
+                log('Scripts carregados, testando AuthManager...');
+                testAuthManager();
+            }, 2000);
+        });
+    </script>
+</body>
+</html>
