@@ -942,6 +942,20 @@
                 console.log('   - Auth0Client instance:', auth0Instance);
                 console.log('   - Auth0Client.auth0:', auth0Instance.auth0);
                 console.log('   - Auth0Client.config:', auth0Instance.config);
+                console.log('   - Auth0Client.initialized:', auth0Instance.initialized);
+                
+                // Aguardar inicialização se necessário
+                if (!auth0Instance.initialized && auth0Instance.initPromise) {
+                    console.log('⏳ Waiting for Auth0Client to finish initialization...');
+                    try {
+                        await auth0Instance.initPromise;
+                        console.log('✅ Auth0Client initialization complete');
+                        console.log('   - Final auth0 instance:', !!auth0Instance.auth0);
+                        console.log('   - Final config:', auth0Instance.config);
+                    } catch (error) {
+                        console.error('❌ Auth0Client initialization failed:', error);
+                    }
+                }
             } else {
                 console.error('❌ Auth0Client not available after waiting');
             }
