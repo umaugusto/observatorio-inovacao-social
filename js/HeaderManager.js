@@ -112,23 +112,16 @@ class HeaderManager {
         
         let html = '';
         
-        // Show "Entrar" button unless we're on login page
-        if (this.currentPage !== 'login') {
-            html += `<a href="${basePath}login.html" class="btn-secondary-header">Entrar</a>`;
-        }
-        
-        // Show "Criar Conta" button unless we're on registration page
-        if (this.currentPage !== 'registro') {
+        if (this.currentPage === 'login') {
+            // Na página de login: mostrar apenas "Criar Conta"
             html += `<a href="${basePath}registro.html" class="btn-header">Criar Conta</a>`;
-        }
-        
-        // If we're on login or registro page and only have one button, add a back button
-        if (this.currentPage === 'login' || this.currentPage === 'registro') {
-            if (this.currentPage === 'login') {
-                html += `<a href="${basePath}registro.html" class="btn-header">Criar Conta</a>`;
-            } else {
-                html += `<a href="${basePath}login.html" class="btn-header">Fazer Login</a>`;
-            }
+        } else if (this.currentPage === 'registro') {
+            // Na página de registro: mostrar apenas "Entrar"
+            html += `<a href="${basePath}login.html" class="btn-secondary-header">Entrar</a>`;
+        } else {
+            // Em outras páginas: mostrar ambos os botões
+            html += `<a href="${basePath}login.html" class="btn-secondary-header">Entrar</a>`;
+            html += `<a href="${basePath}registro.html" class="btn-header">Criar Conta</a>`;
         }
         
         return html;

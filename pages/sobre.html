@@ -52,58 +52,6 @@
             line-height: 1.6;
         }
 
-        .hero-nav-cards {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            max-width: 700px;
-            margin: 0 auto;
-        }
-
-        .nav-card {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 12px;
-            padding: 25px 20px;
-            text-align: center;
-            color: white;
-            text-decoration: none;
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-
-        .nav-card:hover {
-            transform: translateY(-5px);
-            background: rgba(255, 255, 255, 0.2);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            color: white;
-            text-decoration: none;
-        }
-
-        .nav-card.active {
-            background: rgba(255, 255, 255, 0.25);
-            transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-        }
-
-        .nav-card-icon {
-            font-size: 32px;
-            margin-bottom: 12px;
-            display: block;
-        }
-
-        .nav-card-title {
-            font-size: 16px;
-            font-weight: 600;
-            margin-bottom: 8px;
-        }
-
-        .nav-card-desc {
-            font-size: 13px;
-            opacity: 0.9;
-            line-height: 1.4;
-        }
 
         /* Vision & Purpose Section */
         .vision-purpose-section {
@@ -159,6 +107,67 @@
             color: var(--text-light);
             font-size: 16px;
             line-height: 1.8;
+        }
+
+        /* Subtle Navigation Links */
+        .subtle-navigation {
+            text-align: center;
+            padding: 40px 0 60px 0;
+        }
+
+        .nav-links-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 40px;
+            flex-wrap: wrap;
+        }
+
+        .subtle-nav-link {
+            color: var(--text-light);
+            text-decoration: none;
+            font-size: 18px;
+            font-weight: 500;
+            position: relative;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            padding: 10px 20px;
+            border-radius: 6px;
+        }
+
+        .subtle-nav-link:hover {
+            color: var(--primary-color);
+            background: rgba(45, 122, 95, 0.05);
+            text-decoration: none;
+        }
+
+        .subtle-nav-link.active {
+            color: var(--primary-color);
+            background: rgba(45, 122, 95, 0.1);
+            font-weight: 600;
+        }
+
+        .subtle-nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 5px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 2px;
+            background: var(--primary-color);
+            transition: width 0.3s ease;
+        }
+
+        .subtle-nav-link.active::after,
+        .subtle-nav-link:hover::after {
+            width: 60%;
+        }
+
+        .nav-separator {
+            color: var(--border-light);
+            font-size: 16px;
+            user-select: none;
         }
 
         /* Horizontal Scroll Container */
@@ -244,18 +253,60 @@
             margin: 0 auto;
         }
 
-        .emude-step {
+        .emude-step-compact {
+            display: flex;
+            align-items: flex-start;
+            gap: 20px;
+            padding: 20px;
             background: white;
-            padding: 40px 30px;
-            border-radius: 16px;
-            text-align: center;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
-            transition: transform 0.3s ease;
-            position: relative;
+            border-radius: 12px;
+            border-left: 4px solid var(--primary-color);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
 
-        .emude-step:hover {
-            transform: translateY(-5px);
+        .emude-step-compact:hover {
+            transform: translateX(5px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .step-number-compact {
+            background: var(--primary-color);
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 16px;
+            flex-shrink: 0;
+            margin-top: 4px;
+        }
+
+        .step-content-compact {
+            flex: 1;
+        }
+
+        .step-title-compact {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .step-icon-compact {
+            font-size: 20px;
+        }
+
+        .step-description-compact {
+            color: var(--text-light);
+            line-height: 1.5;
+            font-size: 15px;
         }
 
         .step-number {
@@ -297,24 +348,59 @@
             background: white;
         }
 
-        .team-grid {
+        .team-grid-compact {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 40px;
-            max-width: 1200px;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            max-width: 900px;
             margin: 0 auto;
         }
 
-        .team-member {
+        .team-member-compact {
             background: white;
-            border-radius: 16px;
-            overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            transition: transform 0.3s ease;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            text-align: center;
         }
 
-        .team-member:hover {
-            transform: translateY(-8px);
+        .team-member-compact:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+        }
+
+        .member-avatar-compact {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            margin: 0 auto 15px auto;
+            color: white;
+        }
+
+        .member-name-compact {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 6px;
+        }
+
+        .member-role-compact {
+            color: var(--primary-color);
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 10px;
+        }
+
+        .member-contact-compact {
+            color: var(--text-light);
+            font-size: 13px;
+            word-break: break-word;
         }
 
         .member-avatar {
@@ -549,23 +635,6 @@
                 <h1>Sobre o Observatório</h1>
                 <p>Mapeando e amplificando a inovação social no Rio de Janeiro através de pesquisa participativa e colaboração universitária</p>
                 
-                <div class="hero-nav-cards">
-                    <div class="nav-card" data-target="metodologia">
-                        <span class="nav-card-icon">🔬</span>
-                        <div class="nav-card-title">Metodologia</div>
-                        <div class="nav-card-desc">Como mapeamos inovação social</div>
-                    </div>
-                    <div class="nav-card" data-target="equipe">
-                        <span class="nav-card-icon">👥</span>
-                        <div class="nav-card-title">Nossa Equipe</div>
-                        <div class="nav-card-desc">Conheça quem faz acontecer</div>
-                    </div>
-                    <div class="nav-card" data-target="contato">
-                        <span class="nav-card-icon">📧</span>
-                        <div class="nav-card-title">Contato</div>
-                        <div class="nav-card-desc">Fale conosco</div>
-                    </div>
-                </div>
             </div>
         </div>
     </section>
@@ -588,6 +657,17 @@
                     <p class="section-text">
                         Acreditamos que o Rio de Janeiro possui um rico ecossistema de inovação social que precisa ser visibilizado. Documentamos iniciativas transformadoras através de metodologia participativa, criando uma rede colaborativa de conhecimento que conecta saberes e potencializa impactos positivos.
                     </p>
+                </div>
+            </div>
+
+            <!-- Subtle Navigation -->
+            <div class="subtle-navigation">
+                <div class="nav-links-container">
+                    <a href="javascript:void(0)" class="subtle-nav-link active" data-target="metodologia">Metodologia</a>
+                    <span class="nav-separator">•</span>
+                    <a href="javascript:void(0)" class="subtle-nav-link" data-target="equipe">Equipe</a>
+                    <span class="nav-separator">•</span>
+                    <a href="javascript:void(0)" class="subtle-nav-link" data-target="contato">Contato</a>
                 </div>
             </div>
         </div>
@@ -616,34 +696,50 @@
                         <p>Adotamos o modelo <strong>EMUDE</strong> (Emerging User Demands for Sustainable Solutions) para detectar, amplificar e reorientar sinais fracos de inovação social em um ciclo virtuoso de transformação territorial.</p>
                     </div>
 
-                    <!-- Etapas EMUDE -->
-                    <div class="emude-grid">
-                        <div class="emude-step">
-                            <div class="step-number">1</div>
-                            <div class="step-icon">🔍</div>
-                            <h4 class="step-title">Detecção de Sinais</h4>
-                            <p class="step-description">Identificamos sinais fracos de inovação social através de mapeamento territorial participativo</p>
+                    <!-- Etapas EMUDE Compactas -->
+                    <div class="emude-steps">
+                        <div class="emude-step-compact">
+                            <div class="step-number-compact">1</div>
+                            <div class="step-content-compact">
+                                <h4 class="step-title-compact">
+                                    <span class="step-icon-compact">🔍</span>
+                                    Detecção de Sinais
+                                </h4>
+                                <p class="step-description-compact">Identificamos sinais fracos de inovação social através de mapeamento territorial participativo</p>
+                            </div>
                         </div>
                         
-                        <div class="emude-step">
-                            <div class="step-number">2</div>
-                            <div class="step-icon">💡</div>
-                            <h4 class="step-title">Reforço de Sinais</h4>
-                            <p class="step-description">Documentamos e validamos iniciativas promissoras com metodologia científica rigorosa</p>
+                        <div class="emude-step-compact">
+                            <div class="step-number-compact">2</div>
+                            <div class="step-content-compact">
+                                <h4 class="step-title-compact">
+                                    <span class="step-icon-compact">💡</span>
+                                    Reforço de Sinais
+                                </h4>
+                                <p class="step-description-compact">Documentamos e validamos iniciativas promissoras com metodologia científica rigorosa</p>
+                            </div>
                         </div>
                         
-                        <div class="emude-step">
-                            <div class="step-number">3</div>
-                            <div class="step-icon">📢</div>
-                            <h4 class="step-title">Re-emissão Amplificada</h4>
-                            <p class="step-description">Amplificamos o alcance através da plataforma digital e redes de colaboração</p>
+                        <div class="emude-step-compact">
+                            <div class="step-number-compact">3</div>
+                            <div class="step-content-compact">
+                                <h4 class="step-title-compact">
+                                    <span class="step-icon-compact">📢</span>
+                                    Re-emissão Amplificada
+                                </h4>
+                                <p class="step-description-compact">Amplificamos o alcance através da plataforma digital e redes de colaboração</p>
+                            </div>
                         </div>
                         
-                        <div class="emude-step">
-                            <div class="step-number">4</div>
-                            <div class="step-icon">🔄</div>
-                            <h4 class="step-title">Re-orientação Social</h4>
-                            <p class="step-description">Facilitamos a replicação e adaptação de soluções em diferentes territórios</p>
+                        <div class="emude-step-compact">
+                            <div class="step-number-compact">4</div>
+                            <div class="step-content-compact">
+                                <h4 class="step-title-compact">
+                                    <span class="step-icon-compact">🔄</span>
+                                    Re-orientação Social
+                                </h4>
+                                <p class="step-description-compact">Facilitamos a replicação e adaptação de soluções em diferentes territórios</p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -657,53 +753,33 @@
                         <p>Conheça as pessoas que fazem o Observatório acontecer</p>
                     </div>
 
-                    <div class="team-grid">
-                        <div class="team-member">
-                            <div class="member-avatar">👩‍🏫</div>
-                            <div class="member-info">
-                                <h3 class="member-name">Prof. Ana Costa</h3>
-                                <div class="member-role">Coordenadora Geral</div>
-                                <p class="member-bio">
-                                    Doutora em Sociologia pela UFRJ, especialista em inovação social e desenvolvimento territorial. Coordena o projeto desde sua criação em 2022.
-                                </p>
-                                <div class="member-contact">ana.costa@ufrj.br</div>
-                            </div>
+                    <div class="team-grid-compact">
+                        <div class="team-member-compact">
+                            <div class="member-avatar-compact">AC</div>
+                            <h3 class="member-name-compact">Prof. Ana Costa</h3>
+                            <div class="member-role-compact">Coordenadora Geral</div>
+                            <div class="member-contact-compact">ana.costa@ufrj.br</div>
                         </div>
 
-                        <div class="team-member">
-                            <div class="member-avatar">👨‍💼</div>
-                            <div class="member-info">
-                                <h3 class="member-name">Dr. Carlos Silva</h3>
-                                <div class="member-role">Vice-Coordenador</div>
-                                <p class="member-bio">
-                                    Professor do Departamento de Serviço Social da UFRJ, pesquisador em políticas públicas e movimentos sociais urbanos.
-                                </p>
-                                <div class="member-contact">carlos.silva@ufrj.br</div>
-                            </div>
+                        <div class="team-member-compact">
+                            <div class="member-avatar-compact">CS</div>
+                            <h3 class="member-name-compact">Dr. Carlos Silva</h3>
+                            <div class="member-role-compact">Vice-Coordenador</div>
+                            <div class="member-contact-compact">carlos.silva@ufrj.br</div>
                         </div>
 
-                        <div class="team-member">
-                            <div class="member-avatar">👩‍💻</div>
-                            <div class="member-info">
-                                <h3 class="member-name">Maria Santos</h3>
-                                <div class="member-role">Coordenadora Técnica</div>
-                                <p class="member-bio">
-                                    Mestre em Comunicação Digital, responsável pela plataforma online e estratégias de divulgação do observatório.
-                                </p>
-                                <div class="member-contact">maria.santos@ufrj.br</div>
-                            </div>
+                        <div class="team-member-compact">
+                            <div class="member-avatar-compact">MS</div>
+                            <h3 class="member-name-compact">Maria Santos</h3>
+                            <div class="member-role-compact">Coordenadora Técnica</div>
+                            <div class="member-contact-compact">maria.santos@ufrj.br</div>
                         </div>
 
-                        <div class="team-member">
-                            <div class="member-avatar">👨‍🎓</div>
-                            <div class="member-info">
-                                <h3 class="member-name">João Oliveira</h3>
-                                <div class="member-role">Coordenador de Campo</div>
-                                <p class="member-bio">
-                                    Graduando em Ciências Sociais, coordena as atividades de campo dos extensionistas e o relacionamento com as comunidades.
-                                </p>
-                                <div class="member-contact">joao.oliveira@ufrj.br</div>
-                            </div>
+                        <div class="team-member-compact">
+                            <div class="member-avatar-compact">JO</div>
+                            <h3 class="member-name-compact">João Oliveira</h3>
+                            <div class="member-role-compact">Coordenador de Campo</div>
+                            <div class="member-contact-compact">joao.oliveira@ufrj.br</div>
                         </div>
                     </div>
                 </div>
@@ -789,7 +865,6 @@
                 this.currentPanel = 0;
                 this.panels = ['metodologia', 'equipe', 'contato'];
                 this.slider = document.getElementById('contentSlider');
-                console.log('HorizontalNavigation initialized, slider:', this.slider);
                 this.init();
             }
 
@@ -802,15 +877,13 @@
             }
 
             setupEventListeners() {
-                // Navigation cards
-                const cards = document.querySelectorAll('.nav-card[data-target]');
-                console.log('Found nav cards:', cards.length);
-                cards.forEach(card => {
-                    card.addEventListener('click', (e) => {
+                // Subtle navigation links
+                const links = document.querySelectorAll('.subtle-nav-link[data-target]');
+                links.forEach(link => {
+                    link.addEventListener('click', (e) => {
                         e.preventDefault();
-                        const target = card.getAttribute('data-target');
+                        const target = link.getAttribute('data-target');
                         const panelIndex = this.panels.indexOf(target);
-                        console.log('Nav card clicked, target:', target, 'index:', panelIndex);
                         this.navigateToPanel(panelIndex);
                         
                         // Scroll to horizontal content section
@@ -856,7 +929,6 @@
             }
 
             navigateToPanel(index) {
-                console.log('navigateToPanel called with index:', index);
                 if (index >= 0 && index < this.panels.length) {
                     this.currentPanel = index;
                     this.showPanel(index);
@@ -865,30 +937,30 @@
             }
 
             showPanel(index) {
-                const translateX = -index * 100;
-                this.slider.style.transform = `translateX(${translateX}%)`;
-                
-                // Update panel visibility with animation
-                document.querySelectorAll('.content-panel').forEach((panel, i) => {
-                    if (i === index) {
-                        setTimeout(() => {
-                            panel.classList.add('active');
-                        }, 250); // Delay to sync with slide animation
-                    } else {
-                        panel.classList.remove('active');
-                    }
-                });
+                const translateX = -index * 33.333; // Each panel is 33.333% wide
+                if (this.slider) {
+                    this.slider.style.transform = `translateX(${translateX}%)`;
+                    
+                    // Update panel active states
+                    document.querySelectorAll('.content-panel').forEach((panel, i) => {
+                        panel.classList.toggle('active', i === index);
+                    });
+                }
             }
 
             updateActiveStates() {
-                // Update navigation cards
-                document.querySelectorAll('.nav-card').forEach((card, index) => {
-                    card.classList.toggle('active', index === this.currentPanel);
+                const currentPanelName = this.panels[this.currentPanel];
+                
+                // Update subtle navigation links by data-target
+                document.querySelectorAll('.subtle-nav-link[data-target]').forEach((link) => {
+                    const target = link.getAttribute('data-target');
+                    link.classList.toggle('active', target === currentPanelName);
                 });
 
-                // Update indicator dots
-                document.querySelectorAll('.indicator-dot').forEach((dot, index) => {
-                    dot.classList.toggle('active', index === this.currentPanel);
+                // Update indicator dots by data-target
+                document.querySelectorAll('.indicator-dot[data-target]').forEach((dot) => {
+                    const target = dot.getAttribute('data-target');
+                    dot.classList.toggle('active', target === currentPanelName);
                 });
             }
 
@@ -961,7 +1033,7 @@
             });
 
             // Apply animation to elements
-            document.querySelectorAll('.vision-card, .purpose-card, .emude-step, .team-member').forEach(el => {
+            document.querySelectorAll('.vision-card, .purpose-card, .emude-step-compact, .team-member-compact').forEach(el => {
                 el.style.opacity = '0';
                 el.style.transform = 'translateY(30px)';
                 el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
