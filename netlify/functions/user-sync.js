@@ -5,51 +5,37 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_KEY
 );
 
-exports.handler = async (event, context) => {
-  console.log('🚀 Function user-sync started');
-  
-  // Headers CORS
+exports.handler = async (event) => {
   const headers = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'Content-Type, Authorization',
     'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
   };
 
-  // Handle preflight
   if (event.httpMethod === 'OPTIONS') {
     return { statusCode: 200, headers, body: '' };
   }
-
   if (event.httpMethod !== 'POST') {
-    return {
-      statusCode: 405,
-      headers,
-      body: JSON.stringify({ error: 'Method not allowed' })
-    };
+    return { statusCode: 405, headers, body: JSON.stringify({ error: 'Method not allowed' }) };
   }
 
   try {
-    const { user, auth0Data } = JSON.parse(event.body);
-    
-    console.log('📝 Processing user:', user.email);
+    const { user } = JSON.parse(event.body || '{}');
+    if (!user || !user.email || !user.sub) {
+      return { statusCode: 400, headers, body: JSON.stringify({ error: 'Invalid user payload' }) };
+    }
 
-    // Verificar se o usuário já existe
-    let { data: existingUser, error: selectError } = await supabase
+    // Try to find existing user
+    let { data: existingUser, error: selErr } = await supabase
       .from('users')
       .select('*')
       .eq('auth0_id', user.sub)
       .single();
 
-    if (selectError && selectError.code !== 'PGRST116') {
-      throw selectError;
-    }
+    if (selErr && selErr.code !== 'PGRST116') throw selErr;
 
     let userData;
-
     if (existingUser) {
-      console.log('👤 Existing user found, updating login time');
-      
-      // Atualizar último login
       const { data, error } = await supabase
         .from('users')
         .update({
@@ -59,45 +45,32 @@ exports.handler = async (event, context) => {
         .eq('id', existingUser.id)
         .select()
         .single();
-
       if (error) throw error;
       userData = data;
     } else {
-      console.log('➕ New user, creating in database');
-      
-      // Determinar se é usuário root baseado no email
       const isRoot = user.email === 'antonio.aas@ufrj.br';
-      
-      // Criar novo usuário
+      const insertPayload = {
+        auth0_id: user.sub,
+        email: user.email,
+        name: user.name || user.nickname || (user.email || '').split('@')[0],
+        role: isRoot ? 'pesquisador' : 'visitante',
+        is_admin: !!isRoot,
+        is_root: !!isRoot,
+        approved: !!isRoot,
+        email_verified: !!user.email_verified,
+        picture: user.picture || null,
+        created_at: new Date().toISOString(),
+        last_login: new Date().toISOString()
+      };
       const { data, error } = await supabase
         .from('users')
-        .insert({
-          auth0_id: user.sub,
-          email: user.email,
-          name: user.name || user.nickname,
-          role: isRoot ? 'pesquisador' : 'visitante',
-          is_admin: isRoot,
-          is_root: isRoot,
-          approved: isRoot, // Root é automaticamente aprovado
-          email_verified: user.email_verified || false,
-          picture: user.picture,
-          created_at: new Date().toISOString(),
-          last_login: new Date().toISOString(),
-          user_metadata: user.user_metadata || {},
-          app_metadata: user.app_metadata || {}
-        })
+        .insert(insertPayload)
         .select()
         .single();
-
       if (error) throw error;
       userData = data;
-
-      if (isRoot) {
-        console.log('👑 Root user created successfully');
-      }
     }
 
-    // Converter snake_case para camelCase para o frontend
     const frontendUser = {
       id: userData.id,
       auth0Id: userData.auth0_id,
@@ -110,29 +83,13 @@ exports.handler = async (event, context) => {
       emailVerified: userData.email_verified,
       picture: userData.picture,
       createdAt: userData.created_at,
-      lastLogin: userData.last_login,
-      userMetadata: userData.user_metadata,
-      appMetadata: userData.app_metadata
+      lastLogin: userData.last_login
     };
 
-    console.log('✅ User sync completed:', frontendUser.email);
-
-    return {
-      statusCode: 200,
-      headers,
-      body: JSON.stringify(frontendUser)
-    };
-
+    return { statusCode: 200, headers, body: JSON.stringify(frontendUser) };
   } catch (error) {
-    console.error('❌ Error in user-sync:', error);
-    
-    return {
-      statusCode: 500,
-      headers,
-      body: JSON.stringify({ 
-        error: 'Internal server error',
-        message: error.message 
-      })
-    };
+    console.error('user-sync error:', error);
+    return { statusCode: 500, headers, body: JSON.stringify({ error: 'Internal server error', message: error.message }) };
   }
 };
+

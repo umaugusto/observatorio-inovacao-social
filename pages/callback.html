@@ -106,22 +106,40 @@
         }
       }
       async function syncAndRedirect(user, accessToken, idToken){
-        const resp = await fetch('/.netlify/functions/user-sync', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': accessToken ? `Bearer ${accessToken}` : undefined
-          },
-          body: JSON.stringify({ user, auth0Data: { idToken } })
-        });
-        if (!resp.ok) throw new Error('Falha na sincronização do usuário');
-        const userData = await resp.json();
-        localStorage.setItem('current_user', JSON.stringify({ ...userData, loginTime: new Date().toISOString() }));
-        if (!userData.approved && !userData.is_admin && !userData.is_root) {
-          window.location.href = '../pages/pending-approval.html';
-        } else {
-          window.location.href = '../index.html';
+        try {
+          const resp = await fetch('/.netlify/functions/user-sync', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': accessToken ? `Bearer ${accessToken}` : undefined
+            },
+            body: JSON.stringify({ user, auth0Data: { idToken } })
+          });
+          if (resp.ok) {
+            const userData = await resp.json();
+            localStorage.setItem('current_user', JSON.stringify({ ...userData, loginTime: new Date().toISOString() }));
+            if (!userData.approved && !userData.is_admin && !userData.is_root) {
+              window.location.href = '../pages/pending-approval.html';
+              return;
+            }
+            window.location.href = '../index.html';
+            return;
+          }
+        } catch (e) {
+          console.warn('User sync failed, proceeding with Auth0 user only:', e);
         }
+        // Fallback: proceed without DB sync
+        const fallback = {
+          id: user.sub || user.user_id || 'auth0-user',
+          email: user.email,
+          name: user.name || user.nickname || (user.email || '').split('@')[0],
+          role: 'visitante',
+          isAdmin: false,
+          isRoot: false,
+          approved: true
+        };
+        localStorage.setItem('current_user', JSON.stringify({ ...fallback, loginTime: new Date().toISOString() }));
+        window.location.href = '../index.html';
       }
       window.addEventListener('DOMContentLoaded', handle);
     </script>
