@@ -5,6 +5,8 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_KEY
 );
 
+const { requireAuth } = require('./auth-utils');
+
 exports.handler = async (event, context) => {
   const headers = {
     'Access-Control-Allow-Origin': '*',
@@ -57,6 +59,11 @@ exports.handler = async (event, context) => {
         };
 
       case 'POST':
+        {
+          const auth = await requireAuth(event);
+          if (!auth.ok) {
+            return { statusCode: auth.statusCode, headers, body: JSON.stringify(auth.body) };
+          }
         const { caso_id, user_id, texto } = JSON.parse(event.body);
         
         if (!caso_id || !user_id || !texto) {
@@ -91,6 +98,11 @@ exports.handler = async (event, context) => {
         };
 
       case 'PUT':
+        {
+          const auth = await requireAuth(event);
+          if (!auth.ok) {
+            return { statusCode: auth.statusCode, headers, body: JSON.stringify(auth.body) };
+          }
         if (!commentId) {
           return {
             statusCode: 400,
@@ -120,6 +132,11 @@ exports.handler = async (event, context) => {
         };
 
       case 'DELETE':
+        {
+          const auth = await requireAuth(event);
+          if (!auth.ok) {
+            return { statusCode: auth.statusCode, headers, body: JSON.stringify(auth.body) };
+          }
         if (!commentId) {
           return {
             statusCode: 400,

@@ -6,6 +6,8 @@ const supabase = createClient(
 );
 
 // casos-api: GET mock list (for compatibility) and POST to create real cases
+const { requireAuth } = require('./auth-utils');
+
 exports.handler = async (event) => {
   const headers = {
     'Access-Control-Allow-Origin': '*',
@@ -118,6 +120,10 @@ exports.handler = async (event) => {
     }
 
     if (event.httpMethod === 'POST') {
+      const auth = await requireAuth(event);
+      if (!auth.ok) {
+        return { statusCode: auth.statusCode, headers, body: JSON.stringify(auth.body) };
+      }
       const { caso } = JSON.parse(event.body || '{}');
       if (!caso || !caso.titulo) {
         return {

@@ -1,5 +1,5 @@
 const { createClient } = require('@supabase/supabase-js');
-const crypto = require('crypto');
+const bcrypt = require('bcrypt');
 
 const supabase = createClient(
   process.env.SUPABASE_URL,
@@ -106,8 +106,8 @@ async function handleCreateAccessRequest(event, headers) {
     };
   }
 
-  // Hash da senha
-  const hashedPassword = crypto.createHash('sha256').update(password).digest('hex');
+  // Hash da senha com bcrypt (compatível com validate-login)
+  const hashedPassword = await bcrypt.hash(password, 10);
 
   // Criar solicitação
   const { data, error } = await supabase

@@ -1,4 +1,5 @@
 const { createClient } = require('@supabase/supabase-js');
+const { requireAuth } = require('./auth-utils');
 
 const supabase = createClient(
   process.env.SUPABASE_URL,
@@ -21,6 +22,11 @@ exports.handler = async (event, context) => {
   }
 
   try {
+    // Require valid Auth0 token for protected endpoints
+    const auth = await requireAuth(event);
+    if (!auth.ok) {
+      return { statusCode: auth.statusCode, headers, body: JSON.stringify(auth.body) };
+    }
     const method = event.httpMethod;
     const path = event.path;
     const body = event.body ? JSON.parse(event.body) : {};
