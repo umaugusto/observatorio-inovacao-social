@@ -418,7 +418,6 @@
                 <li><a href="mapa.html">Mapa</a></li>
                 <li><a href="metodologia.html">Metodologia</a></li>
                 <li><a href="sobre.html">Sobre</a></li>
-                <li><a href="contato.html">Contato</a></li>
             </ul>
 
             <div class="nav-actions">
@@ -578,13 +577,16 @@
 
             getCasoIdFromURL() {
                 const urlParams = new URLSearchParams(window.location.search);
-                return parseInt(urlParams.get('id'));
+                const id = urlParams.get('id');
+                // Tentar converter para número se possível (compatibilidade com IDs antigos)
+                // Se não for um número válido, manter como string (UUIDs do banco)
+                return isNaN(parseInt(id)) ? id : parseInt(id);
             }
 
             loadCaso() {
                 try {
                     const casos = this.dataManager.getCasos();
-                    this.caso = casos.find(c => c.id === this.casoId);
+                    this.caso = casos.find(c => String(c.id) === String(this.casoId));
                     
                     if (this.caso) {
                         this.renderCaso();
@@ -773,9 +775,9 @@
             }
 
             loadRelatedCases() {
-                const casos = JSON.parse(localStorage.getItem('casos')) || this.getMockCasos();
+                const casos = this.dataManager.getCasos();
                 const related = casos
-                    .filter(c => c.id !== this.casoId && c.categoria === this.caso.categoria)
+                    .filter(c => String(c.id) !== String(this.casoId) && c.categoria === this.caso.categoria && c.aprovado)
                     .slice(0, 3);
 
                 if (related.length > 0) {
