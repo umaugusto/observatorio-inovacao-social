@@ -822,14 +822,15 @@
                     attempts++;
                     console.log(`⏳ Checking managers attempt ${attempts}/${maxAttempts}`);
                     
-                    if (window.AuthManager && window.HeaderManager) {
-                        console.log('✅ All managers available');
+                    // Para login, só precisamos do AuthManager
+                    if (window.AuthManager) {
+                        console.log('✅ AuthManager available (HeaderManager opcional)');
                         resolve();
                     } else if (attempts >= maxAttempts) {
-                        console.error('❌ Timeout waiting for managers');
+                        console.error('❌ Timeout waiting for AuthManager');
                         console.error('   AuthManager:', !!window.AuthManager);
                         console.error('   HeaderManager:', !!window.HeaderManager);
-                        reject(new Error('Managers loading timeout'));
+                        reject(new Error('AuthManager loading timeout'));
                     } else {
                         setTimeout(checkManagers, 100);
                     }
@@ -908,10 +909,14 @@
             console.log('   - Auth0Client:', typeof window.Auth0Client);
             console.log('   - auth0 SDK:', typeof auth0);
             
-            // Se managers não estiverem disponíveis, aguardar um pouco
-            if (!window.AuthManager || !window.HeaderManager || !window.Auth0Client) {
-                console.log('⚠️ Managers not ready, waiting 2 seconds...');
+            // Se AuthManager não estiver disponível, aguardar um pouco
+            if (!window.AuthManager) {
+                console.log('⚠️ AuthManager not ready, waiting 2 seconds...');
                 await new Promise(resolve => setTimeout(resolve, 2000));
+            }
+            
+            if (!window.HeaderManager) {
+                console.log('⚠️ HeaderManager not available, continuing without it...');
             }
             
             // Aguardar todos os managers estarem disponíveis
@@ -946,10 +951,16 @@
             console.log('   LoginPage instance:', loginPage);
             console.log('   AuthManager in LoginPage:', loginPage.authManager);
             
-            // Inicializar HeaderManager explicitamente
-            if (!window.headerManager) {
-                window.headerManager = HeaderManager.getInstance();
-                console.log('HeaderManager initialized:', window.headerManager);
+            // Inicializar HeaderManager explicitamente (opcional)
+            if (window.HeaderManager && !window.headerManager) {
+                try {
+                    window.headerManager = HeaderManager.getInstance();
+                    console.log('HeaderManager initialized:', window.headerManager);
+                } catch (error) {
+                    console.warn('HeaderManager initialization failed:', error);
+                }
+            } else if (!window.HeaderManager) {
+                console.log('HeaderManager not available, skipping...');
             }
             
                 console.log('==========================================');
