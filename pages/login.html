@@ -326,7 +326,8 @@
         </div>
     </section>
 
-    <!-- Scripts (load managers before inline script) -->
+    <!-- SPA SDK (UMD) first, then our wrapper and managers -->
+    <script src="https://cdn.jsdelivr.net/npm/@auth0/auth0-spa-js@2.1.3/dist/auth0-spa-js.production.js" crossorigin="anonymous"></script>
     <script src="../js/auth0-client.js?v=b4a1a72"></script>
     <script src="../js/AuthManager.js?v=b4a1a72"></script>
     <script src="../js/auth-augment.js?v=b4a1a72"></script>
@@ -985,10 +986,10 @@
                 console.log('HeaderManager not available, skipping...');
             }
             
-                console.log('==========================================');
-                console.log('✅ SISTEMA PRONTO - Digite suas credenciais');
-                console.log('   Email: antonio.aas@ufrj.br');
-                console.log('   Senha: @chk.4uGU570;123');
+                console.log('Login page ready');
+
+
+
                 console.log('==========================================');
             } catch (error) {
                 console.error('❌ Erro na inicialização:', error);
