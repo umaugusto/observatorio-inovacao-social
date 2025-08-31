@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aguardando Aprovação - Observatório de Inovação Social</title>
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet" href="../css/components.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+        
+        .pending-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .pending-card {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+        }
+
+        .pending-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+            color: var(--warning-color, #f39c12);
+        }
+
+        .pending-title {
+            font-size: 24px;
+            color: var(--text-dark);
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .pending-message {
+            color: var(--text-light);
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+
+        .user-info {
+            background: var(--background-light);
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+
+        .user-info h3 {
+            margin: 0 0 10px 0;
+            color: var(--text-dark);
+        }
+
+        .user-info p {
+            margin: 5px 0;
+            color: var(--text-light);
+        }
+
+        .btn-logout {
+            background: var(--secondary-color);
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-logout:hover {
+            background: var(--secondary-dark, #c0392b);
+            transform: translateY(-2px);
+        }
+
+        .contact-admin {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-light);
+        }
+
+        .contact-admin p {
+            margin: 0;
+            font-size: 14px;
+            color: var(--text-light);
+        }
+
+        .contact-admin a {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        .contact-admin a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="pending-container">
+        <div class="pending-card">
+            <div class="pending-icon">⏳</div>
+            
+            <h1 class="pending-title">Conta Aguardando Aprovação</h1>
+            
+            <p class="pending-message">
+                Sua conta foi criada com sucesso, mas ainda precisa ser aprovada por um administrador 
+                antes que você possa acessar todas as funcionalidades do sistema.
+            </p>
+
+            <div class="user-info" id="user-info">
+                <h3>Informações da Conta</h3>
+                <p><strong>Email:</strong> <span id="user-email">-</span></p>
+                <p><strong>Nome:</strong> <span id="user-name">-</span></p>
+                <p><strong>Status:</strong> Pendente de Aprovação</p>
+            </div>
+
+            <p class="pending-message">
+                <strong>O que acontece agora?</strong><br>
+                Um administrador revisará sua solicitação de acesso em até 48 horas. 
+                Você receberá um email quando sua conta for aprovada.
+            </p>
+
+            <a href="#" id="logout-btn" class="btn-logout">Fazer Logout</a>
+
+            <div class="contact-admin">
+                <p>Precisa de ajuda? Entre em contato conosco através da página de 
+                <a href="../pages/contato.html">contato</a>.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="../js/auth0-client.js"></script>
+    
+    <script>
+        class PendingApprovalPage {
+            constructor() {
+                this.auth0Client = Auth0Client.getInstance();
+                this.init();
+            }
+
+            init() {
+                this.loadUserInfo();
+                this.setupLogoutButton();
+            }
+
+            loadUserInfo() {
+                try {
+                    const userData = localStorage.getItem('current_user');
+                    if (userData) {
+                        const user = JSON.parse(userData);
+                        document.getElementById('user-email').textContent = user.email || '-';
+                        document.getElementById('user-name').textContent = user.name || user.nickname || '-';
+                    }
+                } catch (error) {
+                    console.error('Erro ao carregar informações do usuário:', error);
+                }
+            }
+
+            setupLogoutButton() {
+                document.getElementById('logout-btn').addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.logout();
+                });
+            }
+
+            logout() {
+                // Limpar dados locais
+                localStorage.removeItem('access_token');
+                localStorage.removeItem('id_token');
+                localStorage.removeItem('current_user');
+                
+                // Fazer logout no Auth0
+                this.auth0Client.logout();
+            }
+        }
+
+        // Inicializar quando o DOM estiver carregado
+        document.addEventListener('DOMContentLoaded', () => {
+            new PendingApprovalPage();
+        });
+    </script>
+</body>
+</html>

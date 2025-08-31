@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Processando Login | Observatório Social RJ</title>
+    <link rel="stylesheet" href="../css/main.css">
+    <style>
+        .callback-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            margin-bottom: 20px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .message {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        .submessage {
+            font-size: 14px;
+            opacity: 0.8;
+        }
+
+        .error {
+            background: #ff4757;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            max-width: 500px;
+        }
+
+        .retry-btn {
+            background: white;
+            color: var(--primary-color);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-top: 15px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="callback-container">
+        <div class="spinner"></div>
+        <div class="message">Processando seu login...</div>
+        <div class="submessage">Aguarde enquanto configuramos sua conta.</div>
+        
+        <div id="error-message" class="error" style="display: none;">
+            <div id="error-text"></div>
+            <button class="retry-btn" onclick="window.location.href = '../pages/login.html'">
+                Tentar Novamente
+            </button>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.auth0.com/js/auth0/9.23.0/auth0.min.js"></script>
+    <script src="../js/auth0-client.js"></script>
+    <script src="../js/supabase-client.js"></script>
+
+    <script>
+        class CallbackHandler {
+            constructor() {
+                this.auth0Client = Auth0Client.getInstance();
+                this.supabaseClient = SupabaseClient.getInstance();
+                this.init();
+            }
+
+            async init() {
+                try {
+                    await this.handleCallback();
+                } catch (error) {
+                    console.error('Callback error:', error);
+                    this.showError('Erro no processo de login: ' + error.message);
+                }
+            }
+
+            async handleCallback() {
+                return new Promise((resolve, reject) => {
+                    this.auth0Client.parseHash(async (err, authResult) => {
+                        if (err) {
+                            console.error('Auth0 parse error:', err);
+                            reject(new Error(`Erro de autenticação: ${err.error_description || err.error}`));
+                            return;
+                        }
+
+                        if (authResult && authResult.accessToken && authResult.idToken) {
+                            try {
+                                // Salvar tokens
+                                localStorage.setItem('access_token', authResult.accessToken);
+                                localStorage.setItem('id_token', authResult.idToken);
+
+                                // Obter informações do usuário
+                                this.auth0Client.getUserInfo(authResult.accessToken, async (err, user) => {
+                                    if (err) {
+                                        console.error('Get user info error:', err);
+                                        reject(new Error('Erro ao obter informações do usuário'));
+                                        return;
+                                    }
+
+                                    try {
+                                        // Verificar/criar usuário no Supabase via função Netlify
+                                        const response = await fetch('/.netlify/functions/user-sync', {
+                                            method: 'POST',
+                                            headers: {
+                                                'Content-Type': 'application/json',
+                                                'Authorization': `Bearer ${authResult.accessToken}`
+                                            },
+                                            body: JSON.stringify({
+                                                user: user,
+                                                auth0Data: authResult
+                                            })
+                                        });
+
+                                        if (!response.ok) {
+                                            throw new Error(`Erro do servidor: ${response.status}`);
+                                        }
+
+                                        const userData = await response.json();
+                                        
+                                        // Salvar dados do usuário
+                                        localStorage.setItem('current_user', JSON.stringify({
+                                            ...userData,
+                                            loginTime: new Date().toISOString()
+                                        }));
+
+                                        // Verificar se o usuário precisa de aprovação
+                                        if (!userData.approved && !userData.is_admin && !userData.is_root) {
+                                            window.location.href = '../pages/pending-approval.html';
+                                        } else {
+                                            // Redirecionar para a página inicial
+                                            window.location.href = '../index.html';
+                                        }
+
+                                        resolve(userData);
+                                    } catch (error) {
+                                        console.error('User sync error:', error);
+                                        reject(new Error('Erro ao sincronizar dados do usuário'));
+                                    }
+                                });
+                            } catch (error) {
+                                console.error('Token processing error:', error);
+                                reject(error);
+                            }
+                        } else {
+                            reject(new Error('Tokens de autenticação não recebidos'));
+                        }
+                    });
+                });
+            }
+
+            showError(message) {
+                document.querySelector('.spinner').style.display = 'none';
+                document.querySelector('.message').style.display = 'none';
+                document.querySelector('.submessage').style.display = 'none';
+                
+                const errorDiv = document.getElementById('error-message');
+                const errorText = document.getElementById('error-text');
+                
+                errorText.textContent = message;
+                errorDiv.style.display = 'block';
+            }
+        }
+
+        // Inicializar quando a página carregar
+        window.addEventListener('DOMContentLoaded', () => {
+            new CallbackHandler();
+        });
+    </script>
+</body>
+</html>
