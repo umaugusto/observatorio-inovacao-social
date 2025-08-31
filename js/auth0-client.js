@@ -2,12 +2,23 @@
 class Auth0Client {
     constructor() {
         this.auth0 = null;
+        // Get Auth0 config from loaded config or use defaults
+        const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+        const auth0Config = window.AUTH0_CONFIG || {};
+        
         this.config = {
-            domain: 'alphzilla.us.auth0.com',
-            clientId: process.env.AUTH0_CLIENT_ID || 'alphzilla-client-id',
+            domain: isDevelopment ? 'dev-placeholder.us.auth0.com' : (auth0Config.AUTH0_DOMAIN || 'alphzilla.us.auth0.com'),
+            clientId: isDevelopment ? 'dev-placeholder-client-id' : (auth0Config.AUTH0_CLIENT_ID || 'alphzilla-client-id'),
             redirectUri: window.location.origin + '/pages/callback.html',
             scope: 'openid profile email'
         };
+        
+        console.log('🔐 Auth0 Config:', { 
+            domain: this.config.domain, 
+            clientId: this.config.clientId, 
+            isDevelopment,
+            hasRealClientId: this.config.clientId && this.config.clientId !== 'alphzilla-client-id' && this.config.clientId !== 'dev-placeholder-client-id'
+        });
         this.init();
     }
 

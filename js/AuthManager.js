@@ -86,37 +86,24 @@ class AuthManager {
     async loginWithCredentials(email, password) {
         console.log('🔐 Attempting login for:', email);
         
-        // Tentar validar no banco de dados primeiro
-        try {
-            const response = await fetch('/.netlify/functions/validate-login', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ email, password })
-            });
+        // Usar Auth0 para autenticação em produção
+        if (this.auth0Client && this.auth0Client.config.clientId !== 'dev-placeholder-client-id' && this.auth0Client.config.clientId !== 'alphzilla-client-id') {
+            return new Promise((resolve, reject) => {
+                this.auth0Client.loginWithCredentials(email, password, (err, result) => {
+                    if (err) {
+                        console.error('Auth0 login error:', err);
+                        reject(new Error(err.description || err.error || 'Erro de login'));
+                        return;
+                    }
 
-            if (response.ok) {
-                const result = await response.json();
-                if (result.success && result.user) {
-                    const userData = result.user;
-                    
-                    // Salvar no localStorage
-                    localStorage.setItem('current_user', JSON.stringify(userData));
-                    localStorage.setItem('access_token', 'auth-token-' + Date.now());
-                    
-                    this.currentUser = userData;
-                    this.notifyObservers('userLoggedIn', userData);
-                    
-                    console.log('✅ Database login successful');
-                    return userData;
-                }
-            }
-        } catch (error) {
-            console.warn('Database login failed, trying fallback:', error);
+                    // Auth0 redirects automatically after successful login
+                    console.log('✅ Auth0 login initiated, redirecting...');
+                    resolve();
+                });
+            });
         }
         
-        // Fallback: Verificar se é o usuário root hardcoded (para desenvolvimento)
+        // Fallback local para desenvolvimento: Verificar se é o usuário root hardcoded
         if (email === 'antonio.aas@ufrj.br' && password === '@chk.4uGU570;123') {
             const userData = {
                 id: 'root-001',
@@ -136,7 +123,7 @@ class AuthManager {
             this.currentUser = userData;
             this.notifyObservers('userLoggedIn', userData);
             
-            console.log('✅ Fallback root user login successful');
+            console.log('✅ Development root user login successful');
             return userData;
         }
         
