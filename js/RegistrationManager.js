@@ -83,11 +83,22 @@ class RegistrationManager {
         // Real-time validations
         this.setupRealTimeValidations();
 
-        // Password toggle
+        // Password toggles
         const passwordToggle = document.getElementById('password-toggle');
         if (passwordToggle) {
-            passwordToggle.addEventListener('click', () => this.togglePassword());
+            passwordToggle.addEventListener('click', () => this.togglePassword('password', 'password-toggle'));
         }
+
+        const passwordConfirmToggle = document.getElementById('password-confirm-toggle');
+        if (passwordConfirmToggle) {
+            passwordConfirmToggle.addEventListener('click', () => this.togglePassword('password-confirm', 'password-confirm-toggle'));
+        }
+
+        // User type selection
+        const userTypeCards = document.querySelectorAll('.user-type-card');
+        userTypeCards.forEach(card => {
+            card.addEventListener('click', () => this.selectUserType(card.dataset.type));
+        });
 
         // Back buttons
         document.getElementById('btn-back-2')?.addEventListener('click', () => this.goToStep(1));
@@ -187,6 +198,11 @@ class RegistrationManager {
             this.showFieldError('user-name', 'Nome deve ter pelo menos 2 caracteres');
             isValid = false;
         }
+
+        if (!this.registrationData.userType) {
+            this.showFieldError('profile-type-error', 'Selecione um tipo de perfil');
+            isValid = false;
+        }
         
         if (!this.isPasswordValid(password)) {
             this.showFieldError('password', 'A senha não atende aos requisitos');
@@ -209,15 +225,80 @@ class RegistrationManager {
         this.registrationData.name = name;
         this.registrationData.password = password;
         
-        // Ir para confirmação de perfil
-        this.showProfileConfirmation();
-        this.goToStep(3);
+        // Criar conta diretamente (sem etapa 3)
+        this.showLoading(true);
+        this.createUserAccount();
     }
 
     applyEmailBasedLogic() {
-        // Lógica aplicada automaticamente na etapa 3 (confirmação de perfil)
-        // Não há mais seleção manual de tipo de usuário - é determinado pelo email
-        console.log(`📧 Email ${this.registrationData.isUFRJEmail ? 'UFRJ' : 'comum'} detectado:`, this.registrationData.email);
+        const isUFRJ = this.registrationData.isUFRJEmail;
+        const cards = document.querySelectorAll('.user-type-card');
+        const messageEl = document.getElementById('email-based-message');
+        
+        console.log(`📧 Email ${isUFRJ ? 'UFRJ' : 'comum'} detectado:`, this.registrationData.email);
+        
+        if (isUFRJ) {
+            // Email UFRJ: Habilitar extensionista/pesquisador, desabilitar visitante
+            cards.forEach(card => {
+                const type = card.dataset.type;
+                if (type === 'visitante') {
+                    card.classList.add('disabled');
+                    card.classList.remove('available');
+                } else {
+                    card.classList.add('available');
+                    card.classList.remove('disabled');
+                }
+            });
+            
+            // Pré-selecionar extensionista por padrão
+            this.selectUserType('extensionista');
+            
+            // Mostrar mensagem de orientação
+            if (messageEl) {
+                messageEl.className = 'alert alert-success';
+                messageEl.innerHTML = '✅ Email UFRJ detectado! Você pode escolher entre Extensionista ou Pesquisador.';
+                messageEl.style.display = 'block';
+            }
+            
+        } else {
+            // Email comum: Habilitar visitante, desabilitar outros
+            cards.forEach(card => {
+                const type = card.dataset.type;
+                if (type === 'visitante') {
+                    card.classList.add('available');
+                    card.classList.remove('disabled');
+                } else {
+                    card.classList.add('disabled');
+                    card.classList.remove('available');
+                }
+            });
+            
+            // Pré-selecionar visitante
+            this.selectUserType('visitante');
+            
+            // Mostrar mensagem informativa
+            if (messageEl) {
+                messageEl.className = 'alert alert-info';
+                messageEl.innerHTML = 'ℹ️ Para perfis de Extensionista ou Pesquisador, é necessário um email institucional da UFRJ (@ufrj.br).';
+                messageEl.style.display = 'block';
+            }
+        }
+    }
+
+    selectUserType(type) {
+        // Remove seleção anterior
+        document.querySelectorAll('.user-type-card').forEach(card => {
+            card.classList.remove('selected');
+        });
+        
+        // Seleciona o novo tipo se o card não estiver desabilitado
+        const selectedCard = document.querySelector(`[data-type="${type}"]`);
+        if (selectedCard && !selectedCard.classList.contains('disabled')) {
+            selectedCard.classList.add('selected');
+            this.registrationData.userType = type;
+            this.clearFieldError('profile-type-error');
+            console.log('Tipo de usuário selecionado:', type);
+        }
     }
 
     // Função removida - não é mais necessária com o fluxo simplificado
@@ -640,9 +721,9 @@ class RegistrationManager {
         }
     }
 
-    togglePassword() {
-        const passwordInput = document.getElementById('password');
-        const toggleBtn = document.getElementById('password-toggle');
+    togglePassword(inputId, toggleId) {
+        const passwordInput = document.getElementById(inputId);
+        const toggleBtn = document.getElementById(toggleId);
         
         if (passwordInput.type === 'password') {
             passwordInput.type = 'text';
@@ -793,14 +874,14 @@ class RegistrationManager {
 
     showLoading(show) {
         const loadingSpinner = document.getElementById('loading-spinner');
-        const currentStep = document.querySelector('.step-content.active');
+        const stepContents = document.querySelectorAll('.step-content');
         
         if (show) {
-            if (currentStep) currentStep.style.display = 'none';
+            stepContents.forEach(step => step.style.display = 'none');
             if (loadingSpinner) loadingSpinner.style.display = 'block';
         } else {
             if (loadingSpinner) loadingSpinner.style.display = 'none';
-            if (currentStep) currentStep.style.display = 'block';
+            // Não reexibir etapas antigas - será controlado pelo goToStep
         }
     }
 
@@ -942,7 +1023,8 @@ class RegistrationManager {
         sessionStorage.setItem('pendingEmailVerification', JSON.stringify(pendingData));
         console.log('📧 Stored pending verification for:', this.registrationData.email);
         
-        this.goToStep('success');
+        this.showLoading(false);
+        document.getElementById('step-success').style.display = 'block';
     }
     
     showSocialSuccess() {
@@ -952,7 +1034,8 @@ class RegistrationManager {
         if (successEmailPending) successEmailPending.style.display = 'none';
         if (successSocial) successSocial.style.display = 'block';
         
-        this.goToStep('success');
+        this.showLoading(false);
+        document.getElementById('step-success').style.display = 'block';
     }
 
     isValidEmail(email) {

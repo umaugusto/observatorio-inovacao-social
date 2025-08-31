@@ -611,6 +611,13 @@
             display: flex;
             gap: 15px;
             margin-top: 25px;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .btn-group .btn-primary {
+            max-width: 160px;
+            flex: 0 0 auto;
         }
 
         .alert {
@@ -783,6 +790,32 @@
                                 <div class="error-message">Nome é obrigatório</div>
                             </div>
 
+                            <!-- Seleção de Perfil -->
+                            <div class="form-group">
+                                <label class="form-label">Tipo de Perfil *</label>
+                                <div id="email-based-message" class="alert" style="display: none; margin-bottom: 15px;"></div>
+                                <div class="user-type-grid" id="user-type-selection">
+                                    <div class="user-type-card" data-type="visitante" id="card-visitante">
+                                        <div class="user-type-icon">👁️</div>
+                                        <div class="user-type-title">Visitante</div>
+                                        <div class="user-type-description">Explorar iniciativas e conhecer projetos</div>
+                                    </div>
+                                    <div class="user-type-card" data-type="extensionista" id="card-extensionista">
+                                        <div class="user-type-icon">🎓</div>
+                                        <div class="user-type-title">Extensionista</div>
+                                        <div class="user-type-description">Cadastrar projetos de extensão universitária</div>
+                                        <div class="user-type-badge">Requer email UFRJ</div>
+                                    </div>
+                                    <div class="user-type-card" data-type="pesquisador" id="card-pesquisador">
+                                        <div class="user-type-icon">🔬</div>
+                                        <div class="user-type-title">Pesquisador</div>
+                                        <div class="user-type-description">Cadastrar pesquisas sobre inovação social</div>
+                                        <div class="user-type-badge">Requer email UFRJ</div>
+                                    </div>
+                                </div>
+                                <div class="error-message" id="profile-type-error" style="display: none;">Selecione um tipo de perfil</div>
+                            </div>
+
                             <div class="form-group">
                                 <label class="form-label" for="password">Senha *</label>
                                 <div class="password-field">
@@ -799,32 +832,42 @@
                                     <div class="password-strength-bar" id="strength-bar"></div>
                                 </div>
                                 <div class="password-strength-text" id="strength-text"></div>
-                                <div class="password-requirements" id="password-requirements">
-                                    <div class="requirement" data-requirement="length">
-                                        <span class="requirement-icon">⚪</span>
-                                        Mínimo 8 caracteres
-                                    </div>
-                                    <div class="requirement" data-requirement="lowercase">
-                                        <span class="requirement-icon">⚪</span>
-                                        Uma letra minúscula
-                                    </div>
-                                    <div class="requirement" data-requirement="uppercase">
-                                        <span class="requirement-icon">⚪</span>
-                                        Uma letra maiúscula
-                                    </div>
-                                    <div class="requirement" data-requirement="number">
-                                        <span class="requirement-icon">⚪</span>
-                                        Um número
-                                    </div>
-                                </div>
                                 <div class="error-message">A senha não atende aos requisitos</div>
                             </div>
 
                             <div class="form-group">
                                 <label class="form-label" for="password-confirm">Confirmar Senha *</label>
-                                <input type="password" class="form-input" id="password-confirm" 
-                                       placeholder="Digite a senha novamente" required>
+                                <div class="password-field">
+                                    <input type="password" class="form-input" id="password-confirm" 
+                                           placeholder="Digite a senha novamente" required style="padding-right: 50px;">
+                                    <button type="button" class="password-toggle" id="password-confirm-toggle">
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                            <circle cx="12" cy="12" r="3"></circle>
+                                        </svg>
+                                    </button>
+                                </div>
                                 <div class="error-message">As senhas não coincidem</div>
+                            </div>
+
+                            <!-- Requisitos de senha após confirmar senha -->
+                            <div class="password-requirements" id="password-requirements" style="margin-top: 10px;">
+                                <div class="requirement" data-requirement="length">
+                                    <span class="requirement-icon">⚪</span>
+                                    Mínimo 8 caracteres
+                                </div>
+                                <div class="requirement" data-requirement="lowercase">
+                                    <span class="requirement-icon">⚪</span>
+                                    Uma letra minúscula
+                                </div>
+                                <div class="requirement" data-requirement="uppercase">
+                                    <span class="requirement-icon">⚪</span>
+                                    Uma letra maiúscula
+                                </div>
+                                <div class="requirement" data-requirement="number">
+                                    <span class="requirement-icon">⚪</span>
+                                    Um número
+                                </div>
                             </div>
 
                             <!-- Termos e LGPD -->
@@ -832,14 +875,14 @@
                                 <label class="checkbox-container">
                                     <input type="checkbox" id="terms-checkbox" required>
                                     <span class="checkbox-checkmark"></span>
-                                    Aceito os <a href="#" target="_blank">Termos de Uso</a> e a <a href="#" target="_blank">Política de Privacidade</a>
+                                    Li e concordo com os <a href="#" target="_blank">Termos de Uso</a> e a <a href="#" target="_blank">Política de Privacidade</a>
                                 </label>
                                 <div class="error-message">Você deve aceitar os termos para continuar</div>
                             </div>
 
                             <div class="btn-group">
                                 <button type="button" class="btn-back" id="btn-back-2">Voltar</button>
-                                <button type="submit" class="btn-primary" style="flex: 1;">Continuar</button>
+                                <button type="submit" class="btn-primary">Criar Conta</button>
                             </div>
                         </form>
                     </div>
