@@ -90,7 +90,13 @@ class HeaderManager {
             navActions.innerHTML = this.getLoggedOutHTML(basePath);
         }
 
+        // Ensure nav-actions has proper styling even when empty
+        navActions.style.display = 'flex';
+        navActions.style.alignItems = 'center';
+        navActions.style.gap = '12px';
+
         console.log(`HeaderManager: Header updated for ${this.currentPage} page (logged in: ${isLoggedIn})`);
+        console.log(`HeaderManager: Content set to: "${navActions.innerHTML}"`);
     }
 
     getBasePath() {
