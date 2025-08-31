@@ -337,9 +337,11 @@
                     // Em produção, carregar do endpoint Netlify
                     const response = await fetch('/.netlify/functions/config');
                     if (response.ok) {
-                        const configScript = await response.text();
-                        eval(configScript); // Isso define window.AUTH0_CONFIG
-                        console.log('✅ Auth0 config loaded from Netlify');
+                        const config = await response.json();
+                        window.AUTH0_CONFIG = config;
+                        console.log('✅ Auth0 config loaded from Netlify:', config);
+                    } else {
+                        console.error('❌ Config endpoint returned:', response.status);
                     }
                 } catch (error) {
                     console.error('❌ Failed to load Auth0 config:', error);
@@ -347,10 +349,10 @@
             }
             
             // Fallback para desenvolvimento ou se falhar
-            if (!window.AUTH0_CONFIG) {
+            if (!window.AUTH0_CONFIG || !window.AUTH0_CONFIG.AUTH0_CLIENT_ID) {
                 window.AUTH0_CONFIG = {
                     AUTH0_DOMAIN: 'dev-cvjwhtcjyx8zmows.us.auth0.com',
-                    AUTH0_CLIENT_ID: 'dev-placeholder-client-id'
+                    AUTH0_CLIENT_ID: 'pIcBfUTnGTh7Du1trOtnYKJU4pH5zMUW'
                 };
                 console.log('⚠️ Using fallback Auth0 config');
             }

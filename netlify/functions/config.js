@@ -17,11 +17,11 @@ exports.handler = async (event, context) => {
         return {
             statusCode: 200,
             headers: {
-                'Content-Type': 'application/javascript',
+                'Content-Type': 'application/json',
                 'Access-Control-Allow-Origin': '*',
                 'Cache-Control': 'public, max-age=300' // Cache for 5 minutes
             },
-            body: `window.AUTH0_CONFIG = ${JSON.stringify(config)};`
+            body: JSON.stringify(config)
         };
 
     } catch (error) {
