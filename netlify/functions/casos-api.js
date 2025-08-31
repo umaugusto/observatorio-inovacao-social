@@ -19,22 +19,102 @@ exports.handler = async (event) => {
 
   try {
     if (event.httpMethod === 'GET') {
-      // Keep a minimal GET response so the app can load without DB
-      const mockCasos = [
-        {
-          id: '1',
-          titulo: 'Horta Comunitária da Providência',
-          categoria: 'Meio Ambiente',
-          regiao: 'Centro',
-          descricao_resumo: 'Transformação de área degradada em espaço produtivo',
-          organizacao: 'Coletivo Verde Urbano',
-          beneficiarios: 150,
-          aprovado: true,
-          labels: ['real'],
-          created_at: new Date().toISOString(),
-        },
-      ];
-      return { statusCode: 200, headers, body: JSON.stringify({ casos: mockCasos }) };
+      // Try to fetch real data from Supabase first
+      try {
+        const { data: casosFromDB, error } = await supabase
+          .from('casos')
+          .select(`
+            id,
+            titulo,
+            categoria,
+            regiao,
+            organizacao,
+            status,
+            descricao_resumo,
+            descricao_completa,
+            publico_alvo,
+            beneficiarios,
+            data_inicio,
+            contato,
+            site,
+            imagem_url,
+            metodologia,
+            desafios,
+            responsavel_cadastro,
+            tags,
+            impactos,
+            aprovado,
+            created_at,
+            updated_at
+          `)
+          .eq('aprovado', true)
+          .order('created_at', { ascending: false });
+
+        if (error) {
+          console.error('Supabase error:', error);
+          throw error;
+        }
+
+        // Map snake_case to camelCase for frontend
+        const casos = casosFromDB.map(caso => ({
+          id: caso.id,
+          titulo: caso.titulo,
+          categoria: caso.categoria,
+          regiao: caso.regiao,
+          organizacao: caso.organizacao,
+          status: caso.status,
+          descricaoResumo: caso.descricao_resumo,
+          descricaoCompleta: caso.descricao_completa,
+          publicoAlvo: caso.publico_alvo,
+          beneficiarios: caso.beneficiarios,
+          dataInicio: caso.data_inicio,
+          dataCadastro: caso.created_at,
+          contato: caso.contato,
+          site: caso.site,
+          imagemUrl: caso.imagem_url,
+          metodologia: caso.metodologia,
+          desafios: caso.desafios,
+          responsavelCadastro: caso.responsavel_cadastro,
+          tags: caso.tags,
+          impactos: caso.impactos,
+          aprovado: caso.aprovado
+        }));
+
+        console.log(`Returning ${casos.length} casos from database`);
+        return { statusCode: 200, headers, body: JSON.stringify({ casos }) };
+
+      } catch (dbError) {
+        console.error('Database fetch failed, falling back to mock data:', dbError);
+        
+        // Fallback to mock data if database fails
+        const mockCasos = [
+          {
+            id: 1,
+            titulo: 'Horta Comunitária da Providência',
+            categoria: 'Meio Ambiente',
+            regiao: 'Centro',
+            descricaoResumo: 'Transformação de área degradada em espaço produtivo',
+            organizacao: 'Coletivo Verde Urbano',
+            beneficiarios: 150,
+            aprovado: true,
+            dataCadastro: new Date().toISOString(),
+            imagemUrl: 'https://images.pexels.com/photos/1301856/pexels-photo-1301856.jpeg?auto=compress&cs=tinysrgb&w=600&h=400&fit=crop'
+          },
+          {
+            id: 2,
+            titulo: 'Biblioteca Móvel Zona Oeste',
+            categoria: 'Educação',
+            regiao: 'Campo Grande',
+            descricaoResumo: 'Ônibus adaptado que leva literatura e atividades educativas para comunidades',
+            organizacao: 'Instituto Leitura Para Todos',
+            beneficiarios: 800,
+            aprovado: true,
+            dataCadastro: new Date().toISOString(),
+            imagemUrl: 'https://images.pexels.com/photos/256541/pexels-photo-256541.jpeg?auto=compress&cs=tinysrgb&w=600&h=400&fit=crop'
+          }
+        ];
+        return { statusCode: 200, headers, body: JSON.stringify({ casos: mockCasos }) };
+      }
     }
 
     if (event.httpMethod === 'POST') {

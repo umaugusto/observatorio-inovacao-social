@@ -85,21 +85,63 @@ class DataManager {
     async loadFromDatabase() {
         console.log('🌐 Carregando dados do banco de dados...');
         
-        // Carregar apenas casos - stats function está desabilitada
-        const casosResponse = await fetch('/.netlify/functions/casos-api?exclude_test=true');
-        
-        if (casosResponse.ok) {
-            const casosData = await casosResponse.json();
+        try {
+            // Carregar casos com retry logic
+            const casosData = await this.fetchWithRetry('/.netlify/functions/casos-api', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
             
-            this.casosCache = casosData.casos;
-            this.statsCache = null; // Will calculate from local data
+            this.casosCache = casosData.casos || [];
+            this.statsCache = this.generateLocalStats(this.casosCache);
             this.lastCacheUpdate = Date.now();
             
             console.log('✅ Dados carregados do banco:', {
-                casos: casosData.casos.length
+                casos: this.casosCache.length,
+                aprovados: this.casosCache.filter(c => c.aprovado).length
             });
-        } else {
-            throw new Error('Erro ao carregar dados do banco');
+            
+            // Se não há casos no banco, tente carregar localmente como fallback
+            if (this.casosCache.length === 0) {
+                console.warn('⚠️ Banco de dados retornou 0 casos, usando fallback local');
+                await this.loadFromLocal();
+            }
+            
+        } catch (error) {
+            console.error('❌ Erro ao carregar do banco:', error.message);
+            throw error;
+        }
+    }
+
+    // Função auxiliar para fetch com retry
+    async fetchWithRetry(url, options = {}, retries = 3) {
+        for (let i = 0; i < retries; i++) {
+            try {
+                console.log(`🔄 Tentativa ${i + 1}/${retries}: ${url}`);
+                
+                const response = await fetch(url, options);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                return data;
+                
+            } catch (error) {
+                console.error(`❌ Tentativa ${i + 1} falhou:`, error.message);
+                
+                if (i === retries - 1) {
+                    throw error; // Re-throw on final attempt
+                }
+                
+                // Wait before retry with exponential backoff
+                const delay = Math.pow(2, i) * 1000;
+                console.log(`⏳ Aguardando ${delay}ms antes da próxima tentativa...`);
+                await new Promise(resolve => setTimeout(resolve, delay));
+            }
         }
     }
 
