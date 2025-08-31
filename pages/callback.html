@@ -69,8 +69,9 @@
             return;
           } catch (e) {
             // Fallback: tentar parseHash via WebAuth
-            if (window.Auth0WebAuthCtor) {
-              const auth = new window.Auth0WebAuthCtor({
+            const WebAuthCtor = window.Auth0WebAuthCtor || (window.auth0 && window.auth0.WebAuth);
+            if (WebAuthCtor) {
+              const auth = new WebAuthCtor({
                 domain: window.AUTH0_CONFIG.AUTH0_DOMAIN,
                 clientID: window.AUTH0_CONFIG.AUTH0_CLIENT_ID,
                 redirectUri: window.location.origin + '/pages/callback.html',

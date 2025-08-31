@@ -21,29 +21,33 @@
           return await this.auth0Client.login({ login_hint: loginHint });
         } catch (e) {
           // Fallback to WebAuth Universal Login
-          if (window.Auth0WebAuthCtor && window.AUTH0_CONFIG) {
-            const web = new window.Auth0WebAuthCtor({
+          const WebAuthCtor = window.Auth0WebAuthCtor || (window.auth0 && window.auth0.WebAuth);
+          if (WebAuthCtor && window.AUTH0_CONFIG) {
+            const web = new WebAuthCtor({
               domain: window.AUTH0_CONFIG.AUTH0_DOMAIN,
               clientID: window.AUTH0_CONFIG.AUTH0_CLIENT_ID,
               redirectUri: window.location.origin + '/pages/callback.html',
               responseType: 'token id_token',
               scope: 'openid profile email'
             });
-            return web.authorize({ login_hint: loginHint });
+            web.authorize({ login_hint: loginHint });
+            return; // redirecting
           }
           throw e;
         }
       }
       // If no client, but WebAuth available
-      if (window.Auth0WebAuthCtor && window.AUTH0_CONFIG) {
-        const web = new window.Auth0WebAuthCtor({
+      const WebAuthCtor2 = window.Auth0WebAuthCtor || (window.auth0 && window.auth0.WebAuth);
+      if (WebAuthCtor2 && window.AUTH0_CONFIG) {
+        const web = new WebAuthCtor2({
           domain: window.AUTH0_CONFIG.AUTH0_DOMAIN,
           clientID: window.AUTH0_CONFIG.AUTH0_CLIENT_ID,
           redirectUri: window.location.origin + '/pages/callback.html',
           responseType: 'token id_token',
           scope: 'openid profile email'
         });
-        return web.authorize({ login_hint: loginHint });
+        web.authorize({ login_hint: loginHint });
+        return; // redirecting
       }
       throw new Error('Auth0 não inicializado');
     };
