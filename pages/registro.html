@@ -307,29 +307,7 @@
             font-weight: 600;
         }
 
-        .checkbox-container {
-            display: flex;
-            align-items: flex-start;
-            gap: 10px;
-            cursor: pointer;
-            line-height: 1.5;
-            font-size: 14px;
-            margin: 0;
-            padding: 0;
-        }
-
-        .checkbox-container input[type="checkbox"] {
-            width: 16px;
-            height: 16px;
-            margin: 0;
-            margin-top: 3px;
-            cursor: pointer;
-            flex-shrink: 0;
-        }
-
-        .checkbox-checkmark {
-            display: none;
-        }
+        /* Checkbox styles removidos - usando inline styles */
 
         .profile-card-large {
             border: 2px solid var(--primary-color);
@@ -909,10 +887,12 @@
 
                             <!-- Termos e LGPD -->
                             <div class="form-group" style="margin-top: 20px; margin-bottom: 20px;">
-                                <label class="checkbox-container">
-                                    <input type="checkbox" id="terms-checkbox" required>
-                                    <span style="color: var(--text-color);">Li e estou de acordo com os <a href="#" target="_blank" style="color: var(--primary-color); text-decoration: underline;">Termos de Uso</a> e a <a href="#" target="_blank" style="color: var(--primary-color); text-decoration: underline;">Política de Privacidade</a></span>
-                                </label>
+                                <div style="display: flex; align-items: flex-start; gap: 10px;">
+                                    <input type="checkbox" id="terms-checkbox" required style="width: 16px; height: 16px; margin-top: 3px; cursor: pointer; flex-shrink: 0;">
+                                    <label for="terms-checkbox" style="cursor: pointer; line-height: 1.5; font-size: 14px; color: var(--text-color);">
+                                        Li e estou de acordo com os <a href="#" target="_blank" style="color: var(--primary-color); text-decoration: underline;">Termos de Uso</a> e a <a href="#" target="_blank" style="color: var(--primary-color); text-decoration: underline;">Política de Privacidade</a>
+                                    </label>
+                                </div>
                                 <div class="error-message">Você deve aceitar os termos para continuar</div>
                             </div>
 
