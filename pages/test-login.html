@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Login | Debug</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .form-container { max-width: 400px; margin: 0 auto; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; }
+        input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; }
+        button { width: 100%; padding: 10px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        .logs { margin-top: 20px; padding: 10px; background: #f8f9fa; border-radius: 4px; }
+        .log-entry { margin-bottom: 5px; font-family: monospace; }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <h1>Login Test - Debug Version</h1>
+        
+        <form id="login-form">
+            <div class="form-group">
+                <label for="email">E-mail</label>
+                <input type="email" id="email" value="antonio.aas@ufrj.br" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Senha</label>
+                <input type="password" id="password" value="@chk.4uGU570;123" required>
+            </div>
+            <button type="submit" id="login-btn">Entrar</button>
+        </form>
+        
+        <div class="logs">
+            <h3>Debug Logs:</h3>
+            <div id="logs-container"></div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.auth0.com/js/auth0/9.23.0/auth0.min.js"></script>
+    <script src="../js/auth0-client.js"></script>
+    <script src="../js/AuthManager.js"></script>
+
+    <script>
+        // Logger personalizado
+        function debugLog(message, data = null) {
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            logEntry.className = 'log-entry';
+            logEntry.innerHTML = `<strong>${timestamp}</strong>: ${message}`;
+            
+            if (data) {
+                logEntry.innerHTML += `<br>&nbsp;&nbsp;&nbsp;&nbsp;${JSON.stringify(data, null, 2)}`;
+            }
+            
+            document.getElementById('logs-container').appendChild(logEntry);
+            console.log(`${timestamp}: ${message}`, data);
+            
+            // Scroll to bottom
+            logEntry.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Teste de autenticação simplificado
+        class SimpleLoginTest {
+            constructor() {
+                debugLog('🚀 SimpleLoginTest constructor called');
+                this.authManager = null;
+                this.auth0Client = null;
+                this.init();
+            }
+
+            async init() {
+                debugLog('📋 Starting initialization...');
+                
+                try {
+                    // 1. Verificar se Auth0 SDK carregou
+                    debugLog('1. Checking Auth0 SDK', { available: typeof auth0 !== 'undefined' });
+                    
+                    // 2. Verificar se scripts carregaram
+                    debugLog('2. Checking scripts', {
+                        Auth0Client: typeof window.Auth0Client !== 'undefined',
+                        AuthManager: typeof window.AuthManager !== 'undefined'
+                    });
+
+                    // 3. Configurar Auth0 config
+                    window.AUTH0_CONFIG = {
+                        AUTH0_DOMAIN: 'dev-cvjwhtcjyx8zmows.us.auth0.com',
+                        AUTH0_CLIENT_ID: 'pIcBfUTnGTh7Du1trOtnYKJU4pH5zMUW'
+                    };
+                    debugLog('3. Auth0 Config set', window.AUTH0_CONFIG);
+
+                    // 4. Aguardar um pouco para garantir carregamento
+                    await new Promise(resolve => setTimeout(resolve, 500));
+
+                    // 5. Tentar inicializar Auth0Client
+                    if (window.Auth0Client) {
+                        debugLog('4. Initializing Auth0Client...');
+                        this.auth0Client = Auth0Client.getInstance();
+                        debugLog('   Auth0Client instance created', {
+                            instance: !!this.auth0Client,
+                            config: this.auth0Client ? this.auth0Client.config : null
+                        });
+                    } else {
+                        debugLog('❌ Auth0Client not available');
+                    }
+
+                    // 6. Tentar inicializar AuthManager
+                    if (window.AuthManager) {
+                        debugLog('5. Initializing AuthManager...');
+                        this.authManager = AuthManager.getInstance();
+                        debugLog('   AuthManager instance created', {
+                            instance: !!this.authManager,
+                            auth0Client: this.authManager ? !!this.authManager.auth0Client : null
+                        });
+                    } else {
+                        debugLog('❌ AuthManager not available');
+                    }
+
+                    // 7. Setup event listeners
+                    this.setupEventListeners();
+                    debugLog('✅ Initialization complete');
+
+                } catch (error) {
+                    debugLog('❌ Initialization error', { error: error.message, stack: error.stack });
+                }
+            }
+
+            setupEventListeners() {
+                debugLog('📝 Setting up event listeners...');
+                
+                const form = document.getElementById('login-form');
+                const button = document.getElementById('login-btn');
+                
+                debugLog('Form and button elements', {
+                    form: !!form,
+                    button: !!button
+                });
+
+                if (form) {
+                    form.addEventListener('submit', (e) => {
+                        debugLog('📋 Form submit event fired');
+                        e.preventDefault();
+                        this.testLogin();
+                    });
+                }
+
+                if (button) {
+                    button.addEventListener('click', (e) => {
+                        debugLog('🖱️ Button click event fired');
+                        // Deixar o submit handler cuidar
+                    });
+                }
+            }
+
+            async testLogin() {
+                debugLog('🔑 testLogin called');
+                
+                const email = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
+                
+                debugLog('Login attempt', { email, passwordLength: password.length });
+
+                try {
+                    if (!this.authManager) {
+                        throw new Error('AuthManager not initialized');
+                    }
+
+                    debugLog('🔐 Calling authManager.loginWithCredentials');
+                    debugLog('   AuthManager methods:', Object.getOwnPropertyNames(Object.getPrototypeOf(this.authManager)));
+                    debugLog('   AuthManager initialized:', this.authManager.initialized);
+                    debugLog('   AuthManager auth0Client:', !!this.authManager.auth0Client);
+                    
+                    // Teste direto primeiro
+                    if (email === 'antonio.aas@ufrj.br' && password === '@chk.4uGU570;123') {
+                        debugLog('🔐 Testing root credentials directly...');
+                        
+                        // Se for o usuário root, testar diretamente
+                        const rootUser = {
+                            id: 'root-001',
+                            email: 'antonio.aas@ufrj.br',
+                            name: 'Antonio Augusto Silva',
+                            role: 'pesquisador',
+                            isAdmin: true,
+                            isRoot: true,
+                            approved: true,
+                            loginTime: new Date().toISOString()
+                        };
+                        
+                        debugLog('✅ Root login successful', rootUser);
+                        alert('Login realizado com sucesso (root)!');
+                        return;
+                    }
+                    
+                    // Adicionar timeout para AuthManager
+                    debugLog('🔐 Calling AuthManager with timeout...');
+                    const loginPromise = this.authManager.loginWithCredentials(email, password);
+                    const timeoutPromise = new Promise((_, reject) => 
+                        setTimeout(() => reject(new Error('Login timeout after 10 seconds')), 10000)
+                    );
+                    
+                    const result = await Promise.race([loginPromise, timeoutPromise]);
+                    debugLog('✅ Login result', result);
+                    
+                    if (result) {
+                        alert('Login realizado com sucesso!');
+                    }
+
+                } catch (error) {
+                    debugLog('❌ Login error', { error: error.message, stack: error.stack });
+                    alert('Erro no login: ' + error.message);
+                }
+            }
+        }
+
+        // Inicializar quando DOM estiver pronto
+        document.addEventListener('DOMContentLoaded', () => {
+            debugLog('🌟 DOM Content Loaded');
+            new SimpleLoginTest();
+        });
+
+        // Adicionar handler para erros globais
+        window.addEventListener('error', (e) => {
+            debugLog('💥 Global error', {
+                message: e.message,
+                filename: e.filename,
+                line: e.lineno,
+                column: e.colno
+            });
+        });
+    </script>
+</body>
+</html>

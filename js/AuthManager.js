@@ -1,12 +1,14 @@
 // AuthManager - Sistema centralizado de autenticação com Auth0 + Supabase
 class AuthManager {
     constructor() {
+        console.log('🔧 AuthManager constructor called');
         this.currentUser = null;
         this.observers = new Set();
         this.sessionTimeout = 24 * 60 * 60 * 1000; // 24 horas
         this.auth0Client = null;
         this.supabaseClient = null;
-        this.init();
+        this.initialized = false;
+        this.initPromise = this.init();
     }
 
     static getInstance() {
@@ -17,25 +19,35 @@ class AuthManager {
     }
 
     async init() {
+        console.log('🔧 AuthManager.init() called');
+        
         // Inicializar Auth0 client
         try {
             if (window.Auth0Client) {
+                console.log('🔧 Found Auth0Client, creating instance...');
                 this.auth0Client = Auth0Client.getInstance();
+                
                 // Aguardar inicialização do Auth0Client
                 if (this.auth0Client && this.auth0Client.ensureInitialized) {
+                    console.log('🔧 Waiting for Auth0Client initialization...');
                     await this.auth0Client.ensureInitialized();
                     console.log('✅ Auth0Client initialized in AuthManager');
+                } else {
+                    console.log('⚠️ Auth0Client created but no ensureInitialized method');
                 }
             } else {
-                console.warn('Auth0Client not available, using fallback authentication');
+                console.warn('⚠️ Auth0Client not available, using fallback authentication');
             }
         } catch (error) {
-            console.error('Error initializing Auth0Client:', error);
+            console.error('❌ Error initializing Auth0Client:', error);
         }
         
         // Carregar usuário atual
         this.loadCurrentUser();
         this.setupSessionCheck();
+        
+        this.initialized = true;
+        console.log('✅ AuthManager initialization complete');
     }
 
     // Carregar usuário atual do localStorage
@@ -98,34 +110,62 @@ class AuthManager {
     }
 
 
+    // Garantir inicialização
+    async ensureInitialized() {
+        if (!this.initialized && this.initPromise) {
+            console.log('⏳ Waiting for AuthManager initialization...');
+            await this.initPromise;
+        }
+    }
+    
     // Login direto com credenciais (para formulário)
     async loginWithCredentials(email, password) {
+        console.log('🔐 AuthManager.loginWithCredentials called');
+        console.log('   Email:', email);
+        console.log('   Initialized:', this.initialized);
+        
+        // Garantir que está inicializado
+        await this.ensureInitialized();
+        
         console.log('🔐 Attempting login for:', email);
         console.log('🔐 Auth0 Client available:', !!this.auth0Client);
         
         // Tentar login com Auth0 primeiro
         if (this.auth0Client) {
             console.log('🔐 Trying Auth0 login...');
-            return new Promise(async (resolve, reject) => {
-                await this.auth0Client.loginWithCredentials(email, password, (err, result) => {
-                    if (err) {
-                        console.error('❌ Auth0 login failed:', err);
-                        // Fallback para usuário root
-                        if (email === 'antonio.aas@ufrj.br' && password === '@chk.4uGU570;123') {
-                            console.log('🔐 Using root fallback');
-                            const userData = this.createRootUser();
-                            this.setCurrentUser(userData);
-                            resolve(userData);
+            try {
+                return await new Promise((resolve, reject) => {
+                    // Usar callback direto sem await aqui
+                    this.auth0Client.loginWithCredentials(email, password, (err, result) => {
+                        if (err) {
+                            console.error('❌ Auth0 login failed:', err);
+                            // Fallback para usuário root
+                            if (email === 'antonio.aas@ufrj.br' && password === '@chk.4uGU570;123') {
+                                console.log('🔐 Using root fallback');
+                                const userData = this.createRootUser();
+                                this.setCurrentUser(userData);
+                                resolve(userData);
+                            } else {
+                                reject(new Error(err.description || err.error || 'Credenciais inválidas'));
+                            }
                         } else {
-                            reject(new Error(err.description || err.error || 'Credenciais inválidas'));
+                            console.log('✅ Auth0 login successful:', result);
+                            // Processar resultado do Auth0
+                            this.processAuth0Result(result).then(resolve).catch(reject);
                         }
-                    } else {
-                        console.log('✅ Auth0 login successful:', result);
-                        // Processar resultado do Auth0
-                        this.processAuth0Result(result).then(resolve).catch(reject);
-                    }
+                    });
                 });
-            });
+            } catch (error) {
+                console.error('❌ Error in Auth0 login promise:', error);
+                // Fallback para usuário root se houver erro na Promise
+                if (email === 'antonio.aas@ufrj.br' && password === '@chk.4uGU570;123') {
+                    console.log('🔐 Using root fallback after error');
+                    const userData = this.createRootUser();
+                    this.setCurrentUser(userData);
+                    return userData;
+                }
+                throw error;
+            }
         }
         
         // Fallback direto se Auth0 não estiver disponível

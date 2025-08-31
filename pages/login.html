@@ -355,15 +355,18 @@
             }
 
             async waitForAuthManager() {
+                console.log('⏳ Waiting for AuthManager...');
                 const checkAuthManager = () => {
                     if (window.AuthManager) {
                         this.authManager = AuthManager.getInstance();
+                        console.log('✅ AuthManager found and assigned:', this.authManager);
                         return true;
                     }
                     return false;
                 };
 
                 if (!checkAuthManager()) {
+                    console.log('⏳ AuthManager not ready, waiting...');
                     await new Promise(resolve => {
                         const interval = setInterval(() => {
                             if (checkAuthManager()) {
@@ -373,14 +376,37 @@
                         }, 100);
                     });
                 }
+                console.log('✅ AuthManager ready in LoginPage');
             }
 
             setupEventListeners() {
                 // Form submission
-                document.getElementById('login-form').addEventListener('submit', (e) => {
-                    e.preventDefault();
-                    this.loginWithCredentials();
-                });
+                const loginForm = document.getElementById('login-form');
+                console.log('📝 Login form found:', !!loginForm);
+                
+                if (loginForm) {
+                    loginForm.addEventListener('submit', (e) => {
+                        console.log('📋 Form submit event triggered');
+                        e.preventDefault();
+                        this.loginWithCredentials();
+                    });
+                }
+                
+                // Adicionar listener no botão também
+                const loginBtn = document.getElementById('login-btn');
+                console.log('🔘 Login button found:', !!loginBtn);
+                
+                if (loginBtn) {
+                    loginBtn.addEventListener('click', (e) => {
+                        console.log('🖱️ Button click event triggered');
+                        if (e.target.form) {
+                            // Se o botão está dentro de um form, deixar o submit handler cuidar
+                            return;
+                        }
+                        e.preventDefault();
+                        this.loginWithCredentials();
+                    });
+                }
 
                 // Password toggle
                 const passwordToggleBtn = document.getElementById('password-toggle-btn');
@@ -874,6 +900,8 @@
             // Inicializar LoginPage
             const loginPage = new LoginPage();
             console.log('✅ LoginPage initialized');
+            console.log('   LoginPage instance:', loginPage);
+            console.log('   AuthManager in LoginPage:', loginPage.authManager);
             
             // Inicializar HeaderManager explicitamente
             if (!window.headerManager) {
