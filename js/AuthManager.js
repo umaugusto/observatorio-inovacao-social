@@ -81,12 +81,6 @@ class AuthManager {
         }
     }
 
-    // Login com Google
-    loginWithGoogle() {
-        if (this.auth0Client) {
-            this.auth0Client.loginWithGoogle();
-        }
-    }
 
     // Login direto com credenciais (para formulário)
     loginWithCredentials(email, password) {

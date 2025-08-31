@@ -20,15 +20,55 @@ class UserManagementManager {
         this.setupEventListeners();
     }
 
-    loadData() {
+    async loadData() {
         try {
-            // Carregar lista de usuários
+            // Carregar lista de usuários e solicitações via API
             if (this.authManager.isAdmin() || this.authManager.isRoot()) {
-                this.users = this.authManager.getUsers();
-                this.accessRequests = this.authManager.getAccessRequests();
+                await this.loadUsers();
+                await this.loadAccessRequests();
             }
         } catch (error) {
             console.error('Erro ao carregar dados de usuários:', error);
+        }
+    }
+
+    async loadUsers() {
+        try {
+            const response = await fetch('/.netlify/functions/user-management/users', {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+                }
+            });
+            
+            if (response.ok) {
+                this.users = await response.json();
+            } else {
+                console.warn('Erro ao carregar usuários, usando dados locais');
+                this.users = [];
+            }
+        } catch (error) {
+            console.error('Erro ao carregar usuários:', error);
+            this.users = [];
+        }
+    }
+
+    async loadAccessRequests() {
+        try {
+            const response = await fetch('/.netlify/functions/access-request', {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+                }
+            });
+            
+            if (response.ok) {
+                this.accessRequests = await response.json();
+            } else {
+                console.warn('Erro ao carregar solicitações, usando dados locais');
+                this.accessRequests = [];
+            }
+        } catch (error) {
+            console.error('Erro ao carregar solicitações:', error);
+            this.accessRequests = [];
         }
     }
 
@@ -423,29 +463,83 @@ class UserManagementManager {
         }
     }
 
-    approveRequest(requestId) {
-        const password = prompt('Digite a senha temporária para o novo usuário:');
-        if (!password) return;
+    async approveRequest(requestId) {
+        const request = this.accessRequests.find(r => r.id === requestId);
+        if (!request) {
+            this.showNotification('Solicitação não encontrada.', 'error');
+            return;
+        }
+
+        if (!confirm(`Aprovar solicitação de ${request.name} (${request.email}) como ${request.role}?`)) {
+            return;
+        }
 
         try {
-            this.authManager.processAccessRequest(requestId, 'approve', password);
-            this.loadData();
+            const response = await fetch('/.netlify/functions/access-request', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+                },
+                body: JSON.stringify({
+                    requestId: requestId,
+                    action: 'approve',
+                    approvedBy: this.authManager.getCurrentUser().id
+                })
+            });
+
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.message || 'Erro ao aprovar solicitação');
+            }
+
+            await this.loadData();
             this.refreshInterface();
             this.showNotification('Solicitação aprovada! Usuário criado com sucesso.', 'success');
         } catch (error) {
+            console.error('Erro ao aprovar solicitação:', error);
             this.showNotification('Erro ao aprovar solicitação: ' + error.message, 'error');
         }
     }
 
-    rejectRequest(requestId) {
-        if (!confirm('Tem certeza que deseja rejeitar esta solicitação?')) return;
+    async rejectRequest(requestId) {
+        const request = this.accessRequests.find(r => r.id === requestId);
+        if (!request) {
+            this.showNotification('Solicitação não encontrada.', 'error');
+            return;
+        }
+
+        const reason = prompt('Motivo da rejeição (opcional):') || '';
+
+        if (!confirm(`Rejeitar solicitação de ${request.name} (${request.email})?`)) {
+            return;
+        }
 
         try {
-            this.authManager.processAccessRequest(requestId, 'reject');
-            this.loadData();
+            const response = await fetch('/.netlify/functions/access-request', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+                },
+                body: JSON.stringify({
+                    requestId: requestId,
+                    action: 'reject',
+                    approvedBy: this.authManager.getCurrentUser().id,
+                    reason: reason
+                })
+            });
+
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.message || 'Erro ao rejeitar solicitação');
+            }
+
+            await this.loadData();
             this.refreshInterface();
             this.showNotification('Solicitação rejeitada.', 'success');
         } catch (error) {
+            console.error('Erro ao rejeitar solicitação:', error);
             this.showNotification('Erro ao rejeitar solicitação: ' + error.message, 'error');
         }
     }
