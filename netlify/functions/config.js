@@ -10,7 +10,7 @@ exports.handler = async (event, context) => {
     try {
         // Return public configuration
         const config = {
-            AUTH0_DOMAIN: process.env.AUTH0_DOMAIN || 'alphzilla.us.auth0.com',
+            AUTH0_DOMAIN: process.env.AUTH0_DOMAIN || 'dev-cvjwhtcjyx8zmows.us.auth0.com',
             AUTH0_CLIENT_ID: process.env.AUTH0_CLIENT_ID || null
         };
 
