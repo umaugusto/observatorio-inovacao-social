@@ -169,6 +169,9 @@ class RegistrationManager {
         // Ir para etapa 2 e mostrar o email selecionado
         document.getElementById('selected-email').textContent = email;
         this.goToStep(2);
+        
+        // Aplicar lógica baseada no tipo de email
+        this.applyEmailBasedLogic();
     }
     
     handleDetailsSubmit() {
@@ -212,66 +215,12 @@ class RegistrationManager {
     }
 
     applyEmailBasedLogic() {
-        const isUFRJ = this.registrationData.isUFRJEmail;
-        const cards = document.querySelectorAll('.user-type-card');
-        
-        if (isUFRJ) {
-            // Email UFRJ: Habilitar extensionista/pesquisador, desabilitar visitante
-            cards.forEach(card => {
-                const type = card.dataset.type;
-                if (type === 'visitante') {
-                    card.classList.add('disabled');
-                    card.classList.remove('available');
-                } else {
-                    card.classList.add('available');
-                    card.classList.remove('disabled');
-                }
-            });
-            
-            // Pré-selecionar extensionista por padrão
-            this.selectUserType('extensionista');
-            
-            // Mostrar mensagem de orientação
-            this.showEmailMessage('✅ Email UFRJ detectado! Você pode escolher entre Extensionista ou Pesquisador.', 'success');
-            
-        } else {
-            // Email comum: Habilitar visitante, desabilitar outros
-            cards.forEach(card => {
-                const type = card.dataset.type;
-                if (type === 'visitante') {
-                    card.classList.add('available');
-                    card.classList.remove('disabled');
-                } else {
-                    card.classList.add('disabled');
-                    card.classList.remove('available');
-                }
-            });
-            
-            // Pré-selecionar visitante
-            this.selectUserType('visitante');
-            
-            // Mostrar mensagem informativa
-            this.showEmailMessage('ℹ️ Para perfis de Extensionista ou Pesquisador, é necessário um email institucional da UFRJ (@ufrj.br).', 'info');
-        }
+        // Lógica aplicada automaticamente na etapa 3 (confirmação de perfil)
+        // Não há mais seleção manual de tipo de usuário - é determinado pelo email
+        console.log(`📧 Email ${this.registrationData.isUFRJEmail ? 'UFRJ' : 'comum'} detectado:`, this.registrationData.email);
     }
 
-    showEmailMessage(message, type) {
-        // Criar ou atualizar elemento de mensagem
-        let messageEl = document.getElementById('email-based-message');
-        if (!messageEl) {
-            messageEl = document.createElement('div');
-            messageEl.id = 'email-based-message';
-            messageEl.className = 'alert';
-            
-            // Inserir antes do grid de tipos de usuário
-            const userTypeGrid = document.querySelector('.user-type-grid');
-            userTypeGrid.parentNode.insertBefore(messageEl, userTypeGrid);
-        }
-        
-        messageEl.className = `alert alert-${type}`;
-        messageEl.innerHTML = message;
-        messageEl.style.marginBottom = '20px';
-    }
+    // Função removida - não é mais necessária com o fluxo simplificado
 
     validateEmailInput() {
         const emailInput = document.getElementById('user-email');
