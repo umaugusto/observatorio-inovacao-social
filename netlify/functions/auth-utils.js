@@ -1,21 +1,21 @@
-const { createRemoteJWKSet, jwtVerify } = require('jose');
-
 const domain = process.env.AUTH0_DOMAIN;
 const audience = process.env.AUTH0_AUDIENCE; // opcional
 
-let jwks;
-function getJwks() {
-  if (!jwks) {
+let jwksPromise;
+async function getJwks() {
+  if (!jwksPromise) {
     if (!domain) throw new Error('AUTH0_DOMAIN not configured');
+    const { createRemoteJWKSet } = await import('jose');
     const url = new URL(`https://${domain}/.well-known/jwks.json`);
-    jwks = createRemoteJWKSet(url);
+    jwksPromise = createRemoteJWKSet(url);
   }
-  return jwks;
+  return jwksPromise;
 }
 
 async function verifyAuth0Token(token) {
   if (!token) throw new Error('Missing token');
-  const JWKS = getJwks();
+  const { jwtVerify } = await import('jose');
+  const JWKS = await getJwks();
   const { payload } = await jwtVerify(token, JWKS, {
     issuer: `https://${domain}/`,
     audience: audience || undefined,
@@ -43,4 +43,3 @@ async function requireAuth(event) {
 }
 
 module.exports = { verifyAuth0Token, requireAuth, getBearerToken };
-
