@@ -65,6 +65,8 @@
             const accessToken = await client.getAccessToken();
             const idToken = await client.getIdToken();
             const user = await client.getUser();
+            if (accessToken) localStorage.setItem('access_token', accessToken);
+            if (idToken) localStorage.setItem('id_token', idToken);
             await syncAndRedirect(user, accessToken, idToken);
             return;
           } catch (e) {
@@ -139,6 +141,8 @@
           approved: true
         };
         localStorage.setItem('current_user', JSON.stringify({ ...fallback, loginTime: new Date().toISOString() }));
+        if (accessToken) localStorage.setItem('access_token', accessToken);
+        if (idToken) localStorage.setItem('id_token', idToken);
         window.location.href = '../index.html';
       }
       window.addEventListener('DOMContentLoaded', handle);
