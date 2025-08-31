@@ -326,10 +326,10 @@
         </div>
     </section>
 
-    <!-- Scripts -->
-    <script src="https://cdn.auth0.com/js/auth0/9.23.0/auth0.min.js"></script>
+    <!-- Scripts (load managers before inline script) -->
     <script src="../js/auth0-client.js"></script>
     <script src="../js/AuthManager.js"></script>
+    <script src="../js/auth-augment.js"></script>
     <script src="../js/HeaderManager.js"></script>
 
     <script>
@@ -1006,9 +1006,6 @@
             }
         });
     </script>
-    <!-- Carregar SDK wrapper e AuthManager para login -->
-    <script src="../js/auth0-client.js"></script>
-    <script src="../js/AuthManager.js"></script>
-    <script src="../js/auth-augment.js"></script>
+    <!-- Fim dos scripts -->
 </body>
 </html>
