@@ -1,205 +1,120 @@
-// Auth0 Client - Configuração de autenticação
-class Auth0Client {
+// Auth0 Client (SPA SDK + PKCE)
+class Auth0ClientWrapper {
     constructor() {
-        this.auth0 = null;
+        this.client = null;
         this.initialized = false;
         this.initPromise = null;
-        
-        // Get Auth0 config from loaded config or use defaults
-        const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+
         const auth0Config = window.AUTH0_CONFIG || {};
-        
         this.config = {
             domain: auth0Config.AUTH0_DOMAIN || 'dev-cvjwhtcjyx8zmows.us.auth0.com',
-            clientID: auth0Config.AUTH0_CLIENT_ID || 'pIcBfUTnGTh7Du1trOtnYKJU4pH5zMUW', // Auth0 usa clientID (D maiúsculo)
+            clientId: auth0Config.AUTH0_CLIENT_ID || 'pIcBfUTnGTh7Du1trOtnYKJU4pH5zMUW',
             redirectUri: window.location.origin + '/pages/callback.html',
             scope: 'openid profile email'
         };
-        
-        console.log('🔐 Auth0Client Constructor - Initial Config:', { 
-            domain: this.config.domain, 
-            clientID: this.config.clientID, 
-            isDevelopment,
-            hasConfig: !!window.AUTH0_CONFIG
-        });
-        
-        // Inicializar de forma assíncrona
+
         this.initPromise = this.init();
     }
 
     static getInstance() {
-        if (!Auth0Client.instance) {
-            Auth0Client.instance = new Auth0Client();
+        if (!Auth0ClientWrapper.instance) {
+            Auth0ClientWrapper.instance = new Auth0ClientWrapper();
         }
-        return Auth0Client.instance;
+        return Auth0ClientWrapper.instance;
+    }
+
+    async waitForConfig() {
+        let attempts = 0;
+        while ((!window.AUTH0_CONFIG || !window.AUTH0_CONFIG.AUTH0_CLIENT_ID) && attempts < 20) {
+            await new Promise(r => setTimeout(r, 100));
+            attempts++;
+        }
+        if (window.AUTH0_CONFIG) {
+            this.config.domain = window.AUTH0_CONFIG.AUTH0_DOMAIN || this.config.domain;
+            this.config.clientId = window.AUTH0_CONFIG.AUTH0_CLIENT_ID || this.config.clientId;
+        }
+    }
+
+    async loadSpaSdk() {
+        if (window.createAuth0Client) return;
+        await new Promise((resolve, reject) => {
+            const s = document.createElement('script');
+            s.src = 'https://cdn.auth0.com/js/auth0-spa-js/2.1/auth0-spa-js.production.js';
+            s.onload = resolve;
+            s.onerror = reject;
+            document.head.appendChild(s);
+        });
     }
 
     async init() {
-        // Aguardar configuração estar disponível
-        let attempts = 0;
-        while ((!window.AUTH0_CONFIG || !window.AUTH0_CONFIG.AUTH0_CLIENT_ID) && attempts < 10) {
-            console.log('⏳ Waiting for Auth0 config...', attempts);
-            await new Promise(resolve => setTimeout(resolve, 100));
-            attempts++;
-        }
-        
-        // Atualizar config com valores carregados
-        if (window.AUTH0_CONFIG) {
-            this.config.domain = window.AUTH0_CONFIG.AUTH0_DOMAIN || this.config.domain;
-            this.config.clientID = window.AUTH0_CONFIG.AUTH0_CLIENT_ID || this.config.clientID;
-            console.log('🔐 Auth0Client using config:', this.config);
-        }
-        
-        // Verificar se Auth0 SDK está disponível
-        if (typeof auth0 !== 'undefined') {
-            this.auth0 = new auth0.WebAuth(this.config);
-            this.initialized = true;
-            console.log('✅ Auth0 WebAuth initialized');
-            console.log('   Final config used:', this.config);
-        } else {
-            console.log('Auth0 SDK não carregado. Carregando dinamicamente...');
-            await this.loadAuth0SDK();
-        }
-    }
+        await this.waitForConfig();
+        await this.loadSpaSdk();
 
-    async loadAuth0SDK() {
-        return new Promise((resolve, reject) => {
-            const script = document.createElement('script');
-            script.src = 'https://cdn.auth0.com/js/auth0/9.23.0/auth0.min.js';
-            script.onload = () => {
-                this.auth0 = new auth0.WebAuth(this.config);
-                this.initialized = true;
-                console.log('✅ Auth0 client initialized via dynamic load');
-                resolve();
-            };
-            script.onerror = reject;
-            document.head.appendChild(script);
+        this.client = await window.createAuth0Client({
+            domain: this.config.domain,
+            clientId: this.config.clientId,
+            authorizationParams: {
+                redirect_uri: this.config.redirectUri,
+                scope: this.config.scope
+            },
+            cacheLocation: 'localstorage',
+            useRefreshTokens: true
         });
+        this.initialized = true;
     }
 
-    // Login
-    login(options = {}) {
-        if (!this.auth0) {
-            console.error('Auth0 client not initialized');
-            return;
-        }
-
-        this.auth0.authorize({
-            connection: options.connection || 'Username-Password-Authentication',
-            ...options
-        });
-    }
-
-    // Login com Google
-    loginWithGoogle() {
-        this.login({ connection: 'google-oauth2' });
-    }
-
-    // Garantir que está inicializado
     async ensureInitialized() {
-        if (this.initialized) return;
-        if (this.initPromise) {
+        if (!this.initialized && this.initPromise) {
             await this.initPromise;
         }
     }
-    
-    // Login com email/password
-    async loginWithCredentials(email, password, callback) {
-        console.log('🔐 Auth0Client.loginWithCredentials called');
-        console.log('   Initialized:', this.initialized);
-        console.log('   auth0 instance:', !!this.auth0);
-        
-        // Garantir inicialização
+
+    async login(options = {}) {
         await this.ensureInitialized();
-        
-        if (!this.auth0) {
-            console.error('❌ Auth0 client not initialized after wait');
-            callback(new Error('Auth0 não inicializado'));
-            return;
-        }
-
-        console.log('🔑 Calling auth0.login with realm');
-        this.auth0.login({
-            realm: 'Username-Password-Authentication',
-            username: email,
-            password: password,
-            scope: this.config.scope
-        }, callback);
-    }
-
-    // Signup
-    signup(email, password, userData, callback) {
-        if (!this.auth0) {
-            console.error('Auth0 client not initialized');
-            return;
-        }
-
-        this.auth0.signup({
-            connection: 'Username-Password-Authentication',
-            email: email,
-            password: password,
-            user_metadata: userData
-        }, callback);
-    }
-
-    // Parse callback
-    parseHash(callback) {
-        if (!this.auth0) {
-            console.error('Auth0 client not initialized');
-            return;
-        }
-
-        this.auth0.parseHash(callback);
-    }
-
-    // Logout
-    logout() {
-        if (!this.auth0) {
-            console.error('Auth0 client not initialized');
-            return;
-        }
-
-        this.auth0.logout({
-            returnTo: window.location.origin,
-            clientID: this.config.clientID
+        return this.client.loginWithRedirect({
+            authorizationParams: {
+                login_hint: options.login_hint || undefined,
+                screen_hint: options.screen_hint || undefined,
+                prompt: options.prompt || undefined
+            }
         });
     }
 
-    // Get user info
-    getUserInfo(accessToken, callback) {
-        if (!this.auth0) {
-            console.error('Auth0 client not initialized');
-            return;
-        }
-
-        this.auth0.client.userInfo(accessToken, callback);
+    async handleRedirectCallback() {
+        await this.ensureInitialized();
+        return this.client.handleRedirectCallback();
     }
 
-    // Change password
-    changePassword(email, callback) {
-        if (!this.auth0) {
-            console.error('Auth0 client not initialized');
-            return;
-        }
-
-        this.auth0.changePassword({
-            connection: 'Username-Password-Authentication',
-            email: email
-        }, callback);
+    async isAuthenticated() {
+        await this.ensureInitialized();
+        return this.client.isAuthenticated();
     }
 
-    // Resend verification email
-    resendVerificationEmail(userId) {
-        // Implementar via função Netlify
-        return fetch('/.netlify/functions/auth0-resend-verification', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ userId })
-        });
+    async getUser() {
+        await this.ensureInitialized();
+        return this.client.getUser();
+    }
+
+    async getIdToken() {
+        await this.ensureInitialized();
+        const claims = await this.client.getIdTokenClaims();
+        return claims ? claims.__raw : null;
+    }
+
+    async getAccessToken() {
+        await this.ensureInitialized();
+        return this.client.getTokenSilently();
+    }
+
+    async logout() {
+        await this.ensureInitialized();
+        return this.client.logout({ logoutParams: { returnTo: window.location.origin } });
+    }
+
+    async forgotPassword(login_hint) {
+        // Use Universal Login password reset screen
+        return this.login({ screen_hint: 'reset_password', login_hint });
     }
 }
 
-// Export para uso global
-window.Auth0Client = Auth0Client;
+window.Auth0Client = Auth0ClientWrapper;
