@@ -416,20 +416,35 @@
 
 
             async loginWithCredentials() {
-                if (this.isLoading) return;
+                console.log('🔑 loginWithCredentials called');
+                
+                if (this.isLoading) {
+                    console.log('⚠️ Already loading, skipping');
+                    return;
+                }
 
                 const email = document.getElementById('email').value.trim();
                 const password = document.getElementById('password').value;
+                
+                console.log('📧 Email:', email);
+                console.log('🔒 Password length:', password.length);
 
                 if (!this.validateForm(email, password)) {
+                    console.log('❌ Form validation failed');
                     return;
                 }
 
                 try {
                     this.setLoading(true);
                     this.clearMessages();
+                    
+                    console.log('🔐 Calling authManager.loginWithCredentials');
+                    console.log('   AuthManager instance:', this.authManager);
+                    console.log('   AuthManager methods:', Object.getOwnPropertyNames(Object.getPrototypeOf(this.authManager)));
 
                     const userData = await this.authManager.loginWithCredentials(email, password);
+                    
+                    console.log('✅ Login response:', userData);
                     
                     if (userData) {
                         // Login bem-sucedido, redirecionar
@@ -445,7 +460,8 @@
                     }
                     
                 } catch (error) {
-                    console.error('Login error:', error);
+                    console.error('❌ Login error:', error);
+                    console.error('   Error stack:', error.stack);
                     this.showError(error.message || 'Erro no login. Verifique suas credenciais.');
                 } finally {
                     this.setLoading(false);
@@ -838,6 +854,15 @@
             console.log('   - AuthManager:', !!window.AuthManager);
             console.log('   - HeaderManager:', !!window.HeaderManager);
             console.log('   - Auth0Client:', !!window.Auth0Client);
+            console.log('   - auth0 SDK:', typeof auth0 !== 'undefined');
+            
+            // Verificar se Auth0Client foi inicializado
+            if (window.Auth0Client) {
+                const auth0Instance = Auth0Client.getInstance();
+                console.log('   - Auth0Client instance:', auth0Instance);
+                console.log('   - Auth0Client.auth0:', auth0Instance.auth0);
+                console.log('   - Auth0Client.config:', auth0Instance.config);
+            }
             
             // Debug: Verificar se nav-actions existe
             const navActions = document.querySelector('.nav-actions');
