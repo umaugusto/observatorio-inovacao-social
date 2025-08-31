@@ -183,12 +183,12 @@
             display: flex;
             transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
             height: 100%;
-            width: 300%; /* 3 panels × 100% each */
+            width: 200%; /* 2 panels × 100% each */
         }
 
         .content-panel {
-            flex: 0 0 33.333%; /* Each panel takes exactly 1/3 of slider width */
-            width: 33.333%;
+            flex: 0 0 50%; /* Each panel takes exactly 1/2 of slider width */
+            width: 50%;
             padding: 80px 0;
             box-sizing: border-box;
         }
@@ -666,8 +666,6 @@
                     <a href="javascript:void(0)" class="subtle-nav-link active" data-target="metodologia">Metodologia</a>
                     <span class="nav-separator">•</span>
                     <a href="javascript:void(0)" class="subtle-nav-link" data-target="equipe">Equipe</a>
-                    <span class="nav-separator">•</span>
-                    <a href="javascript:void(0)" class="subtle-nav-link" data-target="contato">Contato</a>
                 </div>
             </div>
         </div>
@@ -697,7 +695,7 @@
                     </div>
 
                     <!-- Etapas EMUDE Compactas -->
-                    <div class="emude-steps">
+                    <div class="emude-grid">
                         <div class="emude-step-compact">
                             <div class="step-number-compact">1</div>
                             <div class="step-content-compact">
@@ -785,24 +783,12 @@
                 </div>
             </div>
 
-            <!-- Contact Panel -->
-            <div class="content-panel contact-panel" id="contato-panel">
-                <div class="container">
-                    <div class="contact-redirect">
-                        <div class="contact-redirect-icon">📧</div>
-                        <h3>Entre em Contato</h3>
-                        <p>Tem uma dúvida, sugestão ou quer saber mais sobre o projeto? Nossa página de contato possui todas as informações e um formulário completo para você.</p>
-                        <a href="contato.html" class="btn-contact">Ir para Contato</a>
-                    </div>
-                </div>
-            </div>
         </div>
 
         <!-- Scroll Indicators -->
         <div class="scroll-indicator">
             <div class="indicator-dot" data-target="metodologia"></div>
             <div class="indicator-dot" data-target="equipe"></div>
-            <div class="indicator-dot" data-target="contato"></div>
         </div>
     </section>
 
@@ -863,8 +849,12 @@
         class HorizontalNavigation {
             constructor() {
                 this.currentPanel = 0;
-                this.panels = ['metodologia', 'equipe', 'contato'];
+                this.panels = ['metodologia', 'equipe'];
                 this.slider = document.getElementById('contentSlider');
+                this.startX = 0;
+                this.endX = 0;
+                
+                
                 this.init();
             }
 
@@ -915,15 +905,12 @@
                 });
 
                 // Touch/Swipe support
-                let startX = 0;
-                let endX = 0;
-
                 this.slider.addEventListener('touchstart', (e) => {
-                    startX = e.touches[0].clientX;
+                    this.startX = e.touches[0].clientX;
                 });
 
                 this.slider.addEventListener('touchend', (e) => {
-                    endX = e.changedTouches[0].clientX;
+                    this.endX = e.changedTouches[0].clientX;
                     this.handleSwipe();
                 });
             }
@@ -937,7 +924,7 @@
             }
 
             showPanel(index) {
-                const translateX = -index * 33.333; // Each panel is 33.333% wide
+                const translateX = -index * 50; // Each panel is 50% wide
                 if (this.slider) {
                     this.slider.style.transform = `translateX(${translateX}%)`;
                     
@@ -978,7 +965,7 @@
 
             handleSwipe() {
                 const swipeThreshold = 50;
-                const swipeDistance = endX - startX;
+                const swipeDistance = this.endX - this.startX;
                 
                 if (Math.abs(swipeDistance) > swipeThreshold) {
                     if (swipeDistance > 0) {
@@ -1014,13 +1001,15 @@
 
         // Initialize when DOM is ready
         document.addEventListener('DOMContentLoaded', () => {
-            // Verificar status de autenticação
-            if (window.app) {
-                window.app.checkAuthStatus();
-            }
-
             // Initialize horizontal navigation
             window.horizontalNav = new HorizontalNavigation();
+            
+            // Verificar status de autenticação após todos os scripts carregarem
+            setTimeout(() => {
+                if (window.app && typeof window.app.checkAuthStatus === 'function') {
+                    window.app.checkAuthStatus();
+                }
+            }, 100);
 
             // Animate elements on scroll
             const observer = new IntersectionObserver((entries) => {

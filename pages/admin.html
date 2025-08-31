@@ -431,8 +431,8 @@
             <div class="admin-nav">
                 <button class="admin-nav-btn active" data-tab="overview" data-title="Visão Geral" data-subtitle="Estatísticas e atividades recentes do sistema">📊 Visão Geral</button>
                 <button class="admin-nav-btn" data-tab="cases" data-title="Casos" data-subtitle="Gerencie e aprove casos de inovação social">📋 Casos</button>
-                <button class="admin-nav-btn" data-tab="requests" data-title="Solicitações" data-subtitle="Aprove ou rejeite solicitações de acesso">📬 Solicitações</button>
-                <button class="admin-nav-btn" data-tab="users" data-title="Usuários" data-subtitle="Administre contas de usuários do sistema">👥 Usuários</button>
+                <button class="admin-nav-btn" data-tab="users" data-title="Usuários" data-subtitle="Gerencie contas e solicitações de acesso">👥 Usuários</button>
+                <button class="admin-nav-btn" data-tab="messages" data-title="Mensagens" data-subtitle="Visualize e responda mensagens de contato">📧 Mensagens</button>
                 <button class="admin-nav-btn" data-tab="profile" data-title="Perfil" data-subtitle="Edite suas informações pessoais">👤 Perfil</button>
             </div>
 
@@ -455,9 +455,9 @@
                         <div class="stat-label">Usuários Ativos</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-icon">📬</div>
-                        <div class="stat-number" id="pending-requests">0</div>
-                        <div class="stat-label">Solicitações Pendentes</div>
+                        <div class="stat-icon">📧</div>
+                        <div class="stat-number" id="unread-messages">0</div>
+                        <div class="stat-label">Mensagens não Lidas</div>
                     </div>
                 </div>
 
@@ -522,58 +522,37 @@
                 </div>
             </div>
 
-            <!-- Requests Section -->
-            <div class="admin-section" id="requests-section">
-                <div class="admin-card">
-                    <div class="admin-card-header">
-                        <h3 class="admin-card-title">Solicitações de Acesso</h3>
-                    </div>
-                    <div class="admin-card-body">
-                        <div class="table-container">
-                            <table class="admin-table" id="requests-table">
-                                <thead>
-                                    <tr>
-                                        <th>Nome</th>
-                                        <th>E-mail</th>
-                                        <th>Tipo</th>
-                                        <th>Status</th>
-                                        <th>Data</th>
-                                        <th>Ações</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="requests-tbody">
-                                    <!-- Preenchido via JavaScript -->
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
 
             <!-- Users Section -->
             <div class="admin-section" id="users-section">
+                <div id="user-management-content">
+                    <!-- Conteúdo será gerado pelo UserManagementManager -->
+                </div>
+            </div>
+            
+            <!-- Messages Section -->
+            <div class="admin-section" id="messages-section">
                 <div class="admin-card">
                     <div class="admin-card-header">
-                        <h3 class="admin-card-title">Gerenciar Usuários</h3>
-                        <button class="btn-primary" id="add-user-btn">Cadastrar Usuário</button>
+                        <h3 class="admin-card-title">Mensagens de Contato</h3>
+                        <div>
+                            <button class="btn-secondary" onclick="adminDashboard.markAllAsRead()" style="margin-right: 10px;">Marcar Todas como Lidas</button>
+                            <button class="btn-primary" onclick="adminDashboard.exportMessages()">Exportar</button>
+                        </div>
                     </div>
                     <div class="admin-card-body">
-                        <div class="table-container">
-                            <table class="admin-table" id="users-table">
-                                <thead>
-                                    <tr>
-                                        <th>Nome</th>
-                                        <th>E-mail</th>
-                                        <th>Função</th>
-                                        <th>Status</th>
-                                        <th>Último Login</th>
-                                        <th>Ações</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="users-tbody">
-                                    <!-- Preenchido via JavaScript -->
-                                </tbody>
-                            </table>
+                        <div class="search-bar">
+                            <input type="text" class="search-input" placeholder="Buscar mensagens..." id="messages-search">
+                            <select class="filter-select" id="messages-filter">
+                                <option value="">Todas as mensagens</option>
+                                <option value="unread">Não lidas</option>
+                                <option value="read">Lidas</option>
+                                <option value="replied">Respondidas</option>
+                            </select>
+                        </div>
+                        
+                        <div id="messages-container">
+                            <!-- Mensagens serão carregadas via JavaScript -->
                         </div>
                     </div>
                 </div>
@@ -657,6 +636,7 @@
     <!-- Scripts -->
     <script src="../js/DataManager.js"></script>
     <script src="../js/AuthManager.js"></script>
+    <script src="../js/UserManagementManager.js"></script>
     <script src="../js/HeaderManager.js"></script>
     <script src="../js/main.js"></script>
     <script>
@@ -664,6 +644,8 @@
             constructor() {
                 this.dataManager = null;
                 this.authManager = null;
+                this.userManager = null;
+                this.messages = [];
                 this.init();
             }
 
@@ -672,14 +654,20 @@
                 this.dataManager = DataManager.getInstance();
                 this.authManager = AuthManager.getInstance();
                 
-                if (!this.authManager.requireRole('admin', 'login.html')) {
+                // Verificar se é admin
+                if (!this.authManager.isAdmin() && !this.authManager.isRoot()) {
+                    window.location.href = 'login.html';
                     return;
                 }
+                
+                // Inicializar UserManagementManager
+                this.userManager = UserManagementManager.getInstance();
                 
                 this.loadDashboardData();
                 this.setupEventListeners();
                 this.displayUserInfo();
                 this.setupDropdownMenu();
+                this.loadUserManagement();
             }
 
             displayUserInfo() {
@@ -691,22 +679,25 @@
             loadDashboardData() {
                 // Carregar dados dos casos
                 const casos = this.dataManager.getCasos();
-                const solicitacoes = this.dataManager.getSolicitacoes();
-
+                
+                // Carregar mensagens de contato
+                this.messages = this.dataManager.getMensagensContato() || [];
+                
                 // Atualizar estatísticas
                 const totalCases = casos.length;
                 const pendingCases = casos.filter(c => !c.aprovado).length;
-                const pendingRequests = solicitacoes.filter(s => s.status === 'pendente').length;
+                const totalUsers = this.authManager.getUsers().length;
+                const unreadMessages = this.messages.filter(m => !m.read).length;
 
                 document.getElementById('total-cases').textContent = totalCases;
                 document.getElementById('pending-cases').textContent = pendingCases;
-                document.getElementById('pending-requests').textContent = pendingRequests;
+                document.getElementById('total-users').textContent = totalUsers;
+                document.getElementById('unread-messages').textContent = unreadMessages;
 
                 // Carregar tabelas
                 this.loadCasesTable(casos);
-                this.loadRequestsTable(solicitacoes);
-                this.loadUsersTable();
-                this.loadRecentActivity(casos, solicitacoes);
+                this.loadMessagesContainer();
+                this.loadRecentActivity(casos);
             }
 
             loadCasesTable(casos) {
@@ -747,79 +738,79 @@
                 `).join('');
             }
 
-            loadRequestsTable(solicitacoes) {
-                const tbody = document.getElementById('requests-tbody');
+            loadUserManagement() {
+                const container = document.getElementById('user-management-content');
+                container.innerHTML = this.userManager.renderUserManagementInterface();
+                this.userManager.setupTabSwitching();
                 
-                if (solicitacoes.length === 0) {
-                    tbody.innerHTML = `
-                        <tr>
-                            <td colspan="6" class="empty-state">
-                                <div class="empty-icon">📬</div>
-                                <p>Nenhuma solicitação de acesso</p>
-                            </td>
-                        </tr>
+                // Tornar o UserManagementManager global para acesso
+                window.userManagement = this.userManager;
+            }
+
+            loadMessagesContainer() {
+                const container = document.getElementById('messages-container');
+                
+                if (this.messages.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-icon">📧</div>
+                            <p>Nenhuma mensagem de contato</p>
+                        </div>
                     `;
                     return;
                 }
-
-                tbody.innerHTML = solicitacoes.map(sol => `
-                    <tr>
-                        <td>${sol.nome}</td>
-                        <td>${sol.email}</td>
-                        <td>${sol.tipo_acesso}</td>
-                        <td>
-                            <span class="status-badge status-${sol.status === 'pendente' ? 'pending' : sol.status === 'aprovado' ? 'approved' : 'rejected'}">
-                                ${sol.status}
-                            </span>
-                        </td>
-                        <td>${new Date(sol.data_solicitacao).toLocaleDateString('pt-BR')}</td>
-                        <td>
-                            <div class="action-buttons">
-                                ${sol.status === 'pendente' ? `
-                                    <button class="btn-action btn-approve" onclick="adminDashboard.approveRequest('${sol.email}')">Aprovar</button>
-                                    <button class="btn-action btn-reject" onclick="adminDashboard.rejectRequest('${sol.email}')">Rejeitar</button>
-                                ` : ''}
-                            </div>
-                        </td>
-                    </tr>
-                `).join('');
-            }
-
-            loadUsersTable() {
-                const tbody = document.getElementById('users-tbody');
-                // Load from localStorage with fallback to default users
-                let users = JSON.parse(localStorage.getItem('users')) || [];
                 
-                // If no users in localStorage, create default users and save them
-                if (users.length === 0) {
-                    users = [
-                        { id: 1, nome: 'João Silva', email: 'aluno@ufrj.br', role: 'extensionista', status: 'ativo', ultimo_login: '2024-08-29' },
-                        { id: 2, nome: 'Maria Santos', email: 'maria@ufrj.br', role: 'extensionista', status: 'ativo', ultimo_login: '2024-08-28' },
-                        { id: 3, nome: 'Prof. Ana Costa', email: 'admin@ufrj.br', role: 'admin', status: 'ativo', ultimo_login: '2024-08-29' }
-                    ];
-                    localStorage.setItem('users', JSON.stringify(users));
-                }
-
-                tbody.innerHTML = users.map(user => `
-                    <tr>
-                        <td>${user.nome}</td>
-                        <td>${user.email}</td>
-                        <td>${user.role}</td>
-                        <td>
-                            <span class="status-badge ${user.status === 'ativo' ? 'status-approved' : 'status-rejected'}">${user.status}</span>
-                        </td>
-                        <td>${new Date(user.ultimo_login).toLocaleDateString('pt-BR')}</td>
-                        <td>
-                            <div class="action-buttons">
-                                ${user.role !== 'admin' ? `<button class="btn-action btn-edit" data-edit-user-id="${user.id}">Editar</button>` : ''}
-                                ${user.role !== 'admin' ? `<button class="btn-action btn-delete" data-delete-user-id="${user.id}">Desativar</button>` : ''}
+                // Ordenar mensagens por data (mais recentes primeiro)
+                const sortedMessages = [...this.messages].sort((a, b) => new Date(b.data) - new Date(a.data));
+                
+                container.innerHTML = sortedMessages.map(msg => this.renderMessageCard(msg)).join('');
+            }
+            
+            renderMessageCard(msg) {
+                const isRead = msg.read || false;
+                const isReplied = msg.replied || false;
+                
+                return `
+                    <div class="message-card ${isRead ? 'read' : 'unread'}" data-message-id="${msg.id}" style="
+                        background: ${isRead ? 'white' : '#f8f9fa'};
+                        border: 1px solid ${isRead ? 'var(--border-light)' : 'var(--primary-color)'};
+                        border-left: 4px solid ${isReplied ? '#28a745' : (isRead ? 'var(--border-light)' : 'var(--primary-color)')};
+                        border-radius: 8px;
+                        padding: 20px;
+                        margin-bottom: 15px;
+                        transition: all 0.2s ease;
+                    ">
+                        <div style="display: flex; justify-content: between; align-items: flex-start; margin-bottom: 15px;">
+                            <div style="flex: 1;">
+                                <h4 style="margin: 0 0 5px 0; color: var(--text-dark); font-size: 18px;">
+                                    ${this.escapeHtml(msg.assunto || 'Sem assunto')}
+                                </h4>
+                                <div style="display: flex; gap: 15px; color: var(--text-light); font-size: 14px;">
+                                    <span><strong>De:</strong> ${this.escapeHtml(msg.nome)}</span>
+                                    <span><strong>E-mail:</strong> ${this.escapeHtml(msg.email)}</span>
+                                    <span><strong>Data:</strong> ${new Date(msg.data).toLocaleString('pt-BR')}</span>
+                                </div>
                             </div>
-                        </td>
-                    </tr>
-                `).join('');
+                            <div style="display: flex; gap: 8px; align-items: center;">
+                                ${isReplied ? '<span class="status-badge status-approved">Respondida</span>' : ''}
+                                ${!isRead ? '<span class="status-badge status-pending">Nova</span>' : ''}
+                            </div>
+                        </div>
+                        
+                        <div style="background: white; padding: 15px; border-radius: 6px; border: 1px solid var(--border-light); margin-bottom: 15px;">
+                            <p style="margin: 0; line-height: 1.6; white-space: pre-wrap;">${this.escapeHtml(msg.mensagem)}</p>
+                        </div>
+                        
+                        <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                            ${!isRead ? `<button class="btn-action btn-approve" onclick="adminDashboard.markAsRead('${msg.id}')">Marcar como Lida</button>` : ''}
+                            <button class="btn-action btn-edit" onclick="adminDashboard.replyToMessage('${msg.id}')">Responder</button>
+                            <button class="btn-action btn-delete" onclick="adminDashboard.deleteMessage('${msg.id}')">Excluir</button>
+                        </div>
+                    </div>
+                `;
             }
 
-            loadRecentActivity(casos, solicitacoes) {
+            loadRecentActivity(casos) {
                 const container = document.getElementById('recent-activity');
                 const activities = [];
 
@@ -833,13 +824,13 @@
                     });
                 });
 
-                // Adicionar solicitações recentes
-                solicitacoes.slice(-3).forEach(sol => {
+                // Adicionar mensagens recentes
+                this.messages.slice(-3).forEach(msg => {
                     activities.push({
-                        type: 'solicitacao',
-                        message: `Nova solicitação de acesso: ${sol.nome} (${sol.tipo_acesso})`,
-                        date: sol.data_solicitacao,
-                        status: sol.status
+                        type: 'mensagem',
+                        message: `Nova mensagem de: ${msg.nome}`,
+                        date: msg.data,
+                        status: msg.read ? 'lida' : 'pendente'
                     });
                 });
 
@@ -860,7 +851,7 @@
                                 <p style="color: var(--text-dark); margin-bottom: 5px;">${activity.message}</p>
                                 <small style="color: var(--text-light);">${new Date(activity.date).toLocaleDateString('pt-BR')}</small>
                             </div>
-                            <span class="status-badge status-${activity.status === 'aprovado' ? 'approved' : activity.status === 'pendente' ? 'pending' : 'rejected'}">
+                            <span class="status-badge status-${activity.status === 'aprovado' || activity.status === 'lida' ? 'approved' : 'pending'}">
                                 ${activity.status}
                             </span>
                         </div>
@@ -883,6 +874,18 @@
                 document.getElementById('cases-filter').addEventListener('change', (e) => {
                     this.filterCases();
                 });
+                
+                // Messages search and filter
+                const messagesSearch = document.getElementById('messages-search');
+                const messagesFilter = document.getElementById('messages-filter');
+                
+                if (messagesSearch) {
+                    messagesSearch.addEventListener('input', () => this.filterMessages());
+                }
+                
+                if (messagesFilter) {
+                    messagesFilter.addEventListener('change', () => this.filterMessages());
+                }
 
                 // Edit case buttons (using event delegation)
                 document.getElementById('cases-tbody').addEventListener('click', (e) => {
@@ -892,21 +895,7 @@
                     }
                 });
 
-                // Add user button
-                document.getElementById('add-user-btn').addEventListener('click', () => {
-                    this.showAddUserModal();
-                });
 
-                // User action buttons (using event delegation)
-                document.getElementById('users-tbody').addEventListener('click', (e) => {
-                    if (e.target.hasAttribute('data-edit-user-id')) {
-                        const userId = e.target.getAttribute('data-edit-user-id');
-                        this.editUser(userId);
-                    } else if (e.target.hasAttribute('data-delete-user-id')) {
-                        const userId = e.target.getAttribute('data-delete-user-id');
-                        this.deactivateUser(userId);
-                    }
-                });
                 
                 // Profile form
                 document.getElementById('profile-form').addEventListener('submit', (e) => {
@@ -1075,168 +1064,199 @@
                 }
             }
 
-            approveRequest(email) {
-                try {
-                    const solicitacoes = this.dataManager.getSolicitacoes();
-                    const solicitacao = solicitacoes.find(s => s.email === email);
+            // Métodos para gerenciar mensagens
+            filterMessages() {
+                const search = document.getElementById('messages-search').value.toLowerCase();
+                const filter = document.getElementById('messages-filter').value;
+                const messageCards = document.querySelectorAll('.message-card');
+                
+                messageCards.forEach(card => {
+                    const messageId = card.dataset.messageId;
+                    const message = this.messages.find(m => m.id === messageId);
                     
-                    if (solicitacao) {
-                        this.dataManager.updateSolicitacao(solicitacao.id, { status: 'aprovado' });
+                    if (!message) return;
+                    
+                    const matchesSearch = 
+                        message.nome.toLowerCase().includes(search) ||
+                        message.email.toLowerCase().includes(search) ||
+                        message.assunto.toLowerCase().includes(search) ||
+                        message.mensagem.toLowerCase().includes(search);
+                    
+                    const matchesFilter = 
+                        !filter ||
+                        (filter === 'unread' && !message.read) ||
+                        (filter === 'read' && message.read) ||
+                        (filter === 'replied' && message.replied);
+                    
+                    card.style.display = matchesSearch && matchesFilter ? 'block' : 'none';
+                });
+            }
+            
+            markAsRead(messageId) {
+                try {
+                    const messageIndex = this.messages.findIndex(m => m.id === messageId);
+                    if (messageIndex !== -1) {
+                        this.messages[messageIndex].read = true;
+                        this.dataManager.updateMensagemContato(messageId, { read: true });
                         this.loadDashboardData();
-                        app.showNotification('Solicitação aprovada!', 'success');
+                        app.showNotification('Mensagem marcada como lida', 'success');
                     }
                 } catch (error) {
-                    console.error('Erro ao aprovar solicitação:', error);
-                    app.showNotification('Erro ao aprovar solicitação', 'error');
+                    console.error('Erro ao marcar mensagem como lida:', error);
+                    app.showNotification('Erro ao atualizar mensagem', 'error');
                 }
             }
-
-            rejectRequest(email) {
+            
+            markAllAsRead() {
                 try {
-                    const solicitacoes = this.dataManager.getSolicitacoes();
-                    const solicitacao = solicitacoes.find(s => s.email === email);
-                    
-                    if (solicitacao) {
-                        this.dataManager.updateSolicitacao(solicitacao.id, { status: 'rejeitado' });
-                        this.loadDashboardData();
-                        app.showNotification('Solicitação rejeitada.', 'info');
-                    }
+                    this.messages.forEach(msg => {
+                        if (!msg.read) {
+                            msg.read = true;
+                            this.dataManager.updateMensagemContato(msg.id, { read: true });
+                        }
+                    });
+                    this.loadDashboardData();
+                    app.showNotification('Todas as mensagens foram marcadas como lidas', 'success');
                 } catch (error) {
-                    console.error('Erro ao rejeitar solicitação:', error);
-                    app.showNotification('Erro ao rejeitar solicitação', 'error');
+                    console.error('Erro ao marcar todas como lidas:', error);
+                    app.showNotification('Erro ao atualizar mensagens', 'error');
                 }
+            }
+            
+            replyToMessage(messageId) {
+                const message = this.messages.find(m => m.id === messageId);
+                if (!message) return;
+                
+                const replyModal = document.createElement('div');
+                replyModal.style.cssText = `
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: rgba(0, 0, 0, 0.5);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    z-index: 10000;
+                `;
+                
+                replyModal.innerHTML = `
+                    <div style="
+                        background: white;
+                        border-radius: 12px;
+                        padding: 30px;
+                        max-width: 600px;
+                        width: 90%;
+                        max-height: 80vh;
+                        overflow-y: auto;
+                    ">
+                        <h3 style="margin-top: 0; color: var(--primary-color);">Responder Mensagem</h3>
+                        <div style="background: var(--background-light); padding: 15px; border-radius: 6px; margin-bottom: 20px;">
+                            <strong>Para:</strong> ${message.email}<br>
+                            <strong>Assunto:</strong> Re: ${message.assunto}
+                        </div>
+                        
+                        <form id="reply-form">
+                            <div style="margin-bottom: 20px;">
+                                <label style="display: block; margin-bottom: 8px; font-weight: 600;">Sua resposta:</label>
+                                <textarea id="reply-message" rows="8" required style="width: 100%; padding: 12px; border: 1px solid var(--border-light); border-radius: 6px; resize: vertical;"></textarea>
+                            </div>
+                            
+                            <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                                <button type="button" onclick="this.closest('div[style*="position: fixed"]').remove()" style="padding: 12px 24px; border: 1px solid var(--border-light); background: white; border-radius: 6px; cursor: pointer;">Cancelar</button>
+                                <button type="submit" style="padding: 12px 24px; background: var(--primary-color); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">Enviar Resposta</button>
+                            </div>
+                        </form>
+                    </div>
+                `;
+                
+                document.body.appendChild(replyModal);
+                
+                document.getElementById('reply-form').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    const replyText = document.getElementById('reply-message').value;
+                    
+                    // Simular envio de email (em sistema real, usaria API de email)
+                    console.log('Enviando resposta para:', message.email, replyText);
+                    
+                    // Marcar como respondida
+                    try {
+                        const messageIndex = this.messages.findIndex(m => m.id === messageId);
+                        if (messageIndex !== -1) {
+                            this.messages[messageIndex].replied = true;
+                            this.messages[messageIndex].read = true;
+                            this.dataManager.updateMensagemContato(messageId, { replied: true, read: true });
+                        }
+                        
+                        replyModal.remove();
+                        this.loadDashboardData();
+                        app.showNotification('Resposta enviada com sucesso!', 'success');
+                    } catch (error) {
+                        console.error('Erro ao enviar resposta:', error);
+                        app.showNotification('Erro ao enviar resposta', 'error');
+                    }
+                });
+            }
+            
+            deleteMessage(messageId) {
+                if (!confirm('Tem certeza que deseja excluir esta mensagem?')) return;
+                
+                try {
+                    this.dataManager.deleteMensagemContato(messageId);
+                    this.messages = this.messages.filter(m => m.id !== messageId);
+                    this.loadDashboardData();
+                    app.showNotification('Mensagem excluída com sucesso', 'success');
+                } catch (error) {
+                    console.error('Erro ao excluir mensagem:', error);
+                    app.showNotification('Erro ao excluir mensagem', 'error');
+                }
+            }
+            
+            exportMessages() {
+                try {
+                    const data = this.messages.map(msg => ({
+                        Nome: msg.nome,
+                        Email: msg.email,
+                        Assunto: msg.assunto,
+                        Mensagem: msg.mensagem,
+                        Data: new Date(msg.data).toLocaleString('pt-BR'),
+                        Lida: msg.read ? 'Sim' : 'Não',
+                        Respondida: msg.replied ? 'Sim' : 'Não'
+                    }));
+                    
+                    // Converter para CSV
+                    const headers = Object.keys(data[0] || {});
+                    const csvContent = [headers.join(',')]
+                        .concat(data.map(row => 
+                            headers.map(header => `"${row[header] || ''}"`).join(',')
+                        ))
+                        .join('\n');
+                    
+                    // Download do arquivo
+                    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                    const link = document.createElement('a');
+                    link.href = URL.createObjectURL(blob);
+                    link.download = `mensagens-contato-${new Date().toISOString().split('T')[0]}.csv`;
+                    link.click();
+                    
+                    app.showNotification('Mensagens exportadas com sucesso!', 'success');
+                } catch (error) {
+                    console.error('Erro ao exportar mensagens:', error);
+                    app.showNotification('Erro ao exportar mensagens', 'error');
+                }
+            }
+            
+            escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
             }
 
             editCase(casoId) {
                 window.location.href = `cadastro.html?edit=${casoId}`;
             }
 
-            showAddUserModal() {
-                const modalHtml = `
-                    <div id="user-modal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000;">
-                        <div style="background: white; padding: 30px; border-radius: 12px; width: 90%; max-width: 500px; max-height: 80vh; overflow-y: auto;">
-                            <h2 style="margin-bottom: 20px; color: var(--primary-color);">Cadastrar Novo Usuário</h2>
-                            
-                            <form id="add-user-form">
-                                <div style="margin-bottom: 20px;">
-                                    <label style="display: block; font-weight: 600; margin-bottom: 8px;">Nome Completo</label>
-                                    <input type="text" id="user-name" required style="width: 100%; padding: 12px; border: 2px solid var(--border-light); border-radius: var(--border-radius);">
-                                </div>
-                                
-                                <div style="margin-bottom: 20px;">
-                                    <label style="display: block; font-weight: 600; margin-bottom: 8px;">E-mail</label>
-                                    <input type="email" id="user-email" required style="width: 100%; padding: 12px; border: 2px solid var(--border-light); border-radius: var(--border-radius);">
-                                </div>
-                                
-                                <div style="margin-bottom: 20px;">
-                                    <label style="display: block; font-weight: 600; margin-bottom: 8px;">Senha Temporária</label>
-                                    <input type="password" id="user-password" required minlength="6" style="width: 100%; padding: 12px; border: 2px solid var(--border-light); border-radius: var(--border-radius);">
-                                </div>
-                                
-                                <div style="margin-bottom: 20px;">
-                                    <label style="display: block; font-weight: 600; margin-bottom: 8px;">Função</label>
-                                    <select id="user-role" required style="width: 100%; padding: 12px; border: 2px solid var(--border-light); border-radius: var(--border-radius);">
-                                        <option value="">Selecionar função</option>
-                                        <option value="extensionista">Extensionista</option>
-                                        <option value="admin">Administrador</option>
-                                    </select>
-                                </div>
-                                
-                                <div style="display: flex; gap: 10px; justify-content: flex-end;">
-                                    <button type="button" id="cancel-user-btn" style="padding: 12px 20px; border: 2px solid var(--border-light); background: white; color: var(--text-dark); border-radius: var(--border-radius); cursor: pointer;">Cancelar</button>
-                                    <button type="submit" style="padding: 12px 20px; background: var(--primary-color); color: white; border: none; border-radius: var(--border-radius); cursor: pointer;">Cadastrar</button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                `;
-                
-                document.body.insertAdjacentHTML('beforeend', modalHtml);
-                
-                // Event listeners for modal
-                document.getElementById('cancel-user-btn').addEventListener('click', () => {
-                    document.getElementById('user-modal').remove();
-                });
-                
-                document.getElementById('user-modal').addEventListener('click', (e) => {
-                    if (e.target.id === 'user-modal') {
-                        document.getElementById('user-modal').remove();
-                    }
-                });
-                
-                document.getElementById('add-user-form').addEventListener('submit', (e) => {
-                    e.preventDefault();
-                    this.addUser();
-                });
-            }
-            
-            addUser() {
-                const name = document.getElementById('user-name').value;
-                const email = document.getElementById('user-email').value;
-                const password = document.getElementById('user-password').value;
-                const role = document.getElementById('user-role').value;
-                
-                if (!name || !email || !password || !role) {
-                    app.showNotification('Todos os campos são obrigatórios', 'error');
-                    return;
-                }
-                
-                try {
-                    // Check if email already exists
-                    const existingUsers = JSON.parse(localStorage.getItem('users')) || [];
-                    if (existingUsers.find(u => u.email === email)) {
-                        app.showNotification('E-mail já está cadastrado', 'error');
-                        return;
-                    }
-                    
-                    const newUser = {
-                        id: Date.now(),
-                        nome: name,
-                        email: email,
-                        password: password, // In real app, this should be hashed
-                        role: role,
-                        status: 'ativo',
-                        ultimo_login: null,
-                        data_criacao: new Date().toISOString()
-                    };
-                    
-                    existingUsers.push(newUser);
-                    localStorage.setItem('users', JSON.stringify(existingUsers));
-                    
-                    // Close modal and reload table
-                    document.getElementById('user-modal').remove();
-                    this.loadUsersTable();
-                    
-                    app.showNotification(`Usuário ${name} cadastrado com sucesso!`, 'success');
-                    
-                } catch (error) {
-                    console.error('Erro ao cadastrar usuário:', error);
-                    app.showNotification('Erro ao cadastrar usuário', 'error');
-                }
-            }
-            
-            editUser(userId) {
-                app.showNotification('Funcionalidade de edição em desenvolvimento', 'info');
-            }
-            
-            deactivateUser(userId) {
-                if (confirm('Desativar este usuário? Ele não conseguirá mais acessar o sistema.')) {
-                    try {
-                        const users = JSON.parse(localStorage.getItem('users')) || [];
-                        const userIndex = users.findIndex(u => u.id == userId);
-                        
-                        if (userIndex !== -1) {
-                            users[userIndex].status = 'inativo';
-                            localStorage.setItem('users', JSON.stringify(users));
-                            this.loadUsersTable();
-                            app.showNotification('Usuário desativado', 'success');
-                        }
-                    } catch (error) {
-                        console.error('Erro ao desativar usuário:', error);
-                        app.showNotification('Erro ao desativar usuário', 'error');
-                    }
-                }
-            }
         }
 
         // Setup tab switching with event delegation

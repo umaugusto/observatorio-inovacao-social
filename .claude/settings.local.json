@@ -21,7 +21,11 @@
       "Bash(node:*)",
       "Bash(find:*)",
       "Bash(grep:*)",
-      "Bash(del pagesmetodologia.html)"
+      "Bash(del pagesmetodologia.html)",
+      "Bash(python:*)",
+      "Bash(php:*)",
+      "Bash(del \"C:\\Users\\anton\\Downloads\\observatorio-teste\\debug-navigation.html\")",
+      "Bash(del \"C:\\Users\\anton\\Downloads\\observatorio-teste\\netlify\\functions\\user-sync.js\")"
     ],
     "deny": [],
     "ask": []

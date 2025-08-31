@@ -1,10 +1,10 @@
-// AuthManager - Sistema centralizado de autenticação (integrado com Auth0)
+// AuthManager - Sistema centralizado de autenticação local
 class AuthManager {
     constructor() {
         this.currentUser = null;
         this.observers = new Set();
         this.sessionTimeout = 24 * 60 * 60 * 1000; // 24 horas
-        this.auth0Client = null;
+        this.users = []; // Lista local de usuários
         this.init();
     }
 
@@ -16,11 +16,8 @@ class AuthManager {
     }
 
     async init() {
-        // Inicializar Auth0 Client se disponível
-        if (typeof Auth0Client !== 'undefined') {
-            this.auth0Client = Auth0Client.getInstance();
-        }
-        
+        // Inicializar usuários locais
+        this.loadUsers();
         this.loadCurrentUser();
         this.setupSessionCheck();
     }
@@ -28,33 +25,23 @@ class AuthManager {
     // Carregar usuário atual do localStorage
     loadCurrentUser() {
         try {
-            // Tentar carregar de currentUser (mock) ou current_user (Auth0)
-            let userData = localStorage.getItem('current_user') || localStorage.getItem('currentUser');
+            let userData = localStorage.getItem('current_user');
             
             if (userData) {
                 const user = JSON.parse(userData);
                 
                 // Verificar se a sessão ainda é válida
                 if (this.isSessionValid(user)) {
-                    // Verificar se o email foi verificado (exceto para demos e sociais)
-                    if (this.requiresEmailVerification(user)) {
-                        console.warn('⚠️ Email não verificado, redirecionando...');
-                        this.handleUnverifiedEmail(user);
-                        return;
-                    }
-                    
                     this.currentUser = user;
                     this.notifyObservers('userLoggedIn', user);
-                    // Mostrar banner demo se necessário
-                    if (user.isDemo) {
-                        setTimeout(() => this.showDemoBanner(), 1000);
+                    
+                    // Verificar se precisa trocar a senha
+                    if (user.mustChangePassword) {
+                        this.showPasswordChangeModal();
                     }
                 } else {
                     this.logout(false); // Logout silencioso
                 }
-            } else if (this.auth0Client && this.auth0Client.isAuthenticated()) {
-                // Se temos Auth0 mas não temos usuário local, tentar recuperar
-                this.loadUserFromAuth0();
             }
         } catch (error) {
             console.error('Erro ao carregar dados do usuário:', error);
@@ -62,87 +49,46 @@ class AuthManager {
         }
     }
 
-    // Carregar usuário do Auth0 se autenticado
-    async loadUserFromAuth0() {
+    // Carregar usuários do localStorage
+    loadUsers() {
         try {
-            if (!this.auth0Client) return;
-            
-            const auth0User = this.auth0Client.getUser();
-            if (auth0User) {
-                // Verificar se estamos em ambiente local
-                const isLocal = window.location.hostname === 'localhost' || 
-                              window.location.hostname === '127.0.0.1' || 
-                              window.location.port === '8080';
-                const forceFunctions = (localStorage.getItem('use_functions') || '').toLowerCase() === 'true';
-                
-                if (isLocal && !forceFunctions) {
-                    // Em desenvolvimento local, criar usuário mock
-                    console.log('🏠 AuthManager: Ambiente local detectado, usando dados mock');
-                    const userData = {
-                        id: Date.now(),
-                        auth0_id: auth0User.sub,
-                        email: auth0User.email,
-                        name: auth0User.name || auth0User.nickname || auth0User.email?.split('@')[0],
-                        role: 'visitante',
-                        is_admin: false,
-                        auth0_data: auth0User,
-                        access_token: this.auth0Client.getAccessToken(),
-                        email_verified: auth0User.email_verified,
-                        created_at: new Date().toISOString(),
-                        updated_at: new Date().toISOString()
-                    };
-                    
-                    // Check if email verification is required (even in local environment)
-                    if (this.requiresEmailVerification(userData)) {
-                        console.warn('⚠️ Email não verificado, redirecionando...');
-                        this.handleUnverifiedEmail(userData);
-                        return;
-                    }
-                    
-                    this.currentUser = userData;
-                    localStorage.setItem('current_user', JSON.stringify(this.currentUser));
-                    this.notifyObservers('userLoggedIn', this.currentUser);
-                    // Atualizar header
-                    if (window.app && window.app.updateHeaderForAuth) {
-                        window.app.updateHeaderForAuth();
-                    }
-                    // Mostrar banner demo se necessário
-                    if (this.currentUser.isDemo) {
-                        setTimeout(() => this.showDemoBanner(), 1000);
-                    }
-                    return;
-                }
-                
-                // Em produção, sincronizar com Supabase
-                const response = await fetch('/.netlify/functions/user-sync', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ user: auth0User })
-                });
-
-                if (response.ok) {
-                    const { user } = await response.json();
-                    const userData = {
-                        ...user,
-                        auth0_data: auth0User,
-                        access_token: this.auth0Client.getAccessToken(),
-                        email_verified: auth0User.email_verified
-                    };
-                    
-                    // Check if email verification is required
-                    if (this.requiresEmailVerification(userData)) {
-                        console.warn('⚠️ Email não verificado, redirecionando...');
-                        this.handleUnverifiedEmail(userData);
-                        return;
-                    }
-                    
-                    this.currentUser = userData;
-                    localStorage.setItem('current_user', JSON.stringify(this.currentUser));
-                    this.notifyObservers('userLoggedIn', this.currentUser);
-                }
+            const usersData = localStorage.getItem('app_users');
+            if (usersData) {
+                this.users = JSON.parse(usersData);
+            } else {
+                // Inicializar com usuários root padrão
+                this.users = [{
+                    id: 'root-001',
+                    email: 'root@sistema.com',
+                    password: this.hashPassword('root123'), // Hash da senha
+                    name: 'Administrador Root',
+                    role: 'pesquisador',
+                    isAdmin: true,
+                    isRoot: true,
+                    mustChangePassword: true,
+                    createdBy: 'system',
+                    createdAt: new Date().toISOString(),
+                    lastLogin: null,
+                    active: true
+                }, {
+                    id: 'root-002',
+                    email: 'antonio.aas@ufrj.br',
+                    password: this.hashPassword('@chk.4uGU570;123'), // Hash da senha
+                    name: 'Antonio Augusto Silva',
+                    role: 'pesquisador',
+                    isAdmin: true,
+                    isRoot: true,
+                    mustChangePassword: false,
+                    createdBy: 'system',
+                    createdAt: new Date().toISOString(),
+                    lastLogin: null,
+                    active: true
+                }];
+                this.saveUsers();
             }
         } catch (error) {
-            console.error('Erro ao carregar usuário do Auth0:', error);
+            console.error('Erro ao carregar usuários:', error);
+            this.users = [];
         }
     }
 
@@ -194,6 +140,12 @@ class AuthManager {
                 const user = this.validateCredentials(email, password);
                 
                 if (user) {
+                    // Verificar se o usuário está ativo
+                    if (!user.active) {
+                        reject(new Error('Conta desativada. Entre em contato com o administrador.'));
+                        return;
+                    }
+                    
                     const sessionData = {
                         ...user,
                         loginTime: new Date().toISOString(),
@@ -201,8 +153,11 @@ class AuthManager {
                         sessionId: this.generateSessionId()
                     };
                     
+                    // Atualizar último login
+                    this.updateUserLastLogin(user.id);
+                    
                     this.currentUser = sessionData;
-                    localStorage.setItem('currentUser', JSON.stringify(sessionData));
+                    localStorage.setItem('current_user', JSON.stringify(sessionData));
                     
                     if (remember) {
                         localStorage.setItem('rememberLogin', 'true');
@@ -212,106 +167,40 @@ class AuthManager {
                     
                     this.notifyObservers('userLoggedIn', sessionData);
                     
-                    // Mostrar banner demo se necessário
-                    if (sessionData.isDemo) {
-                        setTimeout(() => this.showDemoBanner(), 1000);
-                    }
-                    
                     resolve(sessionData);
                 } else {
-                    reject(new Error('Credenciais inválidas'));
+                    reject(new Error('E-mail ou senha incorretos'));
                 }
             }, 800);
         });
     }
 
-    // Validar credenciais (mock)
+    // Validar credenciais
     validateCredentials(email, password) {
-        const users = [
-            {
-                id: 1,
-                name: 'João Silva',
-                email: 'aluno@ufrj.br',
-                role: 'aluno_extensao',
-                department: 'Ciências Sociais',
-                isAdmin: false,
-                isDemo: true
-            },
-            {
-                id: 2,
-                name: 'Prof. Ana Costa',
-                email: 'admin@ufrj.br',
-                role: 'pesquisador',
-                department: 'Extensão UFRJ',
-                isAdmin: true,
-                isDemo: true
-            },
-            {
-                id: 3,
-                name: 'Dr. Carlos Mendes',
-                email: 'pesquisador@ufrj.br',
-                role: 'pesquisador',
-                department: 'Instituto de Pesquisa Social',
-                isAdmin: false,
-                isDemo: true
-            },
-            {
-                id: 4,
-                name: 'Maria Santos',
-                email: 'coordenador@ufrj.br',
-                role: 'pesquisador',
-                department: 'Coordenação de Extensão',
-                isAdmin: true,
-                isDemo: true
-            }
-        ];
-
-        // Validação simples para demo
-        const validPasswords = {
-            'aluno@ufrj.br': '123456',
-            'admin@ufrj.br': 'admin123',
-            'pesquisador@ufrj.br': 'pesq123',
-            'coordenador@ufrj.br': 'coord123'
-        };
-
-        if (validPasswords[email] === password) {
-            return users.find(user => user.email === email);
+        const user = this.users.find(u => u.email.toLowerCase() === email.toLowerCase());
+        
+        if (user && this.verifyPassword(password, user.password)) {
+            return user;
         }
-
+        
         return null;
     }
 
     // Logout do usuário
     logout(showNotification = true, message = 'Logout realizado com sucesso!') {
         const wasLoggedIn = !!this.currentUser;
-        const wasSocialLogin = this.isSocialLogin();
         
         this.currentUser = null;
         
-        // Limpar localStorage (ambos os formatos)
-        localStorage.removeItem('currentUser');
+        // Limpar localStorage
         localStorage.removeItem('current_user');
         localStorage.removeItem('rememberLogin');
-        localStorage.removeItem('socialLogin');
-        
-        // Limpar dados de fluxo de registro
-        sessionStorage.removeItem('registration_flow');
-        
-        // Se temos Auth0 real, fazer logout lá também
-        if (this.auth0Client && this.auth0Client.isAuthenticated && this.auth0Client.isAuthenticated()) {
-            this.auth0Client.logout(window.location.origin);
-            return; // Auth0 vai redirecionar
-        }
         
         if (wasLoggedIn) {
             this.notifyObservers('userLoggedOut', { showNotification, message });
         }
         
-        // Para login social mock ou login normal, não redirecionar automaticamente
-        // Deixar o main.js controlar o redirecionamento
-        if (!wasSocialLogin) {
-            this.checkRestrictedPage();
-        }
+        this.checkRestrictedPage();
     }
 
     // Verificar se está em página que requer autenticação
@@ -358,6 +247,11 @@ class AuthManager {
     // Verificar se usuário é administrador
     isAdmin() {
         return this.currentUser?.isAdmin === true;
+    }
+    
+    // Verificar se usuário é root
+    isRoot() {
+        return this.currentUser?.isRoot === true;
     }
     
     // Obter nome do perfil em português
@@ -414,72 +308,78 @@ class AuthManager {
         return true;
     }
     
-    // Login social (mock implementation)
-    async loginWithProvider(provider) {
-        return new Promise((resolve, reject) => {
-            // Simular delay de OAuth
-            setTimeout(() => {
-                // Mock de dados do provedor
-                const mockSocialUsers = {
-                    'google': {
-                        id: 'google_' + Date.now(),
-                        name: 'Usuário Google',
-                        email: 'usuario@gmail.com',
-                        role: 'visitante',
-                        provider: 'google',
-                        isAdmin: false,
-                        avatar: 'https://ui-avatars.com/api/?name=Usuario+Google'
-                    },
-                    'facebook': {
-                        id: 'fb_' + Date.now(),
-                        name: 'Usuário Facebook',
-                        email: 'usuario@facebook.com',
-                        role: 'visitante',
-                        provider: 'facebook',
-                        isAdmin: false,
-                        avatar: 'https://ui-avatars.com/api/?name=Usuario+Facebook'
-                    },
-                    'apple': {
-                        id: 'apple_' + Date.now(),
-                        name: 'Usuário Apple',
-                        email: 'usuario@icloud.com',
-                        role: 'visitante',
-                        provider: 'apple',
-                        isAdmin: false,
-                        avatar: 'https://ui-avatars.com/api/?name=Usuario+Apple'
-                    }
-                };
-                
-                const user = mockSocialUsers[provider];
-                
-                if (user) {
-                    const sessionData = {
-                        ...user,
-                        loginTime: new Date().toISOString(),
-                        remember: true,
-                        sessionId: this.generateSessionId()
-                    };
-                    
-                    this.currentUser = sessionData;
-                    localStorage.setItem('currentUser', JSON.stringify(sessionData));
-                    localStorage.setItem('socialLogin', provider);
-                    
-                    this.notifyObservers('userLoggedIn', sessionData);
-                    
-                    // Mostrar banner demo se necessário (contas sociais são demo por padrão)
-                    setTimeout(() => this.showDemoBanner(), 1000);
-                    
-                    resolve(sessionData);
-                } else {
-                    reject(new Error('Provedor não suportado'));
-                }
-            }, 1000);
-        });
+    // Adicionar novo usuário (apenas admins)
+    addUser(userData) {
+        if (!this.isAdmin() && !this.isRoot()) {
+            throw new Error('Apenas administradores podem adicionar usuários');
+        }
+        
+        // Verificar se email já existe
+        if (this.users.find(u => u.email.toLowerCase() === userData.email.toLowerCase())) {
+            throw new Error('Email já está em uso');
+        }
+        
+        const newUser = {
+            id: 'user-' + Date.now(),
+            email: userData.email.toLowerCase(),
+            password: this.hashPassword(userData.password),
+            name: userData.name,
+            role: userData.role || 'visitante',
+            isAdmin: userData.isAdmin || false,
+            isRoot: false, // Apenas root inicial
+            mustChangePassword: true, // Sempre forçar mudança de senha
+            createdBy: this.currentUser.id,
+            createdAt: new Date().toISOString(),
+            lastLogin: null,
+            active: true
+        };
+        
+        this.users.push(newUser);
+        this.saveUsers();
+        
+        return newUser;
     }
     
-    // Verificar se é login social
-    isSocialLogin() {
-        return this.currentUser?.provider && ['google', 'facebook', 'apple'].includes(this.currentUser.provider);
+    // Atualizar usuário
+    updateUser(userId, updates) {
+        if (!this.isAdmin() && !this.isRoot()) {
+            throw new Error('Apenas administradores podem atualizar usuários');
+        }
+        
+        const userIndex = this.users.findIndex(u => u.id === userId);
+        if (userIndex === -1) {
+            throw new Error('Usuário não encontrado');
+        }
+        
+        // Root não pode ser desativado
+        if (this.users[userIndex].isRoot && updates.active === false) {
+            throw new Error('Usuário root não pode ser desativado');
+        }
+        
+        this.users[userIndex] = { ...this.users[userIndex], ...updates };
+        this.saveUsers();
+        
+        return this.users[userIndex];
+    }
+    
+    // Remover usuário
+    removeUser(userId) {
+        if (!this.isAdmin() && !this.isRoot()) {
+            throw new Error('Apenas administradores podem remover usuários');
+        }
+        
+        const userIndex = this.users.findIndex(u => u.id === userId);
+        if (userIndex === -1) {
+            throw new Error('Usuário não encontrado');
+        }
+        
+        // Root não pode ser removido
+        if (this.users[userIndex].isRoot) {
+            throw new Error('Usuário root não pode ser removido');
+        }
+        
+        this.users.splice(userIndex, 1);
+        this.saveUsers();
     }
 
     // Getters
@@ -620,191 +520,170 @@ class AuthManager {
         }
     }
 
-    // Verificar se usuário atual está em modo demo
-    isDemoMode() {
-        return this.currentUser && this.currentUser.isDemo === true;
-    }
-
-    // Exibir notificação de modo demo
-    showDemoNotification(message = 'Esta é uma demonstração do sistema. Suas alterações não serão salvas permanentemente.') {
-        // Criar elemento de notificação se não existir
-        let notification = document.getElementById('demo-notification');
-        if (!notification) {
-            notification = document.createElement('div');
-            notification.id = 'demo-notification';
-            notification.style.cssText = `
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                background: linear-gradient(135deg, #ff6b35, #f7931e);
-                color: white;
-                padding: 15px 20px;
-                border-radius: 8px;
-                box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
-                z-index: 10000;
-                font-family: 'Inter', sans-serif;
-                font-size: 14px;
-                font-weight: 500;
-                max-width: 300px;
-                line-height: 1.4;
-                transform: translateX(400px);
-                transition: transform 0.3s ease;
-                border-left: 4px solid rgba(255, 255, 255, 0.3);
-            `;
-            
-            // Ícone de demo
-            const icon = document.createElement('span');
-            icon.innerHTML = '🎭 ';
-            icon.style.marginRight = '8px';
-            
-            const textSpan = document.createElement('span');
-            textSpan.id = 'demo-notification-text';
-            
-            const closeBtn = document.createElement('button');
-            closeBtn.innerHTML = '×';
-            closeBtn.style.cssText = `
-                background: none;
-                border: none;
-                color: white;
-                font-size: 18px;
-                font-weight: bold;
-                margin-left: 10px;
-                cursor: pointer;
-                padding: 0;
-                line-height: 1;
-                opacity: 0.8;
-                transition: opacity 0.2s ease;
-            `;
-            closeBtn.onmouseover = () => closeBtn.style.opacity = '1';
-            closeBtn.onmouseout = () => closeBtn.style.opacity = '0.8';
-            closeBtn.onclick = () => {
-                notification.style.transform = 'translateX(400px)';
-                setTimeout(() => {
-                    if (notification.parentNode) {
-                        notification.parentNode.removeChild(notification);
-                    }
-                }, 300);
-            };
-            
-            notification.appendChild(icon);
-            notification.appendChild(textSpan);
-            notification.appendChild(closeBtn);
-            document.body.appendChild(notification);
+    // Hash da senha
+    hashPassword(password) {
+        // Implementação simples de hash (em produção usar bcrypt ou similar)
+        let hash = 0;
+        if (password.length === 0) return hash.toString();
+        for (let i = 0; i < password.length; i++) {
+            const char = password.charCodeAt(i);
+            hash = ((hash << 5) - hash) + char;
+            hash = hash & hash; // Converter para 32-bit integer
         }
-        
-        // Atualizar texto
-        const textSpan = notification.querySelector('#demo-notification-text');
-        if (textSpan) {
-            textSpan.textContent = message;
-        }
-        
-        // Mostrar notificação
-        setTimeout(() => {
-            notification.style.transform = 'translateX(0)';
-        }, 100);
-        
-        // Auto-hide após 8 segundos
-        setTimeout(() => {
-            if (notification && notification.parentNode) {
-                notification.style.transform = 'translateX(400px)';
-                setTimeout(() => {
-                    if (notification.parentNode) {
-                        notification.parentNode.removeChild(notification);
-                    }
-                }, 300);
-            }
-        }, 8000);
-    }
-
-    // Exibir banner de modo demo permanente
-    showDemoBanner() {
-        if (!this.isDemoMode()) return;
-        
-        let banner = document.getElementById('demo-banner');
-        if (!banner) {
-            banner = document.createElement('div');
-            banner.id = 'demo-banner';
-            banner.style.cssText = `
-                position: fixed;
-                bottom: 0;
-                left: 0;
-                right: 0;
-                background: linear-gradient(135deg, #ff6b35, #f7931e);
-                color: white;
-                padding: 12px 20px;
-                text-align: center;
-                font-family: 'Inter', sans-serif;
-                font-size: 14px;
-                font-weight: 500;
-                z-index: 9999;
-                border-top: 2px solid rgba(255, 255, 255, 0.2);
-                box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
-            `;
-            banner.innerHTML = `
-                <span style="margin-right: 10px;">🎭</span>
-                <strong>MODO DEMONSTRAÇÃO</strong> - Você está usando uma conta demo. 
-                Suas alterações não serão salvas permanentemente no sistema.
-                <button id="demo-banner-close" style="
-                    background: rgba(255, 255, 255, 0.2);
-                    border: none;
-                    color: white;
-                    padding: 4px 8px;
-                    margin-left: 15px;
-                    border-radius: 4px;
-                    cursor: pointer;
-                    font-size: 12px;
-                ">Fechar</button>
-            `;
-            
-            document.body.appendChild(banner);
-            
-            // Evento de fechar
-            const closeBtn = banner.querySelector('#demo-banner-close');
-            closeBtn.onclick = () => {
-                banner.style.transform = 'translateY(100%)';
-                setTimeout(() => {
-                    if (banner.parentNode) {
-                        banner.parentNode.removeChild(banner);
-                    }
-                }, 300);
-            };
-        }
-        
-        banner.style.transform = 'translateY(0)';
-    }
-
-    requiresEmailVerification(user) {
-        // Não exigir verificação para:
-        // 1. Contas demo
-        // 2. Contas já verificadas
-        // 3. Contas sociais (Google, etc.)
-        // 4. Ambiente local (desenvolvimento)
-        
-        if (user.isDemo) return false;
-        if (user.email_verified === true) return false;
-        if (user.auth0_id && user.auth0_id.startsWith('google-oauth2')) return false;
-        if (this.isLocalEnvironment()) return false;
-        
-        // Exigir verificação para contas de email/senha não verificadas
-        return !user.email_verified;
+        return Math.abs(hash).toString(36);
     }
     
-    isLocalEnvironment() {
-        return window.location.hostname === 'localhost' || 
-               window.location.hostname === '127.0.0.1' || 
-               window.location.port === '8080';
+    // Verificar senha
+    verifyPassword(password, hashedPassword) {
+        return this.hashPassword(password) === hashedPassword;
     }
     
-    handleUnverifiedEmail(user) {
-        // Salvar usuário temporariamente
-        sessionStorage.setItem('unverified_user', JSON.stringify(user));
-        
-        // Redirecionar para página de aviso
-        if (window.location.pathname !== '/pages/email-verification.html') {
-            window.location.href = 'email-verification.html';
+    // Salvar usuários no localStorage
+    saveUsers() {
+        localStorage.setItem('app_users', JSON.stringify(this.users));
+    }
+    
+    // Atualizar último login
+    updateUserLastLogin(userId) {
+        const userIndex = this.users.findIndex(u => u.id === userId);
+        if (userIndex !== -1) {
+            this.users[userIndex].lastLogin = new Date().toISOString();
+            this.saveUsers();
         }
     }
     
+    // Alterar senha
+    changePassword(oldPassword, newPassword) {
+        if (!this.currentUser) {
+            throw new Error('Usuário não logado');
+        }
+        
+        if (!this.verifyPassword(oldPassword, this.currentUser.password)) {
+            throw new Error('Senha atual incorreta');
+        }
+        
+        const userIndex = this.users.findIndex(u => u.id === this.currentUser.id);
+        if (userIndex === -1) {
+            throw new Error('Usuário não encontrado');
+        }
+        
+        this.users[userIndex].password = this.hashPassword(newPassword);
+        this.users[userIndex].mustChangePassword = false;
+        this.saveUsers();
+        
+        // Atualizar sessão atual
+        this.currentUser.mustChangePassword = false;
+        localStorage.setItem('current_user', JSON.stringify(this.currentUser));
+    }
+    
+    // Reset senha (apenas admins)
+    resetUserPassword(userId, newPassword) {
+        if (!this.isAdmin() && !this.isRoot()) {
+            throw new Error('Apenas administradores podem resetar senhas');
+        }
+        
+        const userIndex = this.users.findIndex(u => u.id === userId);
+        if (userIndex === -1) {
+            throw new Error('Usuário não encontrado');
+        }
+        
+        this.users[userIndex].password = this.hashPassword(newPassword);
+        this.users[userIndex].mustChangePassword = true;
+        this.saveUsers();
+        
+        return this.users[userIndex];
+    }
+    
+    // Listar usuários (apenas admins)
+    getUsers() {
+        if (!this.isAdmin() && !this.isRoot()) {
+            throw new Error('Acesso negado');
+        }
+        
+        return this.users.map(user => ({
+            ...user,
+            password: undefined // Não retornar senhas
+        }));
+    }
+    
+    // Mostrar modal de mudança de senha obrigatória
+    showPasswordChangeModal() {
+        // Implementar modal de mudança de senha obrigatória
+        if (window.app && window.app.showPasswordChangeModal) {
+            window.app.showPasswordChangeModal();
+        }
+    }
+
+    // Solicitar acesso ao sistema
+    requestAccess(requestData) {
+        // Armazenar solicitação de acesso para revisão dos administradores
+        let accessRequests = JSON.parse(localStorage.getItem('access_requests') || '[]');
+        
+        const request = {
+            id: 'req-' + Date.now(),
+            name: requestData.name,
+            email: requestData.email,
+            role: requestData.role,
+            justification: requestData.justification,
+            requestedAt: new Date().toISOString(),
+            status: 'pending'
+        };
+        
+        accessRequests.push(request);
+        localStorage.setItem('access_requests', JSON.stringify(accessRequests));
+        
+        return request;
+    }
+    
+    // Listar solicitações de acesso (apenas admins)
+    getAccessRequests() {
+        if (!this.isAdmin() && !this.isRoot()) {
+            throw new Error('Acesso negado');
+        }
+        
+        return JSON.parse(localStorage.getItem('access_requests') || '[]');
+    }
+    
+    // Aprovar/Rejeitar solicitação de acesso
+    processAccessRequest(requestId, action, password = null) {
+        if (!this.isAdmin() && !this.isRoot()) {
+            throw new Error('Acesso negado');
+        }
+        
+        let accessRequests = JSON.parse(localStorage.getItem('access_requests') || '[]');
+        const requestIndex = accessRequests.findIndex(r => r.id === requestId);
+        
+        if (requestIndex === -1) {
+            throw new Error('Solicitação não encontrada');
+        }
+        
+        const request = accessRequests[requestIndex];
+        
+        if (action === 'approve' && password) {
+            // Criar usuário
+            const newUser = this.addUser({
+                email: request.email,
+                name: request.name,
+                role: request.role,
+                password: password,
+                isAdmin: request.role === 'pesquisador'
+            });
+            
+            accessRequests[requestIndex].status = 'approved';
+            accessRequests[requestIndex].processedAt = new Date().toISOString();
+            accessRequests[requestIndex].processedBy = this.currentUser.id;
+            
+        } else if (action === 'reject') {
+            accessRequests[requestIndex].status = 'rejected';
+            accessRequests[requestIndex].processedAt = new Date().toISOString();
+            accessRequests[requestIndex].processedBy = this.currentUser.id;
+        }
+        
+        localStorage.setItem('access_requests', JSON.stringify(accessRequests));
+        return accessRequests[requestIndex];
+    }
+
+    // Atualizar dados do usuário atual
     updateCurrentUser(userData) {
         this.currentUser = { ...this.currentUser, ...userData };
         localStorage.setItem('current_user', JSON.stringify(this.currentUser));

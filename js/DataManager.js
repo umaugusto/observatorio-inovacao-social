@@ -863,6 +863,61 @@ class DataManager {
         };
     }
     
+    // Métodos para carregar mensagens localmente
+    loadMensagensFromLocal() {
+        try {
+            const mensagens = localStorage.getItem('mensagens_contato');
+            this.mensagensCache = mensagens ? JSON.parse(mensagens) : [];
+        } catch (error) {
+            console.error('Erro ao carregar mensagens:', error);
+            this.mensagensCache = [];
+        }
+    }
+    
+    // Atualizar mensagem de contato
+    updateMensagemContato(id, updates) {
+        const mensagens = this.getMensagensContato();
+        const index = mensagens.findIndex(m => m.id === id);
+        
+        if (index !== -1) {
+            mensagens[index] = { ...mensagens[index], ...updates };
+            
+            if (this.isDemoMode()) {
+                this.mensagensCache = mensagens;
+            } else {
+                localStorage.setItem('mensagens_contato', JSON.stringify(mensagens));
+                this.mensagensCache = mensagens;
+            }
+            
+            this.notifyObservers('mensagemUpdated', mensagens[index]);
+            return mensagens[index];
+        }
+        
+        return null;
+    }
+    
+    // Excluir mensagem de contato
+    deleteMensagemContato(id) {
+        const mensagens = this.getMensagensContato();
+        const index = mensagens.findIndex(m => m.id === id);
+        
+        if (index !== -1) {
+            const mensagemRemovida = mensagens.splice(index, 1)[0];
+            
+            if (this.isDemoMode()) {
+                this.mensagensCache = mensagens;
+            } else {
+                localStorage.setItem('mensagens_contato', JSON.stringify(mensagens));
+                this.mensagensCache = mensagens;
+            }
+            
+            this.notifyObservers('mensagemDeleted', mensagemRemovida);
+            return mensagemRemovida;
+        }
+        
+        return null;
+    }
+    
     // Limpeza de recursos
     destroy() {
         this.observers.clear();

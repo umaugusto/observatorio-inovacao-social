@@ -308,3 +308,5 @@ For local development with Netlify functions, create `.env` file with these vari
 - **Interactive Map**: Leaflet.js with marker clustering and category filtering
 - **Floating Filter**: Category-based filtering without redundant static legend
 - **Performance**: Marker clustering for large datasets
+- sempre coloque na porta 3001
+- sempre coloque na porta 3000 e nao 3001

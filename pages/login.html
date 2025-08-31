@@ -152,11 +152,16 @@
             display: flex;
             align-items: center;
             gap: 8px;
+            color: var(--text-dark);
         }
 
         .remember-me input[type="checkbox"] {
             width: 16px;
             height: 16px;
+        }
+        
+        .remember-me span {
+            color: var(--text-dark);
         }
 
         .forgot-password {
@@ -167,6 +172,12 @@
 
         .forgot-password:hover {
             text-decoration: underline;
+        }
+        
+        .request-access-link:hover {
+            color: var(--primary-color);
+            border-color: var(--primary-color);
+            background: rgba(45, 122, 95, 0.05);
         }
 
         .btn-login {
@@ -370,19 +381,6 @@
                         </div>
                     </div>
                     
-                    <!-- Social Login -->
-                    <div class="social-login" style="margin-bottom: 25px;">
-                        <button type="button" class="social-btn google" id="google-login" style="width: 100%; padding: 14px; border: 2px solid #4285f4; border-radius: 8px; background: white; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; transition: all 0.3s; font-size: 16px; font-weight: 600; color: #333;">
-                            <svg width="20" height="20" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
-                            Entrar com Google
-                        </button>
-                    </div>
-                    
-                    <div style="display: flex; align-items: center; margin: 20px 0;">
-                        <hr style="flex: 1; border: none; border-top: 1px solid #e0e0e0;">
-                        <span style="padding: 0 15px; color: var(--text-light); font-size: 14px;">ou</span>
-                        <hr style="flex: 1; border: none; border-top: 1px solid #e0e0e0;">
-                    </div>
 
                     <form class="login-form" id="login-form">
                         <div class="form-group">
@@ -397,7 +395,7 @@
                             <div style="position: relative;">
                                 <input type="password" id="password" name="password" class="form-input" 
                                        placeholder="Sua senha" required style="padding-right: 50px;">
-                                <button type="button" class="password-toggle" id="password-toggle-btn" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #666; cursor: pointer; padding: 5px; font-size: 18px;">
+                                <button type="button" class="password-toggle" id="password-toggle-btn">
                                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                         <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
                                         <circle cx="12" cy="12" r="3"></circle>
@@ -422,6 +420,21 @@
                             <a href="#" class="forgot-password" id="forgot-password-link" style="font-size: 14px;">Esqueceu a senha?</a>
                         </div>
                     </form>
+                    
+                    <!-- Link discreto para solicitar acesso -->
+                    <div style="text-align: center; margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border-light);">
+                        <p style="color: var(--text-light); font-size: 13px; margin-bottom: 10px;">Não possui uma conta?</p>
+                        <a href="#" class="request-access-link" id="request-access-link" style="
+                            display: inline-block;
+                            color: var(--text-light);
+                            text-decoration: none;
+                            font-size: 13px;
+                            padding: 6px 12px;
+                            border: 1px solid var(--border-light);
+                            border-radius: 4px;
+                            transition: all 0.2s ease;
+                        ">Solicitar Acesso</a>
+                    </div>
                 </div>
 
             </div>
@@ -429,8 +442,6 @@
     </section>
 
     <!-- Scripts -->
-    <script src="https://cdn.auth0.com/js/auth0/9.23.0/auth0.min.js"></script>
-    <script src="../js/auth0-client.js"></script>
     <script src="../js/DataManager.js"></script>
     <script src="../js/AuthManager.js"></script>
     <script src="../js/HeaderManager.js"></script>
@@ -476,21 +487,6 @@
                 emailInput.addEventListener('input', () => this.clearError('email'));
                 passwordInput.addEventListener('input', () => this.clearError('password'));
 
-                // Demo buttons
-                document.querySelectorAll('.demo-login-btn').forEach(btn => {
-                    btn.addEventListener('click', (e) => {
-                        e.preventDefault();
-                        const userType = btn.dataset.user;
-                        this.performDemoLogin(userType);
-                    });
-                });
-                
-                // Social login buttons - only add listeners for existing buttons
-                const googleBtn = document.getElementById('google-login');
-                if (googleBtn) {
-                    googleBtn.addEventListener('click', () => this.handleSocialLogin('google'));
-                }
-
                 // Password toggle
                 document.getElementById('password-toggle-btn').addEventListener('click', () => this.togglePassword());
 
@@ -499,6 +495,19 @@
                     e.preventDefault();
                     this.showForgotPassword();
                 });
+                
+                // Request access link
+                const requestAccessLink = document.getElementById('request-access-link');
+                if (requestAccessLink) {
+                    console.log('🔗 Request access link found and event listener added');
+                    requestAccessLink.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        console.log('🔗 Request access link clicked');
+                        this.showRequestAccessModal();
+                    });
+                } else {
+                    console.warn('❌ Request access link not found');
+                }
             }
 
             validateEmail() {
@@ -564,16 +573,8 @@
                         throw new Error('Sistema de autenticação não disponível');
                     }
                     
-                    // Login via Auth0 (email/senha)
-                    if (typeof Auth0Client === 'undefined') {
-                        throw new Error('Auth0Client não disponível');
-                    }
-                    const auth0Client = Auth0Client.getInstance();
-                    await auth0Client.loginWithCredentials(email, password);
-                    if (this.authManager && this.authManager.loadUserFromAuth0) {
-                        await this.authManager.loadUserFromAuth0();
-                    }
-                    const user = this.authManager?.getCurrentUser?.();
+                    // Login via sistema local
+                    const user = await this.authManager.login(email, password, remember);
                     
                     console.log('✅ Login successful:', user);
 
@@ -601,11 +602,7 @@
                     loginBtn.textContent = '✗ Erro no login';
                     loginBtn.style.background = '#e74c3c';
                     
-                    // More specific error messages
-                    let errorMessage = 'E-mail ou senha incorretos';
-                    if (error.message && error.message.includes('Sistema de autenticação')) {
-                        errorMessage = 'Sistema temporariamente indisponível. Tente novamente.';
-                    }
+                    let errorMessage = error.message || 'E-mail ou senha incorretos';
                     
                     if (window.app) {
                         window.app.showNotification(errorMessage, 'error');
@@ -635,123 +632,112 @@
                 }
             }
 
-            async performDemoLogin(userType) {
-                const credentials = {
-                    'aluno': { email: 'aluno@ufrj.br', password: '123456', name: 'Aluno Demo' },
-                    'pesquisador': { email: 'pesquisador@ufrj.br', password: 'pesq123', name: 'Pesquisador Demo' },
-                    'coordenador': { email: 'coordenador@ufrj.br', password: 'coord123', name: 'Coordenador Demo' }
-                };
+            showRequestAccessModal() {
+                console.log('📝 Opening request access modal');
+                // Criar modal para solicitar acesso
+                const modal = document.createElement('div');
+                modal.id = 'request-access-modal';
+                modal.style.cssText = `
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: rgba(0, 0, 0, 0.5);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    z-index: 10000;
+                `;
                 
-                if (!credentials[userType]) return;
+                modal.innerHTML = `
+                    <div style="
+                        background: white;
+                        border-radius: 8px;
+                        padding: 30px;
+                        max-width: 500px;
+                        width: 90%;
+                        max-height: 80vh;
+                        overflow-y: auto;
+                    ">
+                        <h3 style="margin-top: 0; color: var(--primary-color);">Solicitar Acesso ao Sistema</h3>
+                        <p style="color: var(--text-light); margin-bottom: 20px;">
+                            Preencha o formulário abaixo para solicitar acesso ao sistema.
+                            Um administrador revisará sua solicitação.
+                        </p>
+                        
+                        <form id="access-request-form">
+                            <div style="margin-bottom: 15px;">
+                                <label style="display: block; margin-bottom: 5px; font-weight: 600;">Nome completo</label>
+                                <input type="text" id="req-name" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                            </div>
+                            
+                            <div style="margin-bottom: 15px;">
+                                <label style="display: block; margin-bottom: 5px; font-weight: 600;">E-mail</label>
+                                <input type="email" id="req-email" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                            </div>
+                            
+                            <div style="margin-bottom: 15px;">
+                                <label style="display: block; margin-bottom: 5px; font-weight: 600;">Tipo de perfil</label>
+                                <select id="req-role" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                                    <option value="">Selecione...</option>
+                                    <option value="visitante">Visitante</option>
+                                    <option value="extensionista">Extensionista</option>
+                                    <option value="pesquisador">Pesquisador</option>
+                                </select>
+                            </div>
+                            
+                            <div style="margin-bottom: 20px;">
+                                <label style="display: block; margin-bottom: 5px; font-weight: 600;">Justificativa</label>
+                                <textarea id="req-justification" rows="4" required placeholder="Explique por que precisa de acesso ao sistema..." style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; resize: vertical;"></textarea>
+                            </div>
+                            
+                            <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                                <button type="button" onclick="this.closest('#request-access-modal').remove()" style="padding: 10px 20px; border: 1px solid #ddd; background: white; border-radius: 4px; cursor: pointer;">Cancelar</button>
+                                <button type="submit" style="padding: 10px 20px; background: var(--primary-color); color: white; border: none; border-radius: 4px; cursor: pointer;">Enviar Solicitação</button>
+                            </div>
+                        </form>
+                    </div>
+                `;
                 
-                // Encontrar o botão clicado e mostrar estado de loading
-                const clickedBtn = document.querySelector(`[data-user="${userType}"]`);
-                const originalContent = clickedBtn.innerHTML;
-                clickedBtn.style.opacity = '0.7';
-                clickedBtn.innerHTML = '⏳ Entrando...';
-                clickedBtn.disabled = true;
+                document.body.appendChild(modal);
                 
-                try {
-                    // Realizar login automaticamente
-                    const user = await this.authManager.login(
-                        credentials[userType].email, 
-                        credentials[userType].password, 
-                        true
-                    );
-                    
-                    // Sucesso
-                    clickedBtn.innerHTML = '✓ Logado!';
-                    clickedBtn.style.background = '#4caf50';
-                    clickedBtn.style.color = 'white';
-                    clickedBtn.style.borderColor = '#4caf50';
-                    
-                    if (window.app) {
-                        window.app.showNotification(`Bem-vindo, ${user.name}!`, 'success');
-                    }
-                    
-                    // Redirecionar
-                    setTimeout(() => {
-                        if (user.isAdmin) {
-                            window.location.href = 'admin.html';
-                        } else {
-                            window.location.href = '../index.html';
-                        }
-                    }, 1500);
-                    
-                } catch (error) {
-                    console.error('Demo login failed:', error);
-                    
-                    // Erro
-                    clickedBtn.innerHTML = '✗ Erro';
-                    clickedBtn.style.background = '#f44336';
-                    clickedBtn.style.color = 'white';
-                    clickedBtn.style.borderColor = '#f44336';
-                    
-                    // Reset depois de 2s
-                    setTimeout(() => {
-                        clickedBtn.innerHTML = originalContent;
-                        clickedBtn.style.opacity = '1';
-                        clickedBtn.style.background = '';
-                        clickedBtn.style.color = '';
-                        clickedBtn.style.borderColor = '';
-                        clickedBtn.disabled = false;
-                    }, 2000);
-                }
+                // Event listener para o formulário
+                document.getElementById('access-request-form').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.submitAccessRequest();
+                });
             }
             
-            async handleSocialLogin(provider) {
-                const btn = document.getElementById(`${provider}-login`);
-                if (!btn) {
-                    console.error(`Button ${provider}-login not found`);
-                    return;
-                }
-                
-                const originalContent = btn.innerHTML;
-                
-                // Show loading state
-                btn.disabled = true;
-                btn.style.opacity = '0.7';
-                btn.innerHTML = '<span style="animation: spin 1s linear infinite; display: inline-block;">⏳</span> Conectando...';
+            submitAccessRequest() {
+                const name = document.getElementById('req-name').value;
+                const email = document.getElementById('req-email').value;
+                const role = document.getElementById('req-role').value;
+                const justification = document.getElementById('req-justification').value;
                 
                 try {
-                    console.log(`🚀 Tentando login social com ${provider}`);
+                    this.authManager.requestAccess({
+                        name,
+                        email,
+                        role,
+                        justification
+                    });
                     
-                    // Check if Auth0Client is available
-                    if (typeof Auth0Client === 'undefined') {
-                        throw new Error('Auth0Client não está disponível');
-                    }
-                    
-                    // Get Auth0 client instance
-                    const auth0Client = Auth0Client.getInstance();
-                    
-                    // Attempt social login
-                    await auth0Client.loginWithSocial(provider);
-                    
-                    // If we reach here without redirect, something went wrong
-                    console.warn('⚠️ Social login completed but no redirect happened');
-                    
-                } catch (error) {
-                    console.error('❌ Social login failed:', error);
-                    
-                    // Show user-friendly error message
-                    let errorMsg = `Erro ao conectar com ${provider.charAt(0).toUpperCase() + provider.slice(1)}.`;
-                    
-                    if (error.message && error.message.includes('Auth0Client')) {
-                        errorMsg += ' Serviço de autenticação não está disponível.';
-                    } else {
-                        errorMsg += ' Verifique sua conexão e tente novamente.';
-                    }
+                    document.getElementById('request-access-modal').remove();
                     
                     if (window.app) {
-                        window.app.showNotification(errorMsg, 'error');
+                        window.app.showNotification('Solicitação enviada com sucesso! Aguarde a aprovação de um administrador.', 'success');
                     } else {
-                        alert(errorMsg);
+                        alert('Solicitação enviada com sucesso! Aguarde a aprovação de um administrador.');
                     }
                     
-                    // Reset button
-                    btn.disabled = false;
-                    btn.style.opacity = '1';
-                    btn.innerHTML = originalContent;
+                } catch (error) {
+                    console.error('Erro ao enviar solicitação:', error);
+                    if (window.app) {
+                        window.app.showNotification('Erro ao enviar solicitação: ' + error.message, 'error');
+                    } else {
+                        alert('Erro ao enviar solicitação: ' + error.message);
+                    }
                 }
             }
 
@@ -780,9 +766,9 @@
 
             showForgotPassword() {
                 if (window.app) {
-                    window.app.showNotification('Entre em contato com a coordenação do projeto para recuperar sua senha', 'info');
+                    window.app.showNotification('Entre em contato com a administração do sistema para recuperar sua senha', 'info');
                 } else {
-                    alert('Entre em contato com a coordenação do projeto para recuperar sua senha');
+                    alert('Entre em contato com a administração do sistema para recuperar sua senha');
                 }
             }
         }

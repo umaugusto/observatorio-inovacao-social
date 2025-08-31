@@ -26,7 +26,7 @@
     X-XSS-Protection = "1; mode=block"
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
-    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' unpkg.com cdn.auth0.com cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' unpkg.com; img-src 'self' data: unpkg.com *.openstreetmap.org *.googleusercontent.com *.unsplash.com images.unsplash.com images.unsplash.com; connect-src 'self' *.auth0.com *.supabase.co;"
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' unpkg.com cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' unpkg.com; img-src 'self' data: unpkg.com *.openstreetmap.org *.unsplash.com images.unsplash.com; connect-src 'self' *.supabase.co;"
 
 # Cache para recursos estáticos
 [[headers]]
