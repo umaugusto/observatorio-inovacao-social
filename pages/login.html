@@ -327,37 +327,7 @@
     </section>
 
     <!-- Scripts -->
-    <script>
-        // Carregar configuração do Auth0 dinamicamente
-        (async function loadAuth0Config() {
-            const isProduction = window.location.hostname === 'observatorioisrj.netlify.app';
-            
-            if (isProduction) {
-                try {
-                    // Em produção, carregar do endpoint Netlify
-                    const response = await fetch('/.netlify/functions/config');
-                    if (response.ok) {
-                        const config = await response.json();
-                        window.AUTH0_CONFIG = config;
-                        console.log('✅ Auth0 config loaded from Netlify:', config);
-                    } else {
-                        console.error('❌ Config endpoint returned:', response.status);
-                    }
-                } catch (error) {
-                    console.error('❌ Failed to load Auth0 config:', error);
-                }
-            }
-            
-            // Fallback para desenvolvimento ou se falhar
-            if (!window.AUTH0_CONFIG || !window.AUTH0_CONFIG.AUTH0_CLIENT_ID) {
-                window.AUTH0_CONFIG = {
-                    AUTH0_DOMAIN: 'dev-cvjwhtcjyx8zmows.us.auth0.com',
-                    AUTH0_CLIENT_ID: 'pIcBfUTnGTh7Du1trOtnYKJU4pH5zMUW'
-                };
-                console.log('⚠️ Using fallback Auth0 config');
-            }
-        })();
-    </script>
+    <script src="https://cdn.auth0.com/js/auth0/9.23.0/auth0.min.js"></script>
     <script src="../js/auth0-client.js"></script>
     <script src="../js/AuthManager.js"></script>
     <script src="../js/HeaderManager.js"></script>
@@ -819,6 +789,36 @@
             }
         }
 
+        // Função para carregar configuração do Auth0
+        async function loadAuth0Config() {
+            const isProduction = window.location.hostname === 'observatorioisrj.netlify.app';
+            
+            if (isProduction) {
+                try {
+                    // Em produção, carregar do endpoint Netlify
+                    const response = await fetch('/.netlify/functions/config');
+                    if (response.ok) {
+                        const config = await response.json();
+                        window.AUTH0_CONFIG = config;
+                        console.log('✅ Auth0 config loaded from Netlify:', config);
+                    } else {
+                        console.error('❌ Config endpoint returned:', response.status);
+                    }
+                } catch (error) {
+                    console.error('❌ Failed to load Auth0 config:', error);
+                }
+            }
+            
+            // Fallback para desenvolvimento ou se falhar
+            if (!window.AUTH0_CONFIG || !window.AUTH0_CONFIG.AUTH0_CLIENT_ID) {
+                window.AUTH0_CONFIG = {
+                    AUTH0_DOMAIN: 'dev-cvjwhtcjyx8zmows.us.auth0.com',
+                    AUTH0_CLIENT_ID: 'pIcBfUTnGTh7Du1trOtnYKJU4pH5zMUW'
+                };
+                console.log('⚠️ Using fallback Auth0 config');
+            }
+        }
+
         // Inicializar quando o DOM estiver carregado
         document.addEventListener('DOMContentLoaded', async () => {
             console.log('==========================================');
@@ -826,6 +826,9 @@
             console.log('==========================================');
             console.log('📍 URL:', window.location.href);
             console.log('🌐 Host:', window.location.hostname);
+            
+            // Carregar configuração Auth0 primeiro
+            await loadAuth0Config();
             console.log('🔐 Auth0 Config:', window.AUTH0_CONFIG);
             
             // Aguardar todos os managers estarem disponíveis

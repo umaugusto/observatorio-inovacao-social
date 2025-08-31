@@ -30,9 +30,25 @@ class Auth0Client {
     }
 
     async init() {
+        // Aguardar configuração estar disponível
+        let attempts = 0;
+        while ((!window.AUTH0_CONFIG || !window.AUTH0_CONFIG.AUTH0_CLIENT_ID) && attempts < 10) {
+            console.log('⏳ Waiting for Auth0 config...', attempts);
+            await new Promise(resolve => setTimeout(resolve, 100));
+            attempts++;
+        }
+        
+        // Atualizar config com valores carregados
+        if (window.AUTH0_CONFIG) {
+            this.config.domain = window.AUTH0_CONFIG.AUTH0_DOMAIN || this.config.domain;
+            this.config.clientId = window.AUTH0_CONFIG.AUTH0_CLIENT_ID || this.config.clientId;
+            console.log('🔐 Auth0Client using config:', this.config);
+        }
+        
         // Verificar se Auth0 SDK está disponível
         if (typeof auth0 !== 'undefined') {
             this.auth0 = new auth0.WebAuth(this.config);
+            console.log('✅ Auth0 WebAuth initialized');
         } else {
             console.log('Auth0 SDK não carregado. Carregando dinamicamente...');
             await this.loadAuth0SDK();
