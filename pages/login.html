@@ -356,20 +356,27 @@
 
             async waitForAuthManager() {
                 console.log('⏳ Waiting for AuthManager...');
-                const checkAuthManager = () => {
+                const checkAuthManager = async () => {
                     if (window.AuthManager) {
                         this.authManager = AuthManager.getInstance();
                         console.log('✅ AuthManager found and assigned:', this.authManager);
+                        
+                        // Aguardar inicialização completa do AuthManager
+                        if (this.authManager.ensureInitialized) {
+                            console.log('⏳ Waiting for AuthManager initialization...');
+                            await this.authManager.ensureInitialized();
+                            console.log('✅ AuthManager fully initialized');
+                        }
                         return true;
                     }
                     return false;
                 };
 
-                if (!checkAuthManager()) {
+                if (!(await checkAuthManager())) {
                     console.log('⏳ AuthManager not ready, waiting...');
-                    await new Promise(resolve => {
-                        const interval = setInterval(() => {
-                            if (checkAuthManager()) {
+                    await new Promise(async resolve => {
+                        const interval = setInterval(async () => {
+                            if (await checkAuthManager()) {
                                 clearInterval(interval);
                                 resolve();
                             }
@@ -443,6 +450,8 @@
 
             async loginWithCredentials() {
                 console.log('🔑 loginWithCredentials called');
+                console.log('   Current environment:', window.location.hostname);
+                console.log('   Auth0 Config available:', !!window.AUTH0_CONFIG);
                 
                 if (this.isLoading) {
                     console.log('⚠️ Already loading, skipping');
@@ -466,9 +475,16 @@
                     
                     console.log('🔐 Calling authManager.loginWithCredentials');
                     console.log('   AuthManager instance:', this.authManager);
-                    console.log('   AuthManager methods:', Object.getOwnPropertyNames(Object.getPrototypeOf(this.authManager)));
+                    console.log('   AuthManager initialized:', this.authManager ? this.authManager.initialized : 'N/A');
+                    console.log('   AuthManager auth0Client:', this.authManager ? !!this.authManager.auth0Client : 'N/A');
 
-                    const userData = await this.authManager.loginWithCredentials(email, password);
+                    // Adicionar timeout como na página de debug
+                    const loginPromise = this.authManager.loginWithCredentials(email, password);
+                    const timeoutPromise = new Promise((_, reject) => 
+                        setTimeout(() => reject(new Error('Login timeout after 15 seconds')), 15000)
+                    );
+                    
+                    const userData = await Promise.race([loginPromise, timeoutPromise]);
                     
                     console.log('✅ Login response:', userData);
                     
