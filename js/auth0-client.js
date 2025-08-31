@@ -3,8 +3,8 @@ class Auth0Client {
     constructor() {
         this.auth0 = null;
         this.config = {
-            domain: 'dev-observatorio-rj.us.auth0.com',
-            clientId: process.env.AUTH0_CLIENT_ID || 'dev-placeholder-client-id',
+            domain: 'alphzilla.us.auth0.com',
+            clientId: process.env.AUTH0_CLIENT_ID || 'alphzilla-client-id',
             redirectUri: window.location.origin + '/pages/callback.html',
             scope: 'openid profile email'
         };

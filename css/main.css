@@ -72,6 +72,39 @@ body {
     padding: 0 20px;
 }
 
+.nav-brand {
+    text-decoration: none;
+}
+
+.nav-brand a {
+    text-decoration: none;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0;
+}
+
+.nav-brand h1 {
+    font-size: 26px;
+    font-weight: 800;
+    color: var(--primary-color);
+    letter-spacing: -0.5px;
+    margin: 0;
+    line-height: 1.1;
+}
+
+.nav-brand span {
+    font-size: 8px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    background: var(--orange-accent);
+    color: white;
+    padding: 3px 8px;
+    margin-top: -1px;
+    display: inline-block;
+    border-radius: 2px;
+}
+
 .logo {
     text-decoration: none;
     display: flex;
