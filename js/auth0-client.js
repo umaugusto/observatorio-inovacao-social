@@ -50,6 +50,15 @@ class Auth0ClientWrapper {
         } catch (e) {
             await load('https://cdn.auth0.com/js/auth0-spa-js/2.1/auth0-spa-js.production.js');
         }
+        // Poll briefly for global to appear
+        let tries = 0;
+        while (!window.createAuth0Client && tries < 30) {
+            await new Promise(r => setTimeout(r, 100));
+            tries++;
+        }
+        if (!window.createAuth0Client) {
+            throw new Error('Auth0 SPA SDK not available after load');
+        }
     }
 
     async init() {
