@@ -4,7 +4,7 @@ class Auth0Client {
         this.auth0 = null;
         this.config = {
             domain: 'dev-observatorio-rj.us.auth0.com',
-            clientId: 'YourAuth0ClientId', // Deve ser configurado via environment
+            clientId: process.env.AUTH0_CLIENT_ID || 'dev-placeholder-client-id',
             redirectUri: window.location.origin + '/pages/callback.html',
             scope: 'openid profile email'
         };

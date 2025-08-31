@@ -389,9 +389,14 @@
                 });
 
                 // Password toggle
-                document.getElementById('password-toggle-btn').addEventListener('click', () => {
-                    this.togglePassword();
-                });
+                const passwordToggleBtn = document.getElementById('password-toggle-btn');
+                if (passwordToggleBtn) {
+                    passwordToggleBtn.addEventListener('click', () => {
+                        this.togglePassword();
+                    });
+                } else {
+                    console.error('Password toggle button not found');
+                }
 
                 // Forgot password
                 document.getElementById('forgot-password-link').addEventListener('click', (e) => {
@@ -430,9 +435,20 @@
                     this.setLoading(true);
                     this.clearMessages();
 
-                    await this.authManager.loginWithCredentials(email, password);
+                    const userData = await this.authManager.loginWithCredentials(email, password);
                     
-                    // O redirecionamento será feito pelo callback
+                    if (userData) {
+                        // Login bem-sucedido, redirecionar
+                        this.showSuccess('Login realizado com sucesso! Redirecionando...');
+                        
+                        setTimeout(() => {
+                            if (userData.isAdmin || userData.isRoot) {
+                                window.location.href = '../pages/admin.html';
+                            } else {
+                                window.location.href = '../index.html';
+                            }
+                        }, 1500);
+                    }
                     
                 } catch (error) {
                     console.error('Login error:', error);

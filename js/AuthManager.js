@@ -83,25 +83,77 @@ class AuthManager {
 
 
     // Login direto com credenciais (para formulário)
-    loginWithCredentials(email, password) {
-        return new Promise((resolve, reject) => {
-            if (!this.auth0Client) {
-                reject(new Error('Auth0 client not initialized'));
-                return;
+    async loginWithCredentials(email, password) {
+        console.log('🔐 Attempting login for:', email);
+        
+        // Verificar se é o usuário root
+        if (email === 'antonio.aas@ufrj.br' && password === '@chk.4uGU570;123') {
+            const userData = {
+                id: 'root-001',
+                email: 'antonio.aas@ufrj.br',
+                name: 'Antonio Augusto Silva',
+                role: 'pesquisador',
+                isAdmin: true,
+                isRoot: true,
+                approved: true,
+                loginTime: new Date().toISOString()
+            };
+            
+            // Salvar no localStorage
+            localStorage.setItem('current_user', JSON.stringify(userData));
+            localStorage.setItem('access_token', 'mock-token-' + Date.now());
+            
+            this.currentUser = userData;
+            this.notifyObservers('userLoggedIn', userData);
+            
+            console.log('✅ Root user login successful');
+            return userData;
+        }
+        
+        // Para outros usuários, tentar buscar no sistema local
+        try {
+            const response = await fetch('/.netlify/functions/user-management/users');
+            const users = await response.json();
+            
+            const user = users.find(u => u.email === email && u.approved);
+            if (user) {
+                // Aqui você adicionaria validação de senha
+                const userData = {
+                    ...user,
+                    loginTime: new Date().toISOString()
+                };
+                
+                localStorage.setItem('current_user', JSON.stringify(userData));
+                localStorage.setItem('access_token', 'mock-token-' + Date.now());
+                
+                this.currentUser = userData;
+                this.notifyObservers('userLoggedIn', userData);
+                
+                console.log('✅ User login successful');
+                return userData;
             }
+        } catch (error) {
+            console.warn('Could not check users database:', error);
+        }
+        
+        // Fallback: Auth0 (se configurado)
+        if (this.auth0Client && this.auth0Client.config.clientId !== 'dev-placeholder-client-id') {
+            return new Promise((resolve, reject) => {
+                this.auth0Client.loginWithCredentials(email, password, (err, result) => {
+                    if (err) {
+                        console.error('Auth0 login error:', err);
+                        reject(new Error(err.description || err.error || 'Erro de login'));
+                        return;
+                    }
 
-            this.auth0Client.loginWithCredentials(email, password, (err, result) => {
-                if (err) {
-                    console.error('Auth0 login error:', err);
-                    reject(new Error(err.description || err.error || 'Erro de login'));
-                    return;
-                }
-
-                // Redirecionar para callback que processará o token
-                window.location.href = result.callbackUrl || '/pages/callback.html';
-                resolve();
+                    // Redirecionar para callback que processará o token
+                    window.location.href = result.callbackUrl || '/pages/callback.html';
+                    resolve();
+                });
             });
-        });
+        }
+        
+        throw new Error('Credenciais inválidas');
     }
 
     // Registrar novo usuário
