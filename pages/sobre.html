@@ -128,11 +128,161 @@
             padding: 80px 0;
         }
 
+        .innovation-definition {
+            background: white;
+            padding: 40px;
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow-sm);
+            margin: 40px auto;
+            max-width: 800px;
+            text-align: center;
+        }
+
+        .innovation-definition h3 {
+            color: var(--primary-color);
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        .innovation-definition p {
+            color: var(--text-light);
+            font-size: 16px;
+            line-height: 1.8;
+        }
+
+        .emude-intro {
+            text-align: center;
+            margin: 60px auto 40px;
+            max-width: 700px;
+        }
+
+        .emude-intro h3 {
+            color: var(--text-dark);
+            font-size: 28px;
+            margin-bottom: 20px;
+        }
+
+        .emude-intro p {
+            color: var(--text-light);
+            font-size: 18px;
+            line-height: 1.7;
+        }
+
+        .emude-cycle {
+            position: relative;
+            max-width: 600px;
+            margin: 60px auto;
+            padding: 40px;
+        }
+
+        .cycle-diagram {
+            position: relative;
+            width: 500px;
+            height: 500px;
+            margin: 0 auto;
+            border: 3px solid var(--primary-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .cycle-center {
+            text-align: center;
+            z-index: 10;
+        }
+
+        .cycle-logo {
+            display: block;
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        .cycle-subtitle {
+            display: block;
+            font-size: 14px;
+            color: var(--text-light);
+            font-weight: 600;
+        }
+
+        .cycle-step {
+            position: absolute;
+            width: 180px;
+            text-align: center;
+            background: white;
+            padding: 20px;
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow-md);
+            border: 2px solid var(--primary-light);
+            transition: var(--transition);
+        }
+
+        .cycle-step:hover {
+            transform: scale(1.05);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--primary-color);
+        }
+
+        .cycle-step[data-step="1"] {
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .cycle-step[data-step="2"] {
+            right: -90px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .cycle-step[data-step="3"] {
+            bottom: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .cycle-step[data-step="4"] {
+            left: -90px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .cycle-step .step-icon {
+            font-size: 32px;
+            margin-bottom: 15px;
+        }
+
+        .cycle-step h4 {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        .cycle-step p {
+            font-size: 12px;
+            color: var(--text-light);
+            line-height: 1.4;
+        }
+
+        .methodology-details {
+            margin-top: 80px;
+        }
+
+        .methodology-details h3 {
+            text-align: center;
+            color: var(--text-dark);
+            font-size: 24px;
+            margin-bottom: 40px;
+        }
+
         .methodology-steps {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 40px;
-            margin-top: 60px;
+            margin-top: 40px;
         }
 
         .step-card {
@@ -287,12 +437,55 @@
                 grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             }
 
+            .cycle-diagram {
+                width: 350px;
+                height: 350px;
+            }
+
+            .cycle-step {
+                width: 140px;
+                padding: 15px;
+            }
+
+            .cycle-step[data-step="1"] {
+                top: -15px;
+            }
+
+            .cycle-step[data-step="2"] {
+                right: -70px;
+            }
+
+            .cycle-step[data-step="3"] {
+                bottom: -15px;
+            }
+
+            .cycle-step[data-step="4"] {
+                left: -70px;
+            }
+
+            .cycle-step h4 {
+                font-size: 14px;
+            }
+
+            .cycle-step p {
+                font-size: 11px;
+            }
+
             .methodology-steps {
                 grid-template-columns: 1fr;
             }
 
             .team-grid {
                 grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            }
+
+            .innovation-definition {
+                margin: 30px 20px;
+                padding: 30px;
+            }
+
+            .emude-cycle {
+                padding: 20px;
             }
         }
     </style>
@@ -411,46 +604,93 @@
     <!-- Methodology -->
     <section class="methodology-section">
         <div class="container">
-            <h2 class="section-title">Nossa Metodologia</h2>
-            <p style="text-align: center; color: var(--text-light); font-size: 18px; max-width: 600px; margin: 0 auto;">
-                Utilizamos uma abordagem participativa e territorial para identificar, documentar e amplificar iniciativas de inovação social.
-            </p>
+            <h2 class="section-title">Metodologia</h2>
+            
+            <!-- Definição de Inovação Social -->
+            <div class="innovation-definition">
+                <h3>O que é Inovação Social?</h3>
+                <p>A <strong>inovação social</strong> refere-se a soluções criativas e sustentáveis para problemas sociais complexos, desenvolvidas por e com as comunidades afetadas. São iniciativas que transformam práticas sociais, fortalecem laços comunitários e promovem mudanças sistêmicas através de abordagens colaborativas e participativas.</p>
+            </div>
+            
+            <!-- Modelo EMUDE -->
+            <div class="emude-intro">
+                <h3>Modelo EMUDE</h3>
+                <p>Adotamos o modelo <strong>EMUDE</strong> (Emerging User Demands for Sustainable Solutions) para detectar, amplificar e reorientar sinais fracos de inovação social em um ciclo virtuoso de transformação territorial.</p>
+            </div>
 
-            <div class="methodology-steps">
-                <div class="step-card">
-                    <div class="step-number">1</div>
-                    <div class="step-icon">🔍</div>
-                    <h3 class="step-title">Identificação</h3>
-                    <p class="step-description">
-                        Mapeamento territorial através de caminhadas, conversas com lideranças locais e pesquisa em redes sociais e mídia local.
-                    </p>
+            <!-- Ciclo EMUDE -->
+            <div class="emude-cycle">
+                <div class="cycle-diagram">
+                    <div class="cycle-center">
+                        <span class="cycle-logo">EMUDE</span>
+                        <span class="cycle-subtitle">Ciclo de Inovação Social</span>
+                    </div>
+                    
+                    <div class="cycle-step" data-step="1">
+                        <div class="step-icon">🔍</div>
+                        <h4>Detecção de Sinais</h4>
+                        <p>Identificamos sinais fracos de inovação social através de mapeamento territorial participativo</p>
+                    </div>
+                    
+                    <div class="cycle-step" data-step="2">
+                        <div class="step-icon">💡</div>
+                        <h4>Reforço de Sinais</h4>
+                        <p>Documentamos e validamos iniciativas promissoras com metodologia científica rigorosa</p>
+                    </div>
+                    
+                    <div class="cycle-step" data-step="3">
+                        <div class="step-icon">📢</div>
+                        <h4>Re-emissão Amplificada</h4>
+                        <p>Amplificamos o alcance através da plataforma digital e redes de colaboração</p>
+                    </div>
+                    
+                    <div class="cycle-step" data-step="4">
+                        <div class="step-icon">🔄</div>
+                        <h4>Re-orientação Social</h4>
+                        <p>Facilitamos a replicação e adaptação de soluções em diferentes territórios</p>
+                    </div>
                 </div>
+            </div>
+            
+            <!-- Metodologia Detalhada -->
+            <div class="methodology-details">
+                <h3>Como Aplicamos o Modelo</h3>
+                <div class="methodology-steps">
+                    <div class="step-card">
+                        <div class="step-number">1</div>
+                        <div class="step-icon">👥</div>
+                        <h3 class="step-title">Imersão Territorial</h3>
+                        <p class="step-description">
+                            Extensionistas realizam caminhadas, conversas com lideranças e mapeamento de iniciativas emergentes nos territórios.
+                        </p>
+                    </div>
 
-                <div class="step-card">
-                    <div class="step-number">2</div>
-                    <div class="step-icon">📝</div>
-                    <h3 class="step-title">Documentação</h3>
-                    <p class="step-description">
-                        Registro detalhado das iniciativas, incluindo metodologias, impactos, desafios e oportunidades de replicação.
-                    </p>
-                </div>
+                    <div class="step-card">
+                        <div class="step-number">2</div>
+                        <div class="step-icon">📋</div>
+                        <h3 class="step-title">Sistematização</h3>
+                        <p class="step-description">
+                            Documentação científica das práticas, metodologias, impactos e potencial de escalabilidade das iniciativas.
+                        </p>
+                    </div>
 
-                <div class="step-card">
-                    <div class="step-number">3</div>
-                    <div class="step-icon">🌐</div>
-                    <h3 class="step-title">Amplificação</h3>
-                    <p class="step-description">
-                        Divulgação através da plataforma digital, eventos acadêmicos, mídias sociais e parcerias institucionais.
-                    </p>
-                </div>
+                    <div class="step-card">
+                        <div class="step-number">3</div>
+                        <div class="step-icon">🌐</div>
+                        <h3 class="step-title">Visibilização</h3>
+                        <p class="step-description">
+                            Divulgação através do observatório digital, eventos acadêmicos e articulação com redes de inovação social.
+                        </p>
+                    </div>
 
-                <div class="step-card">
-                    <div class="step-number">4</div>
-                    <div class="step-icon">🤝</div>
-                    <h3 class="step-title">Articulação</h3>
-                    <p class="step-description">
-                        Conexão entre iniciativas similares, facilitação de trocas de experiências e apoio à replicação.
-                    </p>
+                    <div class="step-card">
+                        <div class="step-number">4</div>
+                        <div class="step-icon">🔗</div>
+                        <h3 class="step-title">Articulação</h3>
+                        <p class="step-description">
+                            Conexão entre iniciativas, facilitação de trocas e apoio à replicação em novos contextos territoriais.
+                        </p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -599,6 +839,7 @@
     <!-- Scripts -->
     <script src="../js/DataManager.js"></script>
     <script src="../js/AuthManager.js"></script>
+    <script src="../js/HeaderManager.js"></script>
     <script src="../js/main.js"></script>
     <script>
         // Verificar status de autenticação
@@ -623,6 +864,31 @@
             document.querySelectorAll('.stat-number, .impact-number').forEach(num => {
                 observer.observe(num);
             });
+
+            // Animação do ciclo EMUDE
+            const cycleObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const steps = entry.target.querySelectorAll('.cycle-step');
+                        steps.forEach((step, index) => {
+                            setTimeout(() => {
+                                step.style.opacity = '0';
+                                step.style.transform = step.style.transform + ' scale(0.8)';
+                                setTimeout(() => {
+                                    step.style.opacity = '1';
+                                    step.style.transform = step.style.transform.replace('scale(0.8)', 'scale(1)');
+                                }, 100);
+                            }, index * 200);
+                        });
+                        cycleObserver.unobserve(entry.target);
+                    }
+                });
+            });
+
+            const cycleElement = document.querySelector('.emude-cycle');
+            if (cycleElement) {
+                cycleObserver.observe(cycleElement);
+            }
         });
 
         function animateNumber(element, finalValue) {

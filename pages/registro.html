@@ -492,12 +492,15 @@
                 <li><a href="../index.html">Início</a></li>
                 <li><a href="casos.html">Casos</a></li>
                 <li><a href="categorias.html">Categorias</a></li>
+                <li><a href="metodologia.html">Metodologia</a></li>
                 <li><a href="sobre.html">Sobre</a></li>
                 <li><a href="contato.html">Contato</a></li>
             </ul>
 
             <div class="nav-actions">
+                <!-- Will be managed by HeaderManager -->
                 <a href="login.html" class="btn-secondary-header">Entrar</a>
+                <a href="registro.html" class="btn-header">Criar Conta</a>
             </div>
 
             <button class="mobile-menu-btn" aria-label="Menu">
@@ -672,14 +675,34 @@
                     <div class="step-content" id="step-success">
                         <div class="success-container" style="display: block;">
                             <div class="success-icon">✓</div>
-                            <h2 style="font-size: 24px; margin-bottom: 12px;">Conta criada com sucesso!</h2>
-                            <p style="color: var(--text-light); margin-bottom: 20px;">
-                                Um email de confirmação foi enviado para <strong id="confirmation-email"></strong>
-                            </p>
-                            <p style="color: var(--text-light); font-size: 14px; margin-bottom: 30px;">
-                                Verifique sua caixa de entrada e clique no link para ativar sua conta
-                            </p>
-                            <button class="btn-primary" onclick="window.location.href='login.html'">
+                            <h2 id="success-title" style="font-size: 24px; margin-bottom: 12px;">Conta criada com sucesso!</h2>
+
+                            <div id="success-email-pending" style="display:none;">
+                                <p style="color: var(--text-light); margin-bottom: 12px;">
+                                    Para finalizar, confirme seu email: <strong id="confirmation-email"></strong>
+                                </p>
+                                <p style="color: var(--text-light); font-size: 14px; margin-bottom: 16px;">
+                                    Se não receber em alguns minutos, verifique o spam ou reenvie abaixo.
+                                </p>
+                                <div id="resend-area">
+                                    <button id="btn-resend-email" class="btn-primary" style="margin-bottom: 10px;">Reenviar email de confirmação</button>
+                                    <div id="resend-feedback" style="font-size: 13px; color: var(--text-light);"></div>
+                                </div>
+                                <div id="quick-mail" style="margin-top: 14px;">
+                                    <a id="open-mail-link" href="#" target="_blank" rel="noopener" style="font-size: 14px;">Abrir seu e-mail</a>
+                                </div>
+                                <div style="margin-top: 14px;">
+                                    <a id="use-other-email" href="#" style="font-size: 13px;">Usar outro email</a>
+                                </div>
+                            </div>
+
+                            <div id="success-social" style="display:none;">
+                                <p style="color: var(--text-light); margin-bottom: 20px;">
+                                    Tudo pronto! Você pode acessar com sua conta Google.
+                                </p>
+                            </div>
+
+                            <button class="btn-primary" id="go-to-login" onclick="window.location.href='login.html'">
                                 Ir para Login
                             </button>
                         </div>
@@ -700,6 +723,7 @@
     <script src="../js/auth0-client.js"></script>
     <script src="../js/DataManager.js"></script>
     <script src="../js/AuthManager.js"></script>
+    <script src="../js/HeaderManager.js"></script>
     <script src="../js/RegistrationManager.js"></script>
 </body>
 </html>
