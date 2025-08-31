@@ -1,8 +1,12 @@
 [build]
   # Não há processo de build - servir arquivos estáticos
-  publish = "."
+publish = "."
   functions = "netlify/functions"
   
+[functions]
+  node_bundler = "esbuild"
+  external_node_modules = ["jose"]
+
 [build.environment]
   NODE_VERSION = "18"
 
