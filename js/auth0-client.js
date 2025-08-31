@@ -2,6 +2,9 @@
 class Auth0Client {
     constructor() {
         this.auth0 = null;
+        this.initialized = false;
+        this.initPromise = null;
+        
         // Get Auth0 config from loaded config or use defaults
         const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
         const auth0Config = window.AUTH0_CONFIG || {};
@@ -13,13 +16,15 @@ class Auth0Client {
             scope: 'openid profile email'
         };
         
-        console.log('🔐 Auth0 Config:', { 
+        console.log('🔐 Auth0Client Constructor - Initial Config:', { 
             domain: this.config.domain, 
             clientId: this.config.clientId, 
             isDevelopment,
-            hasRealClientId: this.config.clientId && this.config.clientId !== 'alphzilla-client-id' && this.config.clientId !== 'dev-placeholder-client-id'
+            hasConfig: !!window.AUTH0_CONFIG
         });
-        this.init();
+        
+        // Inicializar de forma assíncrona
+        this.initPromise = this.init();
     }
 
     static getInstance() {
@@ -48,7 +53,9 @@ class Auth0Client {
         // Verificar se Auth0 SDK está disponível
         if (typeof auth0 !== 'undefined') {
             this.auth0 = new auth0.WebAuth(this.config);
+            this.initialized = true;
             console.log('✅ Auth0 WebAuth initialized');
+            console.log('   Final config used:', this.config);
         } else {
             console.log('Auth0 SDK não carregado. Carregando dinamicamente...');
             await this.loadAuth0SDK();
@@ -61,7 +68,8 @@ class Auth0Client {
             script.src = 'https://cdn.auth0.com/js/auth0/9.23.0/auth0.min.js';
             script.onload = () => {
                 this.auth0 = new auth0.WebAuth(this.config);
-                console.log('Auth0 client initialized');
+                this.initialized = true;
+                console.log('✅ Auth0 client initialized via dynamic load');
                 resolve();
             };
             script.onerror = reject;
@@ -87,13 +95,30 @@ class Auth0Client {
         this.login({ connection: 'google-oauth2' });
     }
 
+    // Garantir que está inicializado
+    async ensureInitialized() {
+        if (this.initialized) return;
+        if (this.initPromise) {
+            await this.initPromise;
+        }
+    }
+    
     // Login com email/password
-    loginWithCredentials(email, password, callback) {
+    async loginWithCredentials(email, password, callback) {
+        console.log('🔐 Auth0Client.loginWithCredentials called');
+        console.log('   Initialized:', this.initialized);
+        console.log('   auth0 instance:', !!this.auth0);
+        
+        // Garantir inicialização
+        await this.ensureInitialized();
+        
         if (!this.auth0) {
-            console.error('Auth0 client not initialized');
+            console.error('❌ Auth0 client not initialized after wait');
+            callback(new Error('Auth0 não inicializado'));
             return;
         }
 
+        console.log('🔑 Calling auth0.login with realm');
         this.auth0.login({
             realm: 'Username-Password-Authentication',
             username: email,

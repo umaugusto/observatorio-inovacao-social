@@ -21,6 +21,11 @@ class AuthManager {
         try {
             if (window.Auth0Client) {
                 this.auth0Client = Auth0Client.getInstance();
+                // Aguardar inicialização do Auth0Client
+                if (this.auth0Client && this.auth0Client.ensureInitialized) {
+                    await this.auth0Client.ensureInitialized();
+                    console.log('✅ Auth0Client initialized in AuthManager');
+                }
             } else {
                 console.warn('Auth0Client not available, using fallback authentication');
             }
@@ -101,8 +106,8 @@ class AuthManager {
         // Tentar login com Auth0 primeiro
         if (this.auth0Client) {
             console.log('🔐 Trying Auth0 login...');
-            return new Promise((resolve, reject) => {
-                this.auth0Client.loginWithCredentials(email, password, (err, result) => {
+            return new Promise(async (resolve, reject) => {
+                await this.auth0Client.loginWithCredentials(email, password, (err, result) => {
                     if (err) {
                         console.error('❌ Auth0 login failed:', err);
                         // Fallback para usuário root
