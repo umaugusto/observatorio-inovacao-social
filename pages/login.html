@@ -327,6 +327,36 @@
     </section>
 
     <!-- Scripts -->
+    <script>
+        // Carregar configuração do Auth0 dinamicamente
+        (async function loadAuth0Config() {
+            const isProduction = window.location.hostname === 'observatorioisrj.netlify.app';
+            
+            if (isProduction) {
+                try {
+                    // Em produção, carregar do endpoint Netlify
+                    const response = await fetch('/.netlify/functions/config');
+                    if (response.ok) {
+                        const configScript = await response.text();
+                        eval(configScript); // Isso define window.AUTH0_CONFIG
+                        console.log('✅ Auth0 config loaded from Netlify');
+                    }
+                } catch (error) {
+                    console.error('❌ Failed to load Auth0 config:', error);
+                }
+            }
+            
+            // Fallback para desenvolvimento ou se falhar
+            if (!window.AUTH0_CONFIG) {
+                window.AUTH0_CONFIG = {
+                    AUTH0_DOMAIN: 'dev-cvjwhtcjyx8zmows.us.auth0.com',
+                    AUTH0_CLIENT_ID: 'dev-placeholder-client-id'
+                };
+                console.log('⚠️ Using fallback Auth0 config');
+            }
+        })();
+    </script>
+    <script src="../js/auth0-client.js"></script>
     <script src="../js/AuthManager.js"></script>
     <script src="../js/HeaderManager.js"></script>
 
@@ -789,8 +819,20 @@
 
         // Inicializar quando o DOM estiver carregado
         document.addEventListener('DOMContentLoaded', async () => {
+            console.log('==========================================');
+            console.log('🚀 INICIANDO SISTEMA DE LOGIN');
+            console.log('==========================================');
+            console.log('📍 URL:', window.location.href);
+            console.log('🌐 Host:', window.location.hostname);
+            console.log('🔐 Auth0 Config:', window.AUTH0_CONFIG);
+            
             // Aguardar todos os managers estarem disponíveis
             await waitForManagers();
+            
+            console.log('✅ Managers carregados:');
+            console.log('   - AuthManager:', !!window.AuthManager);
+            console.log('   - HeaderManager:', !!window.HeaderManager);
+            console.log('   - Auth0Client:', !!window.Auth0Client);
             
             // Debug: Verificar se nav-actions existe
             const navActions = document.querySelector('.nav-actions');
@@ -800,13 +842,20 @@
             setupMobileMenu();
             
             // Inicializar LoginPage
-            new LoginPage();
+            const loginPage = new LoginPage();
+            console.log('✅ LoginPage initialized');
             
             // Inicializar HeaderManager explicitamente
             if (!window.headerManager) {
                 window.headerManager = HeaderManager.getInstance();
                 console.log('HeaderManager initialized:', window.headerManager);
             }
+            
+            console.log('==========================================');
+            console.log('✅ SISTEMA PRONTO - Digite suas credenciais');
+            console.log('   Email: antonio.aas@ufrj.br');
+            console.log('   Senha: @chk.4uGU570;123');
+            console.log('==========================================');
         });
     </script>
 </body>

@@ -7,8 +7,8 @@ class Auth0Client {
         const auth0Config = window.AUTH0_CONFIG || {};
         
         this.config = {
-            domain: isDevelopment ? 'dev-placeholder.us.auth0.com' : (auth0Config.AUTH0_DOMAIN || 'dev-cvjwhtcjyx8zmows.us.auth0.com'),
-            clientId: isDevelopment ? 'dev-placeholder-client-id' : (auth0Config.AUTH0_CLIENT_ID || 'dev-placeholder-client-id'),
+            domain: auth0Config.AUTH0_DOMAIN || 'dev-cvjwhtcjyx8zmows.us.auth0.com',
+            clientId: auth0Config.AUTH0_CLIENT_ID || 'pIcBfUTnGTh7Du1trOtnYKJU4pH5zMUW',
             redirectUri: window.location.origin + '/pages/callback.html',
             scope: 'openid profile email'
         };
