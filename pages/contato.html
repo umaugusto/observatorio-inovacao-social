@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contato | Observatório Social RJ</title>
+    <meta name="description" content="Entre em contato com o Observatório de Inovação Social do Rio de Janeiro.">
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet" href="../css/components.css">
+    <style>
+        .contact-hero {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 120px 0 80px 0;
+            margin-top: 70px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .contact-hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 30% 70%, rgba(255,255,255,0.1) 0%, transparent 50%);
+        }
+
+        .contact-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .contact-hero h1 {
+            font-size: clamp(36px, 5vw, 56px);
+            font-weight: 700;
+            margin-bottom: 20px;
+            line-height: 1.2;
+        }
+
+        .contact-hero p {
+            font-size: clamp(18px, 2.5vw, 22px);
+            margin-bottom: 40px;
+            opacity: 0.95;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .contact-section {
+            padding: 80px 0;
+            background: var(--background-light);
+        }
+
+        .contact-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .contact-info {
+            background: white;
+            padding: 50px;
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow-md);
+            height: fit-content;
+        }
+
+        .contact-info h2 {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 25px;
+        }
+
+        .contact-info p {
+            color: var(--text-light);
+            line-height: 1.7;
+            margin-bottom: 30px;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 25px;
+            padding: 20px;
+            background: var(--background-light);
+            border-radius: var(--border-radius);
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .info-icon {
+            font-size: 24px;
+            margin-top: 2px;
+        }
+
+        .info-content h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 5px;
+        }
+
+        .info-content p {
+            color: var(--text-light);
+            font-size: 14px;
+            margin-bottom: 0;
+        }
+
+        .info-content a {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        .info-content a:hover {
+            text-decoration: underline;
+        }
+
+        .contact-form-container {
+            background: white;
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow-md);
+            overflow: hidden;
+        }
+
+        .form-header {
+            background: var(--primary-color);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .form-header h2 {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .form-header p {
+            opacity: 0.9;
+            font-size: 16px;
+        }
+
+        .form-body {
+            padding: 40px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 8px;
+            font-size: 15px;
+        }
+
+        .form-label.required::after {
+            content: ' *';
+            color: #e74c3c;
+        }
+
+        .form-input,
+        .form-textarea {
+            width: 100%;
+            padding: 16px;
+            border: 2px solid var(--border-light);
+            border-radius: var(--border-radius);
+            font-size: 15px;
+            transition: var(--transition);
+            background: white;
+            font-family: inherit;
+            box-sizing: border-box;
+        }
+
+        .form-input:focus,
+        .form-textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(45, 122, 95, 0.1);
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 120px;
+            line-height: 1.6;
+        }
+
+        .form-error {
+            color: #e74c3c;
+            font-size: 13px;
+            margin-top: 6px;
+            display: none;
+        }
+
+        .form-group.error .form-input,
+        .form-group.error .form-textarea {
+            border-color: #e74c3c;
+            box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.1);
+        }
+
+        .form-group.error .form-error {
+            display: block;
+        }
+
+        .btn-submit {
+            background: var(--primary-color);
+            color: white;
+            padding: 16px 32px;
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            width: 100%;
+            position: relative;
+        }
+
+        .btn-submit:hover:not(:disabled) {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-submit:disabled {
+            background: var(--border-light);
+            color: var(--text-light);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn-submit.loading::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 20px;
+            height: 20px;
+            margin: -10px 0 0 -10px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top: 2px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        .btn-submit.loading {
+            color: transparent;
+        }
+
+        .success-message {
+            text-align: center;
+            padding: 40px;
+            display: none;
+        }
+
+        .success-message.show {
+            display: block;
+        }
+
+        .success-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+
+        .success-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--accent-color);
+            margin-bottom: 15px;
+        }
+
+        .success-description {
+            color: var(--text-light);
+            margin-bottom: 30px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 1024px) {
+            .contact-container {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .contact-info,
+            .form-body {
+                padding: 30px 25px;
+            }
+
+            .form-header {
+                padding: 25px;
+            }
+
+            .contact-section {
+                padding: 60px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <nav class="nav container">
+            <a href="../index.html" class="logo">
+                <span class="logo-main">Designário</span>
+                <span class="logo-subtitle">OBSERVATÓRIO DE INOVAÇÃO SOCIAL</span>
+            </a>
+            
+            <ul class="nav-links">
+                <li><a href="../index.html">Início</a></li>
+                <li><a href="casos.html">Casos</a></li>
+                <li><a href="categorias.html">Categorias</a></li>
+                <li><a href="mapa.html">Mapa</a></li>
+                <li><a href="sobre.html">Sobre</a></li>
+                <li><a href="contato.html" class="active">Contato</a></li>
+            </ul>
+
+            <div class="nav-actions">
+                <!-- Será atualizado dinamicamente pela função updateHeaderForAuth -->
+                <a href="login.html" class="btn-secondary-header">Entrar</a>
+                <a href="registro.html" class="btn-header">Criar Conta</a>
+                <a href="cadastro.html" class="btn-header auth-required" style="display: none;">Cadastrar Caso</a>
+            </div>
+
+            <button class="mobile-menu-btn" aria-label="Menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </nav>
+    </header>
+
+    <!-- Hero -->
+    <section class="contact-hero">
+        <div class="container">
+            <div class="contact-content">
+                <h1>Entre em Contato</h1>
+                <p>Tem uma dúvida, sugestão ou quer saber mais sobre o projeto? Fale conosco!</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section class="contact-section">
+        <div class="container">
+            <div class="contact-container">
+                <!-- Contact Information -->
+                <div class="contact-info">
+                    <h2>Informações de Contato</h2>
+                    <p>
+                        O Observatório de Inovação Social é um projeto acadêmico da UFRJ. Entre em contato conosco para dúvidas, sugestões ou propostas de colaboração.
+                    </p>
+
+                    <div class="info-item">
+                        <div class="info-icon">📧</div>
+                        <div class="info-content">
+                            <h3>E-mail</h3>
+                            <p><a href="mailto:observatorio@ufrj.br">observatorio@ufrj.br</a></p>
+                        </div>
+                    </div>
+
+                    <div class="info-item">
+                        <div class="info-icon">📍</div>
+                        <div class="info-content">
+                            <h3>Localização</h3>
+                            <p>Cidade Universitária<br>Ilha do Fundão, Rio de Janeiro - RJ</p>
+                        </div>
+                    </div>
+
+                    <div class="info-item">
+                        <div class="info-icon">⏰</div>
+                        <div class="info-content">
+                            <h3>Tempo de Resposta</h3>
+                            <p>Respondemos em até 3 dias úteis</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contact Form -->
+                <div class="contact-form-container">
+                    <div class="form-header">
+                        <h2>Enviar Mensagem</h2>
+                        <p>Preencha o formulário abaixo e entraremos em contato</p>
+                    </div>
+
+                    <div class="form-body">
+                        <form id="contact-form" class="contact-form">
+                            <div class="form-group">
+                                <label class="form-label required" for="nome">Nome</label>
+                                <input type="text" id="nome" name="nome" class="form-input" 
+                                       placeholder="Seu nome completo" required>
+                                <div class="form-error">Este campo é obrigatório</div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label required" for="email">E-mail</label>
+                                <input type="email" id="email" name="email" class="form-input" 
+                                       placeholder="seu.email@exemplo.com" required>
+                                <div class="form-error">Insira um e-mail válido</div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label required" for="assunto">Assunto</label>
+                                <input type="text" id="assunto" name="assunto" class="form-input" 
+                                       placeholder="Assunto da sua mensagem" required>
+                                <div class="form-error">Este campo é obrigatório</div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label required" for="mensagem">Mensagem</label>
+                                <textarea id="mensagem" name="mensagem" class="form-textarea" 
+                                          placeholder="Escreva sua mensagem..." required></textarea>
+                                <div class="form-error">Este campo é obrigatório</div>
+                            </div>
+
+                            <button type="submit" class="btn-submit" id="submit-btn">
+                                Enviar Mensagem
+                            </button>
+                        </form>
+
+                        <!-- Success Message -->
+                        <div class="success-message" id="success-message">
+                            <div class="success-icon">📬</div>
+                            <h3 class="success-title">Mensagem Enviada!</h3>
+                            <p class="success-description">
+                                Recebemos sua mensagem. Nossa equipe entrará em contato em até 3 dias úteis.
+                            </p>
+                            <a href="../index.html" class="btn-primary">Voltar ao Início</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>Observatório</h4>
+                    <ul>
+                        <li><a href="sobre.html">Sobre o Projeto</a></li>
+                        <li><a href="sobre.html#metodologia">Metodologia</a></li>
+                        <li><a href="sobre.html#equipe">Nossa Equipe</a></li>
+                        <li><a href="#parceiros">Parceiros</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Casos</h4>
+                    <ul>
+                        <li><a href="../index.html#casos">Explorar Casos</a></li>
+                        <li><a href="../index.html#categorias">Por Categoria</a></li>
+                        <li><a href="mapa.html">Mapa Interativo</a></li>
+                        <li><a href="#relatorios">Relatórios</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Participação</h4>
+                    <ul>
+                        <li><a href="cadastro.html">Cadastrar Caso</a></li>
+                        <li><a href="#extensao">Programa de Extensão</a></li>
+                        <li><a href="#voluntario">Seja Voluntário</a></li>
+                        <li><a href="#newsletter">Newsletter</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>UFRJ</h4>
+                    <ul>
+                        <li><a href="https://ufrj.br" target="_blank" rel="noopener">Site Oficial</a></li>
+                        <li><a href="https://extensao.ufrj.br" target="_blank" rel="noopener">Extensão UFRJ</a></li>
+                        <li><a href="#pesquisa">Pesquisa</a></li>
+                        <li><a href="contato.html">Contato</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 Observatório de Inovação Social do Rio de Janeiro - UFRJ. Todos os direitos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="../js/DataManager.js"></script>
+    <script src="../js/AuthManager.js"></script>
+    <script src="../js/HeaderManager.js"></script>
+    <script src="../js/main.js"></script>
+    <script>
+        // Contact form functionality
+        class ContactForm {
+            constructor() {
+                this.form = document.getElementById('contact-form');
+                this.setupEventListeners();
+            }
+
+            setupEventListeners() {
+                if (!this.form) return;
+
+                this.form.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.handleSubmit();
+                });
+
+                // Real-time validation
+                const requiredFields = this.form.querySelectorAll('[required]');
+                requiredFields.forEach(field => {
+                    field.addEventListener('blur', () => this.validateField(field));
+                    field.addEventListener('input', () => this.clearError(field));
+                });
+            }
+
+            validateField(field) {
+                const formGroup = field.closest('.form-group');
+                let isValid = true;
+
+                formGroup.classList.remove('error');
+
+                if (field.hasAttribute('required') && !field.value.trim()) {
+                    isValid = false;
+                }
+
+                if (field.type === 'email' && field.value && !this.isValidEmail(field.value)) {
+                    isValid = false;
+                }
+
+                if (!isValid) {
+                    formGroup.classList.add('error');
+                }
+
+                return isValid;
+            }
+
+            clearError(field) {
+                const formGroup = field.closest('.form-group');
+                formGroup.classList.remove('error');
+            }
+
+            isValidEmail(email) {
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                return emailRegex.test(email);
+            }
+
+            validateForm() {
+                const requiredFields = this.form.querySelectorAll('[required]');
+                let isValid = true;
+
+                requiredFields.forEach(field => {
+                    if (!this.validateField(field)) {
+                        isValid = false;
+                    }
+                });
+
+                return isValid;
+            }
+
+            async handleSubmit() {
+                if (!this.validateForm()) {
+                    const app = window.app || window.ObservatorioApp?.getInstance();
+                    if (app && app.showNotification) {
+                        app.showNotification('Por favor, corrija os erros no formulário', 'error');
+                    }
+                    return;
+                }
+
+                const submitBtn = document.getElementById('submit-btn');
+                const formData = new FormData(this.form);
+
+                submitBtn.classList.add('loading');
+                submitBtn.disabled = true;
+
+                try {
+                    await new Promise(resolve => setTimeout(resolve, 1500));
+
+                    const mensagem = {
+                        nome: formData.get('nome'),
+                        email: formData.get('email'),
+                        assunto: formData.get('assunto'),
+                        mensagem: formData.get('mensagem'),
+                        data: new Date().toISOString(),
+                        status: 'nova'
+                    };
+
+                    const dataManager = DataManager.getInstance();
+                    dataManager.addMensagemContato(mensagem);
+
+                    this.showSuccess();
+
+                } catch (error) {
+                    console.error('Erro ao enviar mensagem:', error);
+                    const app = window.app || window.ObservatorioApp?.getInstance();
+                    if (app && app.showNotification) {
+                        app.showNotification('Erro ao enviar mensagem. Tente novamente.', 'error');
+                    }
+                } finally {
+                    submitBtn.classList.remove('loading');
+                    submitBtn.disabled = false;
+                }
+            }
+
+            showSuccess() {
+                const form = document.getElementById('contact-form');
+                const successMessage = document.getElementById('success-message');
+                
+                form.style.display = 'none';
+                successMessage.classList.add('show');
+                
+                document.querySelector('.contact-form-container').scrollIntoView({ 
+                    behavior: 'smooth', 
+                    block: 'start' 
+                });
+            }
+        }
+
+        // Initialize when DOM is ready
+        document.addEventListener('DOMContentLoaded', () => {
+            // Verificar status de autenticação
+            if (window.app) {
+                window.app.checkAuthStatus();
+            }
+            
+            // Inicializar formulário de contato
+            new ContactForm();
+        });
+    </script>
+</body>
+</html>

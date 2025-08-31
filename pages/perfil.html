@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meu Perfil | Observatório Social RJ</title>
+    <meta name="description" content="Gerencie seu perfil no Observatório de Inovação Social do Rio de Janeiro.">
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet" href="../css/components.css">
+    <style>
+        .perfil-hero {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+            color: white;
+            padding: 80px 0 40px;
+            margin-top: 70px;
+        }
+
+        .perfil-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .profile-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .profile-avatar-container {
+            position: relative;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+
+        .profile-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: 4px solid white;
+            background: #f8f9fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            color: var(--text-light);
+            object-fit: cover;
+        }
+
+        .avatar-upload {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            background: var(--accent-color);
+            border: 2px solid white;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: white;
+            font-size: 18px;
+            transition: all 0.3s;
+        }
+
+        .avatar-upload:hover {
+            background: #e55a2b;
+            transform: scale(1.1);
+        }
+
+        .avatar-upload input {
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+            width: 100%;
+            height: 100%;
+        }
+
+        .profile-name {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .profile-type {
+            opacity: 0.9;
+            font-size: 16px;
+            padding: 6px 16px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            display: inline-block;
+        }
+
+        .profile-content {
+            background: white;
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
+            margin-top: -20px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .profile-nav {
+            border-bottom: 1px solid var(--border-light);
+            padding: 0;
+            display: flex;
+            overflow-x: auto;
+        }
+
+        .nav-tab {
+            padding: 20px 30px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--text-light);
+            white-space: nowrap;
+            transition: all 0.3s;
+            border-bottom: 3px solid transparent;
+        }
+
+        .nav-tab:hover,
+        .nav-tab.active {
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+        }
+
+        .tab-content {
+            padding: 40px;
+            min-height: 400px;
+        }
+
+        .tab-pane {
+            display: none;
+        }
+
+        .tab-pane.active {
+            display: block;
+        }
+
+        .form-section {
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--text-dark);
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--primary-color);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text-color);
+            font-size: 15px;
+        }
+
+        .form-input,
+        .form-textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid var(--border-light);
+            border-radius: var(--border-radius);
+            font-size: 16px;
+            transition: border-color 0.3s;
+            background: white;
+            font-family: inherit;
+        }
+
+        .form-textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .form-input:focus,
+        .form-textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(45, 122, 95, 0.1);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--text-color);
+            padding: 15px 30px;
+            border: 2px solid var(--border-light);
+            border-radius: var(--border-radius);
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-secondary:hover {
+            background: var(--background-light);
+            border-color: var(--primary-color);
+        }
+
+        .btn-danger {
+            background: #e74c3c;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-danger:hover {
+            background: #c0392b;
+        }
+
+        .alert {
+            padding: 15px 20px;
+            border-radius: var(--border-radius);
+            margin: 15px 0;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+
+        .alert-info {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+        }
+
+        .alert-warning {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+        }
+
+        .alert-danger {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+
+        .password-field {
+            position: relative;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #666;
+            cursor: pointer;
+            padding: 5px;
+            font-size: 18px;
+        }
+
+        .settings-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .settings-item:last-child {
+            border-bottom: none;
+        }
+
+        .settings-label {
+            flex: 1;
+        }
+
+        .settings-title {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .settings-description {
+            font-size: 14px;
+            color: var(--text-light);
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 50px;
+            height: 26px;
+            background: #ddd;
+            border-radius: 13px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .toggle-switch.active {
+            background: var(--primary-color);
+        }
+
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 22px;
+            height: 22px;
+            background: white;
+            border-radius: 50%;
+            transition: all 0.3s;
+        }
+
+        .toggle-switch.active::after {
+            left: 26px;
+        }
+
+        .loading-spinner {
+            display: none;
+            text-align: center;
+            padding: 30px;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid var(--border-light);
+            border-top: 4px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .perfil-hero {
+                padding: 60px 0 30px;
+            }
+
+            .perfil-container {
+                padding: 0 15px;
+            }
+
+            .tab-content {
+                padding: 20px;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .profile-nav {
+                padding: 0 10px;
+            }
+
+            .nav-tab {
+                padding: 15px 20px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <nav class="nav container">
+            <a href="../index.html" class="logo">
+                <span class="logo-main">Designário</span>
+                <span class="logo-subtitle">OBSERVATÓRIO DE INOVAÇÃO SOCIAL</span>
+            </a>
+            
+            <ul class="nav-links">
+                <li><a href="../index.html">Início</a></li>
+                <li><a href="casos.html">Casos</a></li>
+                <li><a href="categorias.html">Categorias</a></li>
+                <li><a href="mapa.html">Mapa</a></li>
+                <li><a href="sobre.html">Sobre</a></li>
+            </ul>
+
+            <div class="nav-actions">
+                <!-- Will be managed by HeaderManager -->
+            </div>
+
+            <button class="mobile-menu-btn" aria-label="Menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </nav>
+    </header>
+
+    <!-- Profile Section -->
+    <section class="perfil-hero">
+        <div class="perfil-container">
+            <div class="profile-header">
+                <div class="profile-avatar-container">
+                    <img id="profile-avatar" class="profile-avatar" src="" alt="Avatar" style="display: none;">
+                    <div id="profile-avatar-placeholder" class="profile-avatar">👤</div>
+                    <div class="avatar-upload">
+                        <input type="file" id="avatar-upload-input" accept="image/*">
+                        📷
+                    </div>
+                </div>
+                <h1 class="profile-name" id="profile-name">Carregando...</h1>
+                <span class="profile-type" id="profile-type">Carregando...</span>
+            </div>
+        </div>
+    </section>
+
+    <div class="perfil-container">
+        <div class="profile-content">
+            <!-- Navigation Tabs -->
+            <nav class="profile-nav">
+                <button class="nav-tab active" data-tab="info">📝 Informações</button>
+                <button class="nav-tab" data-tab="security">🔐 Segurança</button>
+                <button class="nav-tab" data-tab="notifications">🔔 Notificações</button>
+                <button class="nav-tab" data-tab="danger">⚠️ Zona de Perigo</button>
+            </nav>
+
+            <!-- Tab Contents -->
+            <div class="tab-content">
+                <!-- Informações Pessoais -->
+                <div class="tab-pane active" id="tab-info">
+                    <form id="profile-form">
+                        <div class="form-section">
+                            <h2 class="section-title">Informações Pessoais</h2>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label" for="name">Nome Completo *</label>
+                                    <input type="text" class="form-input" id="name" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="email">Email *</label>
+                                    <input type="email" class="form-input" id="email" disabled>
+                                    <small style="color: var(--text-light); font-size: 13px;">O email não pode ser alterado</small>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label" for="phone">Telefone</label>
+                                    <input type="tel" class="form-input" id="phone" placeholder="(11) 99999-9999">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="institution">Instituição/Organização</label>
+                                    <input type="text" class="form-input" id="institution" placeholder="Ex: UFRJ, ONG Verde, etc.">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label" for="bio">Biografia/Descrição</label>
+                                <textarea class="form-textarea" id="bio" placeholder="Conte um pouco sobre você, sua atuação e interesses na área de inovação social..."></textarea>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <h2 class="section-title">Informações Profissionais</h2>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label" for="department">Departamento/Setor</label>
+                                    <input type="text" class="form-input" id="department" placeholder="Ex: Extensão Universitária">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="position">Cargo/Função</label>
+                                    <input type="text" class="form-input" id="position" placeholder="Ex: Coordenador, Pesquisador">
+                                </div>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn-primary">💾 Salvar Alterações</button>
+                    </form>
+                </div>
+
+                <!-- Segurança -->
+                <div class="tab-pane" id="tab-security">
+                    <div class="form-section">
+                        <h2 class="section-title">Alterar Senha</h2>
+                        
+                        <form id="password-form">
+                            <div class="form-group">
+                                <label class="form-label" for="current-password">Senha Atual *</label>
+                                <div class="password-field">
+                                    <input type="password" class="form-input" id="current-password" required>
+                                    <button type="button" class="password-toggle">👁️</button>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label" for="new-password">Nova Senha *</label>
+                                <div class="password-field">
+                                    <input type="password" class="form-input" id="new-password" required>
+                                    <button type="button" class="password-toggle">👁️</button>
+                                </div>
+                                <small style="color: var(--text-light); font-size: 13px;">
+                                    Mínimo 8 caracteres, com maiúsculas, minúsculas e números
+                                </small>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label" for="confirm-password">Confirmar Nova Senha *</label>
+                                <div class="password-field">
+                                    <input type="password" class="form-input" id="confirm-password" required>
+                                    <button type="button" class="password-toggle">👁️</button>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn-primary">🔐 Alterar Senha</button>
+                        </form>
+                    </div>
+
+                    <div class="form-section">
+                        <h2 class="section-title">Verificação de Email</h2>
+                        
+                        <div id="email-verification-status">
+                            <!-- Será preenchido pelo JavaScript -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Notificações -->
+                <div class="tab-pane" id="tab-notifications">
+                    <div class="form-section">
+                        <h2 class="section-title">Preferências de Notificação</h2>
+                        
+                        <div class="settings-item">
+                            <div class="settings-label">
+                                <div class="settings-title">Novos casos adicionados</div>
+                                <div class="settings-description">Receba notificações quando novos casos forem publicados</div>
+                            </div>
+                            <div class="toggle-switch" data-setting="new-cases"></div>
+                        </div>
+
+                        <div class="settings-item">
+                            <div class="settings-label">
+                                <div class="settings-title">Comentários em seus casos</div>
+                                <div class="settings-description">Seja notificado sobre comentários nos casos que você cadastrou</div>
+                            </div>
+                            <div class="toggle-switch" data-setting="case-comments"></div>
+                        </div>
+
+                        <div class="settings-item">
+                            <div class="settings-label">
+                                <div class="settings-title">Newsletter mensal</div>
+                                <div class="settings-description">Receba um resumo mensal das atividades do observatório</div>
+                            </div>
+                            <div class="toggle-switch" data-setting="newsletter"></div>
+                        </div>
+
+                        <div class="settings-item">
+                            <div class="settings-label">
+                                <div class="settings-title">Atualizações do sistema</div>
+                                <div class="settings-description">Notificações sobre novas funcionalidades e melhorias</div>
+                            </div>
+                            <div class="toggle-switch" data-setting="system-updates"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Zona de Perigo -->
+                <div class="tab-pane" id="tab-danger">
+                    <div class="form-section">
+                        <h2 class="section-title">Zona de Perigo</h2>
+                        
+                        <div class="alert alert-warning">
+                            <strong>⚠️ Atenção!</strong> As ações abaixo são irreversíveis. Proceda com cuidado.
+                        </div>
+
+                        <div class="settings-item">
+                            <div class="settings-label">
+                                <div class="settings-title">Excluir todos os meus dados</div>
+                                <div class="settings-description">Remove permanentemente sua conta e todos os dados associados</div>
+                            </div>
+                            <button class="btn-danger" id="delete-account-btn">🗑️ Excluir Conta</button>
+                        </div>
+
+                        <div class="settings-item">
+                            <div class="settings-label">
+                                <div class="settings-title">Baixar meus dados</div>
+                                <div class="settings-description">Faça download de todos os seus dados em formato JSON</div>
+                            </div>
+                            <button class="btn-secondary" id="export-data-btn">📥 Baixar Dados</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Spinner -->
+    <div class="loading-spinner" id="loading-spinner">
+        <div class="spinner"></div>
+        <p>Salvando alterações...</p>
+    </div>
+
+    <!-- Scripts -->
+    <script src="../js/DataManager.js"></script>
+    <script src="../js/AuthManager.js"></script>
+    <script src="../js/HeaderManager.js"></script>
+    <script src="../js/ProfileManager.js"></script>
+</body>
+</html>

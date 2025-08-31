@@ -61,7 +61,7 @@ class HeaderManager {
         if (path.includes('caso.html')) return 'caso';
         if (path.includes('admin.html')) return 'admin';
         if (path.includes('categorias.html')) return 'categorias';
-        if (path.includes('metodologia.html')) return 'metodologia';
+        if (path.includes('contato.html')) return 'contato';
         if (path.includes('sobre.html')) return 'sobre';
         return 'home';
     }

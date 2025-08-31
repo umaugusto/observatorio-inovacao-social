@@ -9,12 +9,15 @@
     <link rel="stylesheet" href="../css/components.css">
     <style>
         .about-hero {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            position: relative;
+            background: linear-gradient(135deg, rgba(45, 122, 95, 0.9), rgba(67, 160, 71, 0.9)), 
+                        url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600"><rect fill="%23f0f8f5" width="1200" height="600"/><g opacity="0.1"><circle fill="%232d7a5f" cx="200" cy="100" r="50"/><circle fill="%23439f47" cx="800" cy="200" r="80"/><circle fill="%232d7a5f" cx="1000" cy="400" r="60"/><circle fill="%23439f47" cx="300" cy="500" r="40"/></g></svg>');
+            background-size: cover;
+            background-position: center;
             color: white;
-            padding: 100px 0 60px 0;
+            padding: 120px 0 80px 0;
             margin-top: 70px;
             text-align: center;
-            position: relative;
             overflow: hidden;
         }
 
@@ -31,134 +34,199 @@
         .about-content {
             position: relative;
             z-index: 2;
+            max-width: 800px;
+            margin: 0 auto;
         }
 
-        .about-section {
+        .about-hero h1 {
+            font-size: clamp(36px, 6vw, 56px);
+            font-weight: 700;
+            margin-bottom: 20px;
+            line-height: 1.2;
+        }
+
+        .about-hero p {
+            font-size: clamp(18px, 3vw, 24px);
+            margin-bottom: 50px;
+            opacity: 0.95;
+            line-height: 1.6;
+        }
+
+        .hero-nav-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .nav-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            padding: 25px 20px;
+            text-align: center;
+            color: white;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .nav-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            color: white;
+            text-decoration: none;
+        }
+
+        .nav-card.active {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .nav-card-icon {
+            font-size: 32px;
+            margin-bottom: 12px;
+            display: block;
+        }
+
+        .nav-card-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .nav-card-desc {
+            font-size: 13px;
+            opacity: 0.9;
+            line-height: 1.4;
+        }
+
+        /* Vision & Purpose Section */
+        .vision-purpose-section {
             padding: 80px 0;
-        }
-
-        .about-grid {
+            max-width: 1200px;
+            margin: 0 auto;
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 60px;
-            align-items: center;
-            margin-bottom: 80px;
         }
 
-        .about-text h2 {
-            font-size: 36px;
+        .vision-card, .purpose-card {
+            background: white;
+            padding: 50px;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .vision-card::before, .purpose-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        }
+
+        .vision-card:hover, .purpose-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .section-label {
+            color: var(--primary-color);
+            font-size: 14px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+        }
+
+        .section-title {
+            font-size: 32px;
             font-weight: 700;
             color: var(--text-dark);
             margin-bottom: 25px;
         }
 
-        .about-text p {
+        .section-text {
             color: var(--text-light);
             font-size: 16px;
             line-height: 1.8;
-            margin-bottom: 20px;
         }
 
-        .about-visual {
-            background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
-            border-radius: var(--border-radius-lg);
-            padding: 40px;
-            text-align: center;
-            color: white;
-            box-shadow: var(--shadow-lg);
-        }
-
-        .visual-icon {
-            font-size: 64px;
-            margin-bottom: 20px;
-        }
-
-        .visual-title {
-            font-size: 24px;
-            font-weight: 600;
-            margin-bottom: 15px;
-        }
-
-        .visual-description {
-            opacity: 0.9;
-            line-height: 1.6;
-        }
-
-        .stats-cards {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 30px;
-            margin: 60px 0;
-        }
-
-        .stat-card {
-            background: white;
-            padding: 40px 30px;
-            border-radius: var(--border-radius-lg);
-            text-align: center;
-            box-shadow: var(--shadow-md);
-            border: 1px solid var(--border-light);
-            transition: var(--transition);
-        }
-
-        .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: var(--shadow-lg);
-        }
-
-        .stat-icon {
-            font-size: 48px;
-            margin-bottom: 20px;
-        }
-
-        .stat-number {
-            font-size: 36px;
-            font-weight: 700;
-            color: var(--primary-color);
-            margin-bottom: 10px;
-        }
-
-        .stat-label {
-            color: var(--text-light);
-            font-weight: 600;
-        }
-
-        .methodology-section {
+        /* Horizontal Scroll Container */
+        .horizontal-content {
+            position: relative;
+            overflow: hidden;
             background: var(--background-light);
+            min-height: 600px;
+            width: 100%;
+        }
+
+        .content-slider {
+            display: flex;
+            transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            height: 100%;
+            width: 300%; /* 3 panels × 100% each */
+        }
+
+        .content-panel {
+            flex: 0 0 33.333%; /* Each panel takes exactly 1/3 of slider width */
+            width: 33.333%;
             padding: 80px 0;
+            box-sizing: border-box;
+        }
+
+        .content-panel.active {
+            /* Active state handled by transform on parent */
+        }
+
+        /* Methodology Panel */
+        .methodology-panel {
+            background: var(--background-light);
         }
 
         .innovation-definition {
             background: white;
-            padding: 40px;
-            border-radius: var(--border-radius-lg);
-            box-shadow: var(--shadow-sm);
-            margin: 40px auto;
-            max-width: 800px;
+            padding: 50px;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+            margin: 40px auto 60px;
+            max-width: 900px;
             text-align: center;
+            border-left: 5px solid var(--accent-color);
         }
 
         .innovation-definition h3 {
             color: var(--primary-color);
-            font-size: 24px;
-            margin-bottom: 20px;
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 25px;
         }
 
         .innovation-definition p {
             color: var(--text-light);
-            font-size: 16px;
+            font-size: 18px;
             line-height: 1.8;
         }
 
         .emude-intro {
             text-align: center;
-            margin: 60px auto 40px;
-            max-width: 700px;
+            max-width: 800px;
+            margin: 0 auto 60px;
         }
 
         .emude-intro h3 {
             color: var(--text-dark);
-            font-size: 28px;
+            font-size: 32px;
+            font-weight: 700;
             margin-bottom: 20px;
         }
 
@@ -168,157 +236,51 @@
             line-height: 1.7;
         }
 
-        .emude-cycle {
-            position: relative;
-            max-width: 600px;
-            margin: 60px auto;
-            padding: 40px;
-        }
-
-        .cycle-diagram {
-            position: relative;
-            width: 500px;
-            height: 500px;
-            margin: 0 auto;
-            border: 3px solid var(--primary-color);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .cycle-center {
-            text-align: center;
-            z-index: 10;
-        }
-
-        .cycle-logo {
-            display: block;
-            font-size: 32px;
-            font-weight: 700;
-            color: var(--primary-color);
-            margin-bottom: 10px;
-        }
-
-        .cycle-subtitle {
-            display: block;
-            font-size: 14px;
-            color: var(--text-light);
-            font-weight: 600;
-        }
-
-        .cycle-step {
-            position: absolute;
-            width: 180px;
-            text-align: center;
-            background: white;
-            padding: 20px;
-            border-radius: var(--border-radius-lg);
-            box-shadow: var(--shadow-md);
-            border: 2px solid var(--primary-light);
-            transition: var(--transition);
-        }
-
-        .cycle-step:hover {
-            transform: scale(1.05);
-            box-shadow: var(--shadow-lg);
-            border-color: var(--primary-color);
-        }
-
-        .cycle-step[data-step="1"] {
-            top: -20px;
-            left: 50%;
-            transform: translateX(-50%);
-        }
-
-        .cycle-step[data-step="2"] {
-            right: -90px;
-            top: 50%;
-            transform: translateY(-50%);
-        }
-
-        .cycle-step[data-step="3"] {
-            bottom: -20px;
-            left: 50%;
-            transform: translateX(-50%);
-        }
-
-        .cycle-step[data-step="4"] {
-            left: -90px;
-            top: 50%;
-            transform: translateY(-50%);
-        }
-
-        .cycle-step .step-icon {
-            font-size: 32px;
-            margin-bottom: 15px;
-        }
-
-        .cycle-step h4 {
-            font-size: 16px;
-            font-weight: 600;
-            color: var(--primary-color);
-            margin-bottom: 10px;
-        }
-
-        .cycle-step p {
-            font-size: 12px;
-            color: var(--text-light);
-            line-height: 1.4;
-        }
-
-        .methodology-details {
-            margin-top: 80px;
-        }
-
-        .methodology-details h3 {
-            text-align: center;
-            color: var(--text-dark);
-            font-size: 24px;
-            margin-bottom: 40px;
-        }
-
-        .methodology-steps {
+        .emude-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 40px;
-            margin-top: 40px;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            max-width: 1000px;
+            margin: 0 auto;
         }
 
-        .step-card {
+        .emude-step {
             background: white;
             padding: 40px 30px;
-            border-radius: var(--border-radius-lg);
+            border-radius: 16px;
             text-align: center;
-            box-shadow: var(--shadow-sm);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            transition: transform 0.3s ease;
             position: relative;
-            overflow: hidden;
+        }
+
+        .emude-step:hover {
+            transform: translateY(-5px);
         }
 
         .step-number {
             position: absolute;
-            top: -20px;
-            right: -20px;
-            width: 80px;
-            height: 80px;
-            background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+            top: -15px;
+            right: 20px;
+            background: var(--accent-color);
+            color: white;
+            width: 30px;
+            height: 30px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 24px;
-            font-weight: 700;
-            color: white;
-            opacity: 0.8;
+            font-size: 14px;
+            font-weight: 600;
         }
 
         .step-icon {
-            font-size: 48px;
-            margin-bottom: 25px;
+            font-size: 40px;
+            margin-bottom: 20px;
         }
 
         .step-title {
-            font-size: 20px;
+            font-size: 18px;
             font-weight: 600;
             color: var(--text-dark);
             margin-bottom: 15px;
@@ -326,31 +288,33 @@
 
         .step-description {
             color: var(--text-light);
+            font-size: 14px;
             line-height: 1.6;
         }
 
-        .team-section {
-            padding: 80px 0;
+        /* Team Panel */
+        .team-panel {
+            background: white;
         }
 
         .team-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 40px;
-            margin-top: 60px;
+            max-width: 1200px;
+            margin: 0 auto;
         }
 
         .team-member {
             background: white;
-            border-radius: var(--border-radius-lg);
+            border-radius: 16px;
             overflow: hidden;
-            box-shadow: var(--shadow-md);
-            transition: var(--transition);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
         }
 
         .team-member:hover {
             transform: translateY(-8px);
-            box-shadow: var(--shadow-lg);
         }
 
         .member-avatar {
@@ -393,358 +357,154 @@
             color: var(--primary-color);
         }
 
-        .impact-section {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            color: white;
-            padding: 80px 0;
-            text-align: center;
-        }
-
-        .impact-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 40px;
-            margin-top: 60px;
-        }
-
-        .impact-item {
-            padding: 20px;
-        }
-
-        .impact-number {
-            font-size: 48px;
-            font-weight: 700;
-            margin-bottom: 15px;
-            opacity: 0.9;
-        }
-
-        .impact-label {
-            font-size: 16px;
-            opacity: 0.8;
-        }
-
-        .contact-section {
-            padding: 80px 0;
+        /* Contact Panel */
+        .contact-panel {
             background: var(--background-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 500px;
         }
 
-        .contact-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 60px;
-            max-width: 1200px;
+        .contact-redirect {
+            background: white;
+            padding: 60px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+            max-width: 500px;
             margin: 0 auto;
         }
 
-        .contact-info {
-            background: white;
-            padding: 50px;
-            border-radius: var(--border-radius-lg);
-            box-shadow: var(--shadow-md);
-            height: fit-content;
+        .contact-redirect-icon {
+            font-size: 80px;
+            margin-bottom: 30px;
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
-        .contact-info h3 {
+        .contact-redirect h3 {
             font-size: 28px;
-            font-weight: 700;
             color: var(--text-dark);
-            margin-bottom: 25px;
+            margin-bottom: 20px;
+            font-weight: 700;
         }
 
-        .contact-info p {
+        .contact-redirect p {
             color: var(--text-light);
-            line-height: 1.7;
+            font-size: 16px;
+            line-height: 1.6;
             margin-bottom: 30px;
         }
 
-        .info-item {
-            display: flex;
-            align-items: flex-start;
-            gap: 15px;
-            margin-bottom: 25px;
-            padding: 20px;
-            background: var(--background-light);
-            border-radius: var(--border-radius);
-            border-left: 4px solid var(--primary-color);
-        }
-
-        .info-icon {
-            font-size: 24px;
-            margin-top: 2px;
-        }
-
-        .info-content h4 {
-            font-size: 16px;
-            font-weight: 600;
-            color: var(--text-dark);
-            margin-bottom: 5px;
-        }
-
-        .info-content p {
-            color: var(--text-light);
-            font-size: 14px;
-            margin-bottom: 0;
-        }
-
-        .info-content a {
-            color: var(--primary-color);
-            text-decoration: none;
-        }
-
-        .info-content a:hover {
-            text-decoration: underline;
-        }
-
-        .contact-form-container {
-            background: white;
-            border-radius: var(--border-radius-lg);
-            box-shadow: var(--shadow-md);
-            overflow: hidden;
-        }
-
-        .form-header {
-            background: var(--primary-color);
-            color: white;
-            padding: 30px;
-            text-align: center;
-        }
-
-        .form-header h3 {
-            font-size: 24px;
-            font-weight: 700;
-            margin-bottom: 10px;
-        }
-
-        .form-header p {
-            opacity: 0.9;
-            font-size: 16px;
-        }
-
-        .form-body {
-            padding: 40px;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-label {
-            display: block;
-            font-weight: 600;
-            color: var(--text-dark);
-            margin-bottom: 8px;
-            font-size: 15px;
-        }
-
-        .form-label.required::after {
-            content: ' *';
-            color: #e74c3c;
-        }
-
-        .form-input,
-        .form-textarea {
-            width: 100%;
-            padding: 16px;
-            border: 2px solid var(--border-light);
-            border-radius: var(--border-radius);
-            font-size: 15px;
-            transition: var(--transition);
-            background: white;
-            font-family: inherit;
-            box-sizing: border-box;
-        }
-
-        .form-input:focus,
-        .form-textarea:focus {
-            outline: none;
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(45, 122, 95, 0.1);
-        }
-
-        .form-textarea {
-            resize: vertical;
-            min-height: 120px;
-            line-height: 1.6;
-        }
-
-        .form-error {
-            color: #e74c3c;
-            font-size: 13px;
-            margin-top: 6px;
-            display: none;
-        }
-
-        .form-group.error .form-input,
-        .form-group.error .form-textarea {
-            border-color: #e74c3c;
-            box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.1);
-        }
-
-        .form-group.error .form-error {
-            display: block;
-        }
-
-        .btn-submit {
-            background: var(--primary-color);
+        .btn-contact {
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
             color: white;
             padding: 16px 32px;
             border: none;
-            border-radius: var(--border-radius);
+            border-radius: 12px;
             font-size: 16px;
             font-weight: 600;
-            cursor: pointer;
-            transition: var(--transition);
-            width: 100%;
-            position: relative;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(45, 122, 95, 0.3);
         }
 
-        .btn-submit:hover:not(:disabled) {
-            background: var(--primary-dark);
+        .btn-contact:hover {
             transform: translateY(-2px);
-            box-shadow: var(--shadow-md);
+            box-shadow: 0 6px 25px rgba(45, 122, 95, 0.4);
+            color: white;
+            text-decoration: none;
         }
 
-        .btn-submit:disabled {
-            background: var(--border-light);
-            color: var(--text-light);
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-        }
-
-        .btn-submit.loading::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 20px;
-            height: 20px;
-            margin: -10px 0 0 -10px;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            border-top: 2px solid white;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        .btn-submit.loading {
-            color: transparent;
-        }
-
-        .success-message {
+        /* Panel Title */
+        .panel-title {
             text-align: center;
-            padding: 40px;
-            display: none;
+            margin-bottom: 60px;
         }
 
-        .success-message.show {
-            display: block;
-        }
-
-        .success-icon {
-            font-size: 64px;
-            margin-bottom: 20px;
-        }
-
-        .success-title {
-            font-size: 24px;
+        .panel-title h2 {
+            font-size: 36px;
             font-weight: 700;
-            color: var(--accent-color);
+            color: var(--text-dark);
             margin-bottom: 15px;
         }
 
-        .success-description {
+        .panel-title p {
             color: var(--text-light);
-            margin-bottom: 30px;
+            font-size: 18px;
+            max-width: 600px;
+            margin: 0 auto;
         }
 
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        /* Navigation Indicators */
+        .scroll-indicator {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+            z-index: 10;
         }
 
-        @media (max-width: 1024px) {
-            .contact-container {
-                grid-template-columns: 1fr;
-                gap: 40px;
-            }
+        .indicator-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .indicator-dot.active {
+            background: var(--primary-color);
+            transform: scale(1.2);
         }
 
         @media (max-width: 768px) {
-            .about-grid {
+            .vision-purpose-section {
                 grid-template-columns: 1fr;
                 gap: 40px;
+                padding: 60px 20px;
             }
 
-            .about-text h2 {
-                font-size: 28px;
+            .vision-card, .purpose-card {
+                padding: 30px;
             }
 
-            .stats-cards {
-                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            .section-title {
+                font-size: 24px;
             }
 
-            .cycle-diagram {
-                width: 350px;
-                height: 350px;
-            }
-
-            .cycle-step {
-                width: 140px;
-                padding: 15px;
-            }
-
-            .cycle-step[data-step="1"] {
-                top: -15px;
-            }
-
-            .cycle-step[data-step="2"] {
-                right: -70px;
-            }
-
-            .cycle-step[data-step="3"] {
-                bottom: -15px;
-            }
-
-            .cycle-step[data-step="4"] {
-                left: -70px;
-            }
-
-            .cycle-step h4 {
-                font-size: 14px;
-            }
-
-            .cycle-step p {
-                font-size: 11px;
-            }
-
-            .methodology-steps {
+            .hero-nav-cards {
                 grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .nav-card {
+                padding: 20px 15px;
+            }
+
+            .emude-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
             }
 
             .team-grid {
                 grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             }
 
-            .innovation-definition {
-                margin: 30px 20px;
-                padding: 30px;
-            }
-
-            .emude-cycle {
-                padding: 20px;
-            }
-
-            .contact-info,
-            .form-body {
-                padding: 30px 25px;
-            }
-
-            .form-header {
-                padding: 25px;
-            }
-
-            .contact-section {
+            .content-panel {
                 padding: 60px 20px;
+            }
+
+            .contact-redirect {
+                padding: 40px 30px;
+                margin: 0 20px;
             }
         }
     </style>
@@ -763,8 +523,8 @@
                 <li><a href="casos.html">Casos</a></li>
                 <li><a href="categorias.html">Categorias</a></li>
                 <li><a href="mapa.html">Mapa</a></li>
-                <li><a href="metodologia.html">Metodologia</a></li>
                 <li><a href="sobre.html" class="active">Sobre</a></li>
+                <li><a href="contato.html">Contato</a></li>
             </ul>
 
             <div class="nav-actions">
@@ -787,362 +547,186 @@
         <div class="container">
             <div class="about-content">
                 <h1>Sobre o Observatório</h1>
-                <p>Mapeando e amplificando a inovação social no Rio de Janeiro</p>
-            </div>
-        </div>
-    </section>
-
-    <!-- About Content -->
-    <section class="about-section">
-        <div class="container">
-            <!-- Mission -->
-            <div class="about-grid">
-                <div class="about-text">
-                    <h2>Nossa Missão</h2>
-                    <p>
-                        O Observatório de Inovação Social do Rio de Janeiro é uma iniciativa do Programa de Extensão da UFRJ que tem como objetivo mapear, documentar e amplificar iniciativas de transformação social em toda a região metropolitana.
-                    </p>
-                    <p>
-                        Através de uma metodologia participativa, estudantes extensionistas percorrem diferentes territórios identificando projetos inovadores que geram impacto positivo nas comunidades, criando uma rede colaborativa de conhecimento e transformação.
-                    </p>
-                </div>
-                <div class="about-visual">
-                    <div class="visual-icon">🎯</div>
-                    <div class="visual-title">Impacto Transformador</div>
-                    <div class="visual-description">
-                        Conectamos iniciativas, pessoas e saberes para potencializar a inovação social no Rio de Janeiro
+                <p>Mapeando e amplificando a inovação social no Rio de Janeiro através de pesquisa participativa e colaboração universitária</p>
+                
+                <div class="hero-nav-cards">
+                    <div class="nav-card" data-target="metodologia">
+                        <span class="nav-card-icon">🔬</span>
+                        <div class="nav-card-title">Metodologia</div>
+                        <div class="nav-card-desc">Como mapeamos inovação social</div>
                     </div>
-                </div>
-            </div>
-
-            <!-- Vision -->
-            <div class="about-grid">
-                <div class="about-visual">
-                    <div class="visual-icon">🌟</div>
-                    <div class="visual-title">Visão de Futuro</div>
-                    <div class="visual-description">
-                        Ser referência nacional em mapeamento e articulação de inovação social urbana
+                    <div class="nav-card" data-target="equipe">
+                        <span class="nav-card-icon">👥</span>
+                        <div class="nav-card-title">Nossa Equipe</div>
+                        <div class="nav-card-desc">Conheça quem faz acontecer</div>
                     </div>
-                </div>
-                <div class="about-text">
-                    <h2>Nossa Visão</h2>
-                    <p>
-                        Acreditamos que o Rio de Janeiro possui um rico ecossistema de inovação social que precisa ser visibilizado e articulado. Nossa visão é criar a maior e mais completa base de dados sobre iniciativas transformadoras da cidade.
-                    </p>
-                    <p>
-                        Queremos ser uma ponte entre a academia, a sociedade civil e o poder público, facilitando o intercâmbio de conhecimentos e a replicação de soluções bem-sucedidas em diferentes territórios.
-                    </p>
-                </div>
-            </div>
-
-            <!-- Stats -->
-            <div class="stats-cards">
-                <div class="stat-card">
-                    <div class="stat-icon">📊</div>
-                    <div class="stat-number">133+</div>
-                    <div class="stat-label">Casos Mapeados</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon">🏘️</div>
-                    <div class="stat-number">47</div>
-                    <div class="stat-label">Bairros Alcançados</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon">👥</div>
-                    <div class="stat-number">28</div>
-                    <div class="stat-label">Extensionistas Ativos</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon">❤️</div>
-                    <div class="stat-number">15k+</div>
-                    <div class="stat-label">Pessoas Beneficiadas</div>
+                    <div class="nav-card" data-target="contato">
+                        <span class="nav-card-icon">📧</span>
+                        <div class="nav-card-title">Contato</div>
+                        <div class="nav-card-desc">Fale conosco</div>
+                    </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Methodology -->
-    <section class="methodology-section">
+    <!-- Vision & Purpose -->
+    <section class="main-content">
         <div class="container">
-            <h2 class="section-title">Metodologia</h2>
-            
-            <!-- Definição de Inovação Social -->
-            <div class="innovation-definition">
-                <h3>O que é Inovação Social?</h3>
-                <p>A <strong>inovação social</strong> refere-se a soluções criativas e sustentáveis para problemas sociais complexos, desenvolvidas por e com as comunidades afetadas. São iniciativas que transformam práticas sociais, fortalecem laços comunitários e promovem mudanças sistêmicas através de abordagens colaborativas e participativas.</p>
-            </div>
-            
-            <!-- Modelo EMUDE -->
-            <div class="emude-intro">
-                <h3>Modelo EMUDE</h3>
-                <p>Adotamos o modelo <strong>EMUDE</strong> (Emerging User Demands for Sustainable Solutions) para detectar, amplificar e reorientar sinais fracos de inovação social em um ciclo virtuoso de transformação territorial.</p>
-            </div>
+            <div class="vision-purpose-section">
+                <div class="vision-card">
+                    <div class="section-label">Nossa Visão</div>
+                    <h2 class="section-title">Um Rio Transformador</h2>
+                    <p class="section-text">
+                        Ser referência nacional em mapeamento e articulação de inovação social urbana, construindo pontes entre a academia, sociedade civil e poder público para amplificar soluções transformadoras que nascem dos territórios cariocas.
+                    </p>
+                </div>
 
-            <!-- Ciclo EMUDE -->
-            <div class="emude-cycle">
-                <div class="cycle-diagram">
-                    <div class="cycle-center">
-                        <span class="cycle-logo">EMUDE</span>
-                        <span class="cycle-subtitle">Ciclo de Inovação Social</span>
+                <div class="purpose-card">
+                    <div class="section-label">Nosso Propósito</div>
+                    <h2 class="section-title">Por que Existimos</h2>
+                    <p class="section-text">
+                        Acreditamos que o Rio de Janeiro possui um rico ecossistema de inovação social que precisa ser visibilizado. Documentamos iniciativas transformadoras através de metodologia participativa, criando uma rede colaborativa de conhecimento que conecta saberes e potencializa impactos positivos.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Horizontal Content Slider -->
+    <section class="horizontal-content">
+        <div class="content-slider" id="contentSlider">
+            <!-- Methodology Panel -->
+            <div class="content-panel methodology-panel" id="metodologia-panel">
+                <div class="container">
+                    <div class="panel-title">
+                        <h2>Nossa Metodologia</h2>
+                        <p>Como identificamos e amplificamos sinais de inovação social nos territórios cariocas</p>
                     </div>
                     
-                    <div class="cycle-step" data-step="1">
-                        <div class="step-icon">🔍</div>
-                        <h4>Detecção de Sinais</h4>
-                        <p>Identificamos sinais fracos de inovação social através de mapeamento territorial participativo</p>
+                    <!-- Definição de Inovação Social -->
+                    <div class="innovation-definition">
+                        <h3>O que é Inovação Social?</h3>
+                        <p>A <strong>inovação social</strong> refere-se a soluções criativas e sustentáveis para problemas sociais complexos, desenvolvidas por e com as comunidades afetadas. São iniciativas que transformam práticas sociais, fortalecem laços comunitários e promovem mudanças sistêmicas através de abordagens colaborativas e participativas.</p>
                     </div>
                     
-                    <div class="cycle-step" data-step="2">
-                        <div class="step-icon">💡</div>
-                        <h4>Reforço de Sinais</h4>
-                        <p>Documentamos e validamos iniciativas promissoras com metodologia científica rigorosa</p>
-                    </div>
-                    
-                    <div class="cycle-step" data-step="3">
-                        <div class="step-icon">📢</div>
-                        <h4>Re-emissão Amplificada</h4>
-                        <p>Amplificamos o alcance através da plataforma digital e redes de colaboração</p>
-                    </div>
-                    
-                    <div class="cycle-step" data-step="4">
-                        <div class="step-icon">🔄</div>
-                        <h4>Re-orientação Social</h4>
-                        <p>Facilitamos a replicação e adaptação de soluções em diferentes territórios</p>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Metodologia Detalhada -->
-            <div class="methodology-details">
-                <h3>Como Aplicamos o Modelo</h3>
-                <div class="methodology-steps">
-                    <div class="step-card">
-                        <div class="step-number">1</div>
-                        <div class="step-icon">👥</div>
-                        <h3 class="step-title">Imersão Territorial</h3>
-                        <p class="step-description">
-                            Extensionistas realizam caminhadas, conversas com lideranças e mapeamento de iniciativas emergentes nos territórios.
-                        </p>
+                    <!-- Modelo EMUDE -->
+                    <div class="emude-intro">
+                        <h3>Modelo EMUDE</h3>
+                        <p>Adotamos o modelo <strong>EMUDE</strong> (Emerging User Demands for Sustainable Solutions) para detectar, amplificar e reorientar sinais fracos de inovação social em um ciclo virtuoso de transformação territorial.</p>
                     </div>
 
-                    <div class="step-card">
-                        <div class="step-number">2</div>
-                        <div class="step-icon">📋</div>
-                        <h3 class="step-title">Sistematização</h3>
-                        <p class="step-description">
-                            Documentação científica das práticas, metodologias, impactos e potencial de escalabilidade das iniciativas.
-                        </p>
-                    </div>
-
-                    <div class="step-card">
-                        <div class="step-number">3</div>
-                        <div class="step-icon">🌐</div>
-                        <h3 class="step-title">Visibilização</h3>
-                        <p class="step-description">
-                            Divulgação através do observatório digital, eventos acadêmicos e articulação com redes de inovação social.
-                        </p>
-                    </div>
-
-                    <div class="step-card">
-                        <div class="step-number">4</div>
-                        <div class="step-icon">🔗</div>
-                        <h3 class="step-title">Articulação</h3>
-                        <p class="step-description">
-                            Conexão entre iniciativas, facilitação de trocas e apoio à replicação em novos contextos territoriais.
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Team -->
-    <section class="team-section">
-        <div class="container">
-            <h2 class="section-title">Nossa Equipe</h2>
-            <p style="text-align: center; color: var(--text-light); font-size: 18px; max-width: 600px; margin: 0 auto;">
-                Conheça as pessoas que fazem o Observatório acontecer.
-            </p>
-
-            <div class="team-grid">
-                <div class="team-member">
-                    <div class="member-avatar">👩‍🏫</div>
-                    <div class="member-info">
-                        <h3 class="member-name">Prof. Ana Costa</h3>
-                        <div class="member-role">Coordenadora Geral</div>
-                        <p class="member-bio">
-                            Doutora em Sociologia pela UFRJ, especialista em inovação social e desenvolvimento territorial. Coordena o projeto desde sua criação em 2022.
-                        </p>
-                        <div class="member-contact">ana.costa@ufrj.br</div>
-                    </div>
-                </div>
-
-                <div class="team-member">
-                    <div class="member-avatar">👨‍💼</div>
-                    <div class="member-info">
-                        <h3 class="member-name">Dr. Carlos Silva</h3>
-                        <div class="member-role">Vice-Coordenador</div>
-                        <p class="member-bio">
-                            Professor do Departamento de Serviço Social da UFRJ, pesquisador em políticas públicas e movimentos sociais urbanos.
-                        </p>
-                        <div class="member-contact">carlos.silva@ufrj.br</div>
-                    </div>
-                </div>
-
-                <div class="team-member">
-                    <div class="member-avatar">👩‍💻</div>
-                    <div class="member-info">
-                        <h3 class="member-name">Maria Santos</h3>
-                        <div class="member-role">Coordenadora Técnica</div>
-                        <p class="member-bio">
-                            Mestre em Comunicação Digital, responsável pela plataforma online e estratégias de divulgação do observatório.
-                        </p>
-                        <div class="member-contact">maria.santos@ufrj.br</div>
-                    </div>
-                </div>
-
-                <div class="team-member">
-                    <div class="member-avatar">👨‍🎓</div>
-                    <div class="member-info">
-                        <h3 class="member-name">João Oliveira</h3>
-                        <div class="member-role">Coordenador de Campo</div>
-                        <p class="member-bio">
-                            Graduando em Ciências Sociais, coordena as atividades de campo dos extensionistas e o relacionamento com as comunidades.
-                        </p>
-                        <div class="member-contact">joao.oliveira@ufrj.br</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Impact -->
-    <section class="impact-section">
-        <div class="container">
-            <h2 class="section-title" style="color: white;">Nosso Impacto</h2>
-            <p style="opacity: 0.9; font-size: 18px; max-width: 600px; margin: 0 auto;">
-                Números que refletem nossa contribuição para a inovação social no Rio de Janeiro.
-            </p>
-
-            <div class="impact-grid">
-                <div class="impact-item">
-                    <div class="impact-number">2022</div>
-                    <div class="impact-label">Ano de Criação</div>
-                </div>
-                <div class="impact-item">
-                    <div class="impact-number">6</div>
-                    <div class="impact-label">Áreas Temáticas</div>
-                </div>
-                <div class="impact-item">
-                    <div class="impact-number">80+</div>
-                    <div class="impact-label">Organizações Parceiras</div>
-                </div>
-                <div class="impact-item">
-                    <div class="impact-number">12</div>
-                    <div class="impact-label">Eventos Realizados</div>
-                </div>
-                <div class="impact-item">
-                    <div class="impact-number">500+</div>
-                    <div class="impact-label">Horas de Campo</div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Contact Section -->
-    <section class="contact-section" id="contato">
-        <div class="container">
-            <h2 class="section-title">Entre em Contato</h2>
-            <p style="text-align: center; color: var(--text-light); font-size: 18px; max-width: 600px; margin: 0 auto 60px;">
-                Tem uma dúvida, sugestão ou quer saber mais sobre o projeto? Fale conosco!
-            </p>
-
-            <div class="contact-container">
-                <!-- Contact Information -->
-                <div class="contact-info">
-                    <h3>Informações de Contato</h3>
-                    <p>
-                        O Observatório de Inovação Social é um projeto acadêmico da UFRJ. Entre em contato conosco para dúvidas, sugestões ou propostas de colaboração.
-                    </p>
-
-                    <div class="info-item">
-                        <div class="info-icon">📧</div>
-                        <div class="info-content">
-                            <h4>E-mail</h4>
-                            <p><a href="mailto:observatorio@ufrj.br">observatorio@ufrj.br</a></p>
+                    <!-- Etapas EMUDE -->
+                    <div class="emude-grid">
+                        <div class="emude-step">
+                            <div class="step-number">1</div>
+                            <div class="step-icon">🔍</div>
+                            <h4 class="step-title">Detecção de Sinais</h4>
+                            <p class="step-description">Identificamos sinais fracos de inovação social através de mapeamento territorial participativo</p>
                         </div>
-                    </div>
-
-                    <div class="info-item">
-                        <div class="info-icon">📍</div>
-                        <div class="info-content">
-                            <h4>Localização</h4>
-                            <p>Cidade Universitária<br>Ilha do Fundão, Rio de Janeiro - RJ</p>
+                        
+                        <div class="emude-step">
+                            <div class="step-number">2</div>
+                            <div class="step-icon">💡</div>
+                            <h4 class="step-title">Reforço de Sinais</h4>
+                            <p class="step-description">Documentamos e validamos iniciativas promissoras com metodologia científica rigorosa</p>
                         </div>
-                    </div>
-
-                    <div class="info-item">
-                        <div class="info-icon">⏰</div>
-                        <div class="info-content">
-                            <h4>Tempo de Resposta</h4>
-                            <p>Respondemos em até 3 dias úteis</p>
+                        
+                        <div class="emude-step">
+                            <div class="step-number">3</div>
+                            <div class="step-icon">📢</div>
+                            <h4 class="step-title">Re-emissão Amplificada</h4>
+                            <p class="step-description">Amplificamos o alcance através da plataforma digital e redes de colaboração</p>
                         </div>
-                    </div>
-                </div>
-
-                <!-- Contact Form -->
-                <div class="contact-form-container">
-                    <div class="form-header">
-                        <h3>Enviar Mensagem</h3>
-                        <p>Preencha o formulário abaixo e entraremos em contato</p>
-                    </div>
-
-                    <div class="form-body">
-                        <form id="contact-form" class="contact-form">
-                            <div class="form-group">
-                                <label class="form-label required" for="nome">Nome</label>
-                                <input type="text" id="nome" name="nome" class="form-input" 
-                                       placeholder="Seu nome completo" required>
-                                <div class="form-error">Este campo é obrigatório</div>
-                            </div>
-
-                            <div class="form-group">
-                                <label class="form-label required" for="email">E-mail</label>
-                                <input type="email" id="email" name="email" class="form-input" 
-                                       placeholder="seu.email@exemplo.com" required>
-                                <div class="form-error">Insira um e-mail válido</div>
-                            </div>
-
-                            <div class="form-group">
-                                <label class="form-label required" for="assunto">Assunto</label>
-                                <input type="text" id="assunto" name="assunto" class="form-input" 
-                                       placeholder="Assunto da sua mensagem" required>
-                                <div class="form-error">Este campo é obrigatório</div>
-                            </div>
-
-                            <div class="form-group">
-                                <label class="form-label required" for="mensagem">Mensagem</label>
-                                <textarea id="mensagem" name="mensagem" class="form-textarea" 
-                                          placeholder="Escreva sua mensagem..." required></textarea>
-                                <div class="form-error">Este campo é obrigatório</div>
-                            </div>
-
-                            <button type="submit" class="btn-submit" id="submit-btn">
-                                Enviar Mensagem
-                            </button>
-                        </form>
-
-                        <!-- Success Message -->
-                        <div class="success-message" id="success-message">
-                            <div class="success-icon">📬</div>
-                            <h4 class="success-title">Mensagem Enviada!</h4>
-                            <p class="success-description">
-                                Recebemos sua mensagem. Nossa equipe entrará em contato em até 3 dias úteis.
-                            </p>
+                        
+                        <div class="emude-step">
+                            <div class="step-number">4</div>
+                            <div class="step-icon">🔄</div>
+                            <h4 class="step-title">Re-orientação Social</h4>
+                            <p class="step-description">Facilitamos a replicação e adaptação de soluções em diferentes territórios</p>
                         </div>
                     </div>
                 </div>
             </div>
+
+            <!-- Team Panel -->
+            <div class="content-panel team-panel" id="equipe-panel">
+                <div class="container">
+                    <div class="panel-title">
+                        <h2>Nossa Equipe</h2>
+                        <p>Conheça as pessoas que fazem o Observatório acontecer</p>
+                    </div>
+
+                    <div class="team-grid">
+                        <div class="team-member">
+                            <div class="member-avatar">👩‍🏫</div>
+                            <div class="member-info">
+                                <h3 class="member-name">Prof. Ana Costa</h3>
+                                <div class="member-role">Coordenadora Geral</div>
+                                <p class="member-bio">
+                                    Doutora em Sociologia pela UFRJ, especialista em inovação social e desenvolvimento territorial. Coordena o projeto desde sua criação em 2022.
+                                </p>
+                                <div class="member-contact">ana.costa@ufrj.br</div>
+                            </div>
+                        </div>
+
+                        <div class="team-member">
+                            <div class="member-avatar">👨‍💼</div>
+                            <div class="member-info">
+                                <h3 class="member-name">Dr. Carlos Silva</h3>
+                                <div class="member-role">Vice-Coordenador</div>
+                                <p class="member-bio">
+                                    Professor do Departamento de Serviço Social da UFRJ, pesquisador em políticas públicas e movimentos sociais urbanos.
+                                </p>
+                                <div class="member-contact">carlos.silva@ufrj.br</div>
+                            </div>
+                        </div>
+
+                        <div class="team-member">
+                            <div class="member-avatar">👩‍💻</div>
+                            <div class="member-info">
+                                <h3 class="member-name">Maria Santos</h3>
+                                <div class="member-role">Coordenadora Técnica</div>
+                                <p class="member-bio">
+                                    Mestre em Comunicação Digital, responsável pela plataforma online e estratégias de divulgação do observatório.
+                                </p>
+                                <div class="member-contact">maria.santos@ufrj.br</div>
+                            </div>
+                        </div>
+
+                        <div class="team-member">
+                            <div class="member-avatar">👨‍🎓</div>
+                            <div class="member-info">
+                                <h3 class="member-name">João Oliveira</h3>
+                                <div class="member-role">Coordenador de Campo</div>
+                                <p class="member-bio">
+                                    Graduando em Ciências Sociais, coordena as atividades de campo dos extensionistas e o relacionamento com as comunidades.
+                                </p>
+                                <div class="member-contact">joao.oliveira@ufrj.br</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contact Panel -->
+            <div class="content-panel contact-panel" id="contato-panel">
+                <div class="container">
+                    <div class="contact-redirect">
+                        <div class="contact-redirect-icon">📧</div>
+                        <h3>Entre em Contato</h3>
+                        <p>Tem uma dúvida, sugestão ou quer saber mais sobre o projeto? Nossa página de contato possui todas as informações e um formulário completo para você.</p>
+                        <a href="contato.html" class="btn-contact">Ir para Contato</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Scroll Indicators -->
+        <div class="scroll-indicator">
+            <div class="indicator-dot" data-target="metodologia"></div>
+            <div class="indicator-dot" data-target="equipe"></div>
+            <div class="indicator-dot" data-target="contato"></div>
         </div>
     </section>
 
@@ -1154,8 +738,8 @@
                     <h4>Observatório</h4>
                     <ul>
                         <li><a href="sobre.html">Sobre o Projeto</a></li>
-                        <li><a href="#metodologia">Metodologia</a></li>
-                        <li><a href="#contato">Contato</a></li>
+                        <li><a href="javascript:void(0)" onclick="navigateToPanel('metodologia')">Metodologia</a></li>
+                        <li><a href="javascript:void(0)" onclick="navigateToPanel('equipe')">Nossa Equipe</a></li>
                         <li><a href="#parceiros">Parceiros</a></li>
                     </ul>
                 </div>
@@ -1164,7 +748,7 @@
                     <ul>
                         <li><a href="../index.html#casos">Explorar Casos</a></li>
                         <li><a href="../index.html#categorias">Por Categoria</a></li>
-                        <li><a href="#mapa">Mapa Interativo</a></li>
+                        <li><a href="mapa.html">Mapa Interativo</a></li>
                         <li><a href="#relatorios">Relatórios</a></li>
                     </ul>
                 </div>
@@ -1183,7 +767,7 @@
                         <li><a href="https://ufrj.br" target="_blank" rel="noopener">Site Oficial</a></li>
                         <li><a href="https://extensao.ufrj.br" target="_blank" rel="noopener">Extensão UFRJ</a></li>
                         <li><a href="#pesquisa">Pesquisa</a></li>
-                        <li><a href="#contato">Contato</a></li>
+                        <li><a href="contato.html">Contato</a></li>
                     </ul>
                 </div>
             </div>
@@ -1199,219 +783,191 @@
     <script src="../js/HeaderManager.js"></script>
     <script src="../js/main.js"></script>
     <script>
-        // Verificar status de autenticação
-        document.addEventListener('DOMContentLoaded', () => {
-            if (window.app) {
-                window.app.checkAuthStatus();
-            }
-            
-            // Animação dos números
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        const target = entry.target;
-                        const finalNumber = target.textContent;
-                        animateNumber(target, finalNumber);
-                        observer.unobserve(target);
-                    }
-                });
-            });
-
-            // Observar números para animação
-            document.querySelectorAll('.stat-number, .impact-number').forEach(num => {
-                observer.observe(num);
-            });
-
-            // Animação do ciclo EMUDE
-            const cycleObserver = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        const steps = entry.target.querySelectorAll('.cycle-step');
-                        steps.forEach((step, index) => {
-                            setTimeout(() => {
-                                step.style.opacity = '0';
-                                step.style.transform = step.style.transform + ' scale(0.8)';
-                                setTimeout(() => {
-                                    step.style.opacity = '1';
-                                    step.style.transform = step.style.transform.replace('scale(0.8)', 'scale(1)');
-                                }, 100);
-                            }, index * 200);
-                        });
-                        cycleObserver.unobserve(entry.target);
-                    }
-                });
-            });
-
-            const cycleElement = document.querySelector('.emude-cycle');
-            if (cycleElement) {
-                cycleObserver.observe(cycleElement);
-            }
-        });
-
-        function animateNumber(element, finalValue) {
-            if (finalValue.includes('+')) {
-                const number = parseInt(finalValue.replace(/[^\d]/g, ''));
-                animateCountUp(element, number, finalValue);
-            } else if (!isNaN(parseInt(finalValue))) {
-                const number = parseInt(finalValue);
-                animateCountUp(element, number, finalValue);
-            }
-        }
-
-        function animateCountUp(element, target, finalText) {
-            let current = 0;
-            const increment = target / 60;
-            const timer = setInterval(() => {
-                current += increment;
-                if (current >= target) {
-                    element.textContent = finalText;
-                    clearInterval(timer);
-                } else {
-                    element.textContent = Math.floor(current);
-                }
-            }, 30);
-        }
-
-        // Contact form functionality
-        class ContactForm {
+        // Horizontal scroll navigation system
+        class HorizontalNavigation {
             constructor() {
-                this.form = document.getElementById('contact-form');
+                this.currentPanel = 0;
+                this.panels = ['metodologia', 'equipe', 'contato'];
+                this.slider = document.getElementById('contentSlider');
+                console.log('HorizontalNavigation initialized, slider:', this.slider);
+                this.init();
+            }
+
+            init() {
                 this.setupEventListeners();
+                this.updateActiveStates();
+                
+                // Show first panel by default
+                this.showPanel(0);
             }
 
             setupEventListeners() {
-                if (!this.form) return;
-
-                this.form.addEventListener('submit', (e) => {
-                    e.preventDefault();
-                    this.handleSubmit();
+                // Navigation cards
+                const cards = document.querySelectorAll('.nav-card[data-target]');
+                console.log('Found nav cards:', cards.length);
+                cards.forEach(card => {
+                    card.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        const target = card.getAttribute('data-target');
+                        const panelIndex = this.panels.indexOf(target);
+                        console.log('Nav card clicked, target:', target, 'index:', panelIndex);
+                        this.navigateToPanel(panelIndex);
+                        
+                        // Scroll to horizontal content section
+                        document.querySelector('.horizontal-content').scrollIntoView({ 
+                            behavior: 'smooth',
+                            block: 'center'
+                        });
+                    });
                 });
 
-                // Real-time validation
-                const requiredFields = this.form.querySelectorAll('[required]');
-                requiredFields.forEach(field => {
-                    field.addEventListener('blur', () => this.validateField(field));
-                    field.addEventListener('input', () => this.clearError(field));
+                // Indicator dots
+                document.querySelectorAll('.indicator-dot[data-target]').forEach(dot => {
+                    dot.addEventListener('click', (e) => {
+                        const target = dot.getAttribute('data-target');
+                        const panelIndex = this.panels.indexOf(target);
+                        this.navigateToPanel(panelIndex);
+                    });
                 });
-            }
 
-            validateField(field) {
-                const formGroup = field.closest('.form-group');
-                let isValid = true;
-
-                formGroup.classList.remove('error');
-
-                if (field.hasAttribute('required') && !field.value.trim()) {
-                    isValid = false;
-                }
-
-                if (field.type === 'email' && field.value && !this.isValidEmail(field.value)) {
-                    isValid = false;
-                }
-
-                if (!isValid) {
-                    formGroup.classList.add('error');
-                }
-
-                return isValid;
-            }
-
-            clearError(field) {
-                const formGroup = field.closest('.form-group');
-                formGroup.classList.remove('error');
-            }
-
-            isValidEmail(email) {
-                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                return emailRegex.test(email);
-            }
-
-            validateForm() {
-                const requiredFields = this.form.querySelectorAll('[required]');
-                let isValid = true;
-
-                requiredFields.forEach(field => {
-                    if (!this.validateField(field)) {
-                        isValid = false;
+                // Keyboard navigation
+                document.addEventListener('keydown', (e) => {
+                    if (this.isInViewport(document.querySelector('.horizontal-content'))) {
+                        if (e.key === 'ArrowLeft') {
+                            this.navigateToPrevious();
+                        } else if (e.key === 'ArrowRight') {
+                            this.navigateToNext();
+                        }
                     }
                 });
 
-                return isValid;
+                // Touch/Swipe support
+                let startX = 0;
+                let endX = 0;
+
+                this.slider.addEventListener('touchstart', (e) => {
+                    startX = e.touches[0].clientX;
+                });
+
+                this.slider.addEventListener('touchend', (e) => {
+                    endX = e.changedTouches[0].clientX;
+                    this.handleSwipe();
+                });
             }
 
-            async handleSubmit() {
-                if (!this.validateForm()) {
-                    const app = window.app || window.ObservatorioApp?.getInstance();
-                    if (app && app.showNotification) {
-                        app.showNotification('Por favor, corrija os erros no formulário', 'error');
-                    }
-                    return;
-                }
-
-                const submitBtn = document.getElementById('submit-btn');
-                const formData = new FormData(this.form);
-
-                submitBtn.classList.add('loading');
-                submitBtn.disabled = true;
-
-                try {
-                    await new Promise(resolve => setTimeout(resolve, 1500));
-
-                    const mensagem = {
-                        nome: formData.get('nome'),
-                        email: formData.get('email'),
-                        assunto: formData.get('assunto'),
-                        mensagem: formData.get('mensagem'),
-                        data: new Date().toISOString(),
-                        status: 'nova'
-                    };
-
-                    const dataManager = DataManager.getInstance();
-                    dataManager.addMensagemContato(mensagem);
-
-                    this.showSuccess();
-
-                } catch (error) {
-                    console.error('Erro ao enviar mensagem:', error);
-                    const app = window.app || window.ObservatorioApp?.getInstance();
-                    if (app && app.showNotification) {
-                        app.showNotification('Erro ao enviar mensagem. Tente novamente.', 'error');
-                    }
-                } finally {
-                    submitBtn.classList.remove('loading');
-                    submitBtn.disabled = false;
+            navigateToPanel(index) {
+                console.log('navigateToPanel called with index:', index);
+                if (index >= 0 && index < this.panels.length) {
+                    this.currentPanel = index;
+                    this.showPanel(index);
+                    this.updateActiveStates();
                 }
             }
 
-            showSuccess() {
-                const form = document.getElementById('contact-form');
-                const successMessage = document.getElementById('success-message');
+            showPanel(index) {
+                const translateX = -index * 100;
+                this.slider.style.transform = `translateX(${translateX}%)`;
                 
-                form.style.display = 'none';
-                successMessage.classList.add('show');
-                
-                document.querySelector('.contact-form-container').scrollIntoView({ 
-                    behavior: 'smooth', 
-                    block: 'start' 
+                // Update panel visibility with animation
+                document.querySelectorAll('.content-panel').forEach((panel, i) => {
+                    if (i === index) {
+                        setTimeout(() => {
+                            panel.classList.add('active');
+                        }, 250); // Delay to sync with slide animation
+                    } else {
+                        panel.classList.remove('active');
+                    }
+                });
+            }
+
+            updateActiveStates() {
+                // Update navigation cards
+                document.querySelectorAll('.nav-card').forEach((card, index) => {
+                    card.classList.toggle('active', index === this.currentPanel);
                 });
 
-                // Reset form after 5 seconds
-                setTimeout(() => {
-                    form.reset();
-                    form.style.display = 'block';
-                    successMessage.classList.remove('show');
-                }, 5000);
+                // Update indicator dots
+                document.querySelectorAll('.indicator-dot').forEach((dot, index) => {
+                    dot.classList.toggle('active', index === this.currentPanel);
+                });
+            }
+
+            navigateToNext() {
+                if (this.currentPanel < this.panels.length - 1) {
+                    this.navigateToPanel(this.currentPanel + 1);
+                }
+            }
+
+            navigateToPrevious() {
+                if (this.currentPanel > 0) {
+                    this.navigateToPanel(this.currentPanel - 1);
+                }
+            }
+
+            handleSwipe() {
+                const swipeThreshold = 50;
+                const swipeDistance = endX - startX;
+                
+                if (Math.abs(swipeDistance) > swipeThreshold) {
+                    if (swipeDistance > 0) {
+                        this.navigateToPrevious();
+                    } else {
+                        this.navigateToNext();
+                    }
+                }
+            }
+
+            isInViewport(element) {
+                const rect = element.getBoundingClientRect();
+                return (
+                    rect.top >= 0 &&
+                    rect.left >= 0 &&
+                    rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
+                    rect.right <= (window.innerWidth || document.documentElement.clientWidth)
+                );
             }
         }
 
-        // Initialize contact form when DOM is ready
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', () => {
-                new ContactForm();
+        // Global navigation function for footer links
+        function navigateToPanel(target) {
+            const panelIndex = window.horizontalNav.panels.indexOf(target);
+            if (panelIndex >= 0) {
+                window.horizontalNav.navigateToPanel(panelIndex);
+                document.querySelector('.horizontal-content').scrollIntoView({ 
+                    behavior: 'smooth',
+                    block: 'center'
+                });
+            }
+        }
+
+        // Initialize when DOM is ready
+        document.addEventListener('DOMContentLoaded', () => {
+            // Verificar status de autenticação
+            if (window.app) {
+                window.app.checkAuthStatus();
+            }
+
+            // Initialize horizontal navigation
+            window.horizontalNav = new HorizontalNavigation();
+
+            // Animate elements on scroll
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
             });
-        } else {
-            new ContactForm();
-        }
+
+            // Apply animation to elements
+            document.querySelectorAll('.vision-card, .purpose-card, .emude-step, .team-member').forEach(el => {
+                el.style.opacity = '0';
+                el.style.transform = 'translateY(30px)';
+                el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+                observer.observe(el);
+            });
+        });
     </script>
 </body>
 </html>

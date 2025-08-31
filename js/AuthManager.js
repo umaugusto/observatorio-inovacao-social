@@ -36,6 +36,13 @@ class AuthManager {
                 
                 // Verificar se a sessão ainda é válida
                 if (this.isSessionValid(user)) {
+                    // Verificar se o email foi verificado (exceto para demos e sociais)
+                    if (this.requiresEmailVerification(user)) {
+                        console.warn('⚠️ Email não verificado, redirecionando...');
+                        this.handleUnverifiedEmail(user);
+                        return;
+                    }
+                    
                     this.currentUser = user;
                     this.notifyObservers('userLoggedIn', user);
                     // Mostrar banner demo se necessário
@@ -584,6 +591,15 @@ class AuthManager {
         }
     }
 
+    getProfileUrl() {
+        const currentPath = window.location.pathname;
+        if (currentPath.includes('/pages/')) {
+            return 'perfil.html';
+        } else {
+            return 'pages/perfil.html';
+        }
+    }
+
     // Verificar se usuário atual está em modo demo
     isDemoMode() {
         return this.currentUser && this.currentUser.isDemo === true;
@@ -735,6 +751,44 @@ class AuthManager {
         }
         
         banner.style.transform = 'translateY(0)';
+    }
+
+    requiresEmailVerification(user) {
+        // Não exigir verificação para:
+        // 1. Contas demo
+        // 2. Contas já verificadas
+        // 3. Contas sociais (Google, etc.)
+        // 4. Ambiente local (desenvolvimento)
+        
+        if (user.isDemo) return false;
+        if (user.email_verified === true) return false;
+        if (user.auth0_id && user.auth0_id.startsWith('google-oauth2')) return false;
+        if (this.isLocalEnvironment()) return false;
+        
+        // Exigir verificação para contas de email/senha não verificadas
+        return !user.email_verified;
+    }
+    
+    isLocalEnvironment() {
+        return window.location.hostname === 'localhost' || 
+               window.location.hostname === '127.0.0.1' || 
+               window.location.port === '8080';
+    }
+    
+    handleUnverifiedEmail(user) {
+        // Salvar usuário temporariamente
+        sessionStorage.setItem('unverified_user', JSON.stringify(user));
+        
+        // Redirecionar para página de aviso
+        if (window.location.pathname !== '/pages/email-verification.html') {
+            window.location.href = 'email-verification.html';
+        }
+    }
+    
+    updateCurrentUser(userData) {
+        this.currentUser = { ...this.currentUser, ...userData };
+        localStorage.setItem('current_user', JSON.stringify(this.currentUser));
+        this.notifyObservers('userUpdated', this.currentUser);
     }
 
     // Limpeza

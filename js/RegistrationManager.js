@@ -50,29 +50,25 @@ class RegistrationManager {
     }
 
     setupEventListeners() {
-        // Etapa 1 - Google Signup
+        // Google Signup
         const googleBtn = document.getElementById('google-signup');
         if (googleBtn) {
             googleBtn.addEventListener('click', () => this.handleGoogleSignup());
         }
 
-        // Etapa 1 - Email form
-        const emailForm = document.getElementById('email-form');
-        if (emailForm) {
-            emailForm.addEventListener('submit', (e) => {
+        // Complete Registration Form
+        const completeForm = document.getElementById('complete-registration-form');
+        if (completeForm) {
+            completeForm.addEventListener('submit', (e) => {
                 e.preventDefault();
-                this.handleEmailContinue();
+                this.handleCompleteRegistration();
             });
         }
 
-        // Email input validation
-        const emailInput = document.getElementById('user-email');
-        if (emailInput) {
-            emailInput.addEventListener('input', () => this.validateEmailInput());
-            emailInput.addEventListener('blur', () => this.validateEmailInput());
-        }
+        // Real-time validations
+        this.setupRealTimeValidations();
 
-        // Etapa 2 - Seleção de tipo de usuário
+        // User type selection
         document.querySelectorAll('.user-type-card').forEach(card => {
             card.addEventListener('click', () => {
                 const type = card.dataset.type;
@@ -80,45 +76,11 @@ class RegistrationManager {
             });
         });
 
-        // Etapa 2 - Continue button
-        const continueTypeBtn = document.getElementById('btn-continue-type');
-        if (continueTypeBtn) {
-            continueTypeBtn.addEventListener('click', () => this.handleTypeContinue());
-        }
-
-        // Etapa 3 - UFRJ form
-        const ufrjForm = document.getElementById('ufrj-form');
-        if (ufrjForm) {
-            ufrjForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-                this.handleUFRJValidation();
-            });
-        }
-
-        // Etapa 4 - Password form
-        const passwordForm = document.getElementById('password-form');
-        if (passwordForm) {
-            passwordForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-                this.handleAccountCreation();
-            });
-        }
-
         // Password toggle
         const passwordToggle = document.getElementById('password-toggle');
         if (passwordToggle) {
             passwordToggle.addEventListener('click', () => this.togglePassword());
         }
-
-        // Password strength
-        const passwordInput = document.getElementById('password');
-        if (passwordInput) {
-            passwordInput.addEventListener('input', () => this.updatePasswordStrength());
-        }
-
-        // Back buttons
-        document.getElementById('btn-back-2')?.addEventListener('click', () => this.goToStep(1));
-        document.getElementById('btn-back-3')?.addEventListener('click', () => this.goToStep(2));
     }
 
     async handleGoogleSignup() {
@@ -175,21 +137,37 @@ class RegistrationManager {
         }
     }
 
-    handleEmailContinue() {
-        const email = document.getElementById('user-email').value.trim();
-        
-        if (!this.isValidEmail(email)) {
-            this.showFieldError('user-email', 'Por favor, insira um email válido');
-            return;
+    setupRealTimeValidations() {
+        // Email validation
+        const emailInput = document.getElementById('user-email');
+        if (emailInput) {
+            emailInput.addEventListener('input', () => this.validateEmailInput());
+            emailInput.addEventListener('blur', () => this.validateEmailInput());
         }
 
-        this.registrationData.method = 'email';
-        this.registrationData.email = email;
-        this.registrationData.isUFRJEmail = email.toLowerCase().includes('@ufrj.br');
-        
-        // Ir para seleção de perfil e aplicar lógica de pré-seleção
-        this.goToStep(2);
-        this.applyEmailBasedLogic();
+        // Name validation
+        const nameInput = document.getElementById('user-name');
+        if (nameInput) {
+            nameInput.addEventListener('blur', () => this.validateNameInput());
+        }
+
+        // Password validation
+        const passwordInput = document.getElementById('password');
+        if (passwordInput) {
+            passwordInput.addEventListener('input', () => this.validatePasswordStrength());
+        }
+
+        // Password confirmation
+        const passwordConfirm = document.getElementById('password-confirm');
+        if (passwordConfirm) {
+            passwordConfirm.addEventListener('input', () => this.validatePasswordConfirmation());
+        }
+
+        // Institutional email validation
+        const institutionalEmail = document.getElementById('institutional-email');
+        if (institutionalEmail) {
+            institutionalEmail.addEventListener('blur', () => this.validateInstitutionalEmail());
+        }
     }
 
     applyEmailBasedLogic() {
@@ -283,16 +261,6 @@ class RegistrationManager {
     selectUserType(type) {
         const targetCard = document.querySelector(`[data-type="${type}"]`);
         
-        // Verificar se o card está desabilitado
-        if (targetCard && targetCard.classList.contains('disabled')) {
-            // Mostrar mensagem explicativa
-            const message = type === 'visitante' 
-                ? 'Como você tem um email UFRJ, recomendamos escolher Extensionista ou Pesquisador.' 
-                : 'Para este perfil é necessário um email institucional da UFRJ (@ufrj.br).';
-            this.showNotification(message, 'warning');
-            return;
-        }
-        
         this.registrationData.userType = type;
         
         // Atualizar UI
@@ -303,11 +271,17 @@ class RegistrationManager {
             targetCard.classList.add('selected');
         }
         
-        // Habilitar botão continuar
-        const continueBtn = document.getElementById('btn-continue-type');
-        if (continueBtn) {
-            continueBtn.disabled = false;
+        // Mostrar/esconder seção UFRJ
+        const ufrjSection = document.getElementById('ufrj-section');
+        const email = document.getElementById('user-email').value.toLowerCase();
+        const needsUfrjEmail = (type === 'extensionista' || type === 'pesquisador') && !email.includes('@ufrj.br');
+        
+        if (ufrjSection) {
+            ufrjSection.style.display = needsUfrjEmail ? 'block' : 'none';
         }
+        
+        // Limpar erro de tipo de perfil
+        this.clearFieldError('profile-type-error');
     }
 
     handleTypeContinue() {
@@ -604,39 +578,127 @@ class RegistrationManager {
         }
     }
 
-    updatePasswordStrength() {
+    validateNameInput() {
+        const nameInput = document.getElementById('user-name');
+        const name = nameInput.value.trim();
+        
+        if (!name || name.length < 2) {
+            this.showFieldError('user-name', 'Nome deve ter pelo menos 2 caracteres');
+            return false;
+        }
+        
+        this.clearFieldError('user-name');
+        return true;
+    }
+
+    validateUserTypeSelection() {
+        if (!this.registrationData.userType) {
+            this.showFieldError('profile-type-error', 'Selecione um tipo de perfil');
+            return false;
+        }
+        
+        this.clearFieldError('profile-type-error');
+        return true;
+    }
+
+    validateInstitutionalEmail() {
+        if (!this.needsInstitutionalEmail()) {
+            return true;
+        }
+        
+        const institutionalEmail = document.getElementById('institutional-email').value.trim();
+        
+        if (!institutionalEmail || !institutionalEmail.toLowerCase().includes('@ufrj.br')) {
+            this.showFieldError('institutional-email', 'Email institucional da UFRJ é obrigatório');
+            return false;
+        }
+        
+        this.clearFieldError('institutional-email');
+        return true;
+    }
+
+    validatePasswordStrength() {
         const password = document.getElementById('password').value;
+        const requirements = this.checkPasswordRequirements(password);
+        
+        // Atualizar indicadores visuais
+        this.updatePasswordRequirements(requirements);
+        this.updatePasswordStrengthBar(requirements);
+        
+        // Validar se atende aos requisitos mínimos
+        const isValid = requirements.length && requirements.lowercase && requirements.uppercase && requirements.number;
+        
+        if (!isValid) {
+            this.showFieldError('password', 'A senha não atende aos requisitos');
+            return false;
+        }
+        
+        this.clearFieldError('password');
+        return true;
+    }
+
+    validatePasswordConfirmation() {
+        const password = document.getElementById('password').value;
+        const confirmPassword = document.getElementById('password-confirm').value;
+        
+        if (password !== confirmPassword) {
+            this.showFieldError('password-confirm', 'As senhas não coincidem');
+            return false;
+        }
+        
+        this.clearFieldError('password-confirm');
+        return true;
+    }
+
+    checkPasswordRequirements(password) {
+        return {
+            length: password.length >= 8,
+            lowercase: /[a-z]/.test(password),
+            uppercase: /[A-Z]/.test(password),
+            number: /[0-9]/.test(password)
+        };
+    }
+
+    updatePasswordRequirements(requirements) {
+        const requirementElements = document.querySelectorAll('.requirement');
+        
+        requirementElements.forEach(element => {
+            const req = element.dataset.requirement;
+            const met = requirements[req];
+            
+            element.classList.toggle('valid', met);
+            element.classList.toggle('invalid', !met);
+            
+            const icon = element.querySelector('.requirement-icon');
+            if (icon) {
+                icon.textContent = met ? '✅' : '⚪';
+            }
+        });
+    }
+
+    updatePasswordStrengthBar(requirements) {
         const strengthBar = document.getElementById('strength-bar');
         const strengthText = document.getElementById('strength-text');
         
-        if (!password) {
-            strengthBar.style.width = '0%';
-            strengthText.textContent = '';
-            return;
-        }
-
-        let strength = 0;
-        let feedback = [];
-
-        // Critérios de força
-        if (password.length >= 6) strength += 20;
-        if (password.length >= 8) strength += 10;
-        if (/[a-z]/.test(password)) strength += 15;
-        if (/[A-Z]/.test(password)) strength += 15;
-        if (/[0-9]/.test(password)) strength += 15;
-        if (/[^\\w\\s]/.test(password)) strength += 25;
-
-        // Atualizar barra visual
+        if (!strengthBar || !strengthText) return;
+        
+        const metCount = Object.values(requirements).filter(Boolean).length;
+        const strength = (metCount / 4) * 100;
+        
         strengthBar.style.width = strength + '%';
         
-        if (strength < 40) {
+        if (strength < 50) {
             strengthBar.style.backgroundColor = '#e74c3c';
             strengthText.textContent = 'Senha fraca';
             strengthText.style.color = '#e74c3c';
-        } else if (strength < 70) {
+        } else if (strength < 75) {
             strengthBar.style.backgroundColor = '#f39c12';
             strengthText.textContent = 'Senha média';
             strengthText.style.color = '#f39c12';
+        } else if (strength < 100) {
+            strengthBar.style.backgroundColor = '#3498db';
+            strengthText.textContent = 'Senha boa';
+            strengthText.style.color = '#3498db';
         } else {
             strengthBar.style.backgroundColor = '#27ae60';
             strengthText.textContent = 'Senha forte';
@@ -679,6 +741,12 @@ class RegistrationManager {
             const errorMsg = field.parentNode.querySelector('.error-message');
             if (errorMsg) {
                 errorMsg.style.display = 'none';
+            }
+        } else {
+            // Para elementos que não são campos (como mensagens de erro diretas)
+            const errorElement = document.getElementById(fieldId);
+            if (errorElement && errorElement.classList.contains('error-message')) {
+                errorElement.style.display = 'none';
             }
         }
     }
