@@ -37,13 +37,19 @@ class Auth0ClientWrapper {
 
     async loadSpaSdk() {
         if (window.createAuth0Client) return;
-        await new Promise((resolve, reject) => {
+        // Try jsDelivr first (UMD build), then fallback to cdn.auth0.com
+        const load = (src) => new Promise((resolve, reject) => {
             const s = document.createElement('script');
-            s.src = 'https://cdn.auth0.com/js/auth0-spa-js/2.1/auth0-spa-js.production.js';
-            s.onload = resolve;
-            s.onerror = reject;
+            s.src = src;
+            s.onload = () => resolve();
+            s.onerror = () => reject(new Error('Failed to load ' + src));
             document.head.appendChild(s);
         });
+        try {
+            await load('https://cdn.jsdelivr.net/npm/@auth0/auth0-spa-js@2.1.3/dist/auth0-spa-js.production.js');
+        } catch (e) {
+            await load('https://cdn.auth0.com/js/auth0-spa-js/2.1/auth0-spa-js.production.js');
+        }
     }
 
     async init() {
