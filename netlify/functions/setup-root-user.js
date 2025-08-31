@@ -1,5 +1,5 @@
 const { createClient } = require('@supabase/supabase-js');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY;

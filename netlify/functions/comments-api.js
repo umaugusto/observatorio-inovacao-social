@@ -58,8 +58,7 @@ exports.handler = async (event, context) => {
           body: JSON.stringify({ comentarios: data || [] })
         };
 
-      case 'POST':
-        {
+      case 'POST': {
           const auth = await requireAuth(event);
           if (!auth.ok) {
             return { statusCode: auth.statusCode, headers, body: JSON.stringify(auth.body) };
@@ -96,9 +95,9 @@ exports.handler = async (event, context) => {
           headers,
           body: JSON.stringify({ comentario: newComment })
         };
+      }
 
-      case 'PUT':
-        {
+      case 'PUT': {
           const auth = await requireAuth(event);
           if (!auth.ok) {
             return { statusCode: auth.statusCode, headers, body: JSON.stringify(auth.body) };
@@ -130,9 +129,9 @@ exports.handler = async (event, context) => {
           headers,
           body: JSON.stringify({ comentario: updatedComment })
         };
+      }
 
-      case 'DELETE':
-        {
+      case 'DELETE': {
           const auth = await requireAuth(event);
           if (!auth.ok) {
             return { statusCode: auth.statusCode, headers, body: JSON.stringify(auth.body) };
@@ -157,6 +156,7 @@ exports.handler = async (event, context) => {
           headers,
           body: ''
         };
+      }
 
       default:
         return {
